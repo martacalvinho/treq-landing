@@ -9,260 +9,159 @@ import { toast } from "@/components/ui/use-toast"
 
 export function WaitlistForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [formData, setFormData] = useState({
-    email: "",
-    name: "",
-    company: "",
-    locations: "1",
-    plan: "professional",
-  })
-
-  const encode = (data: any) => {
-    return Object.keys(data)
-      .map(key => encodeURIComponent(key) + "=" + encodeURIComponent(data[key]))
-      .join("&")
-  }
 
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('1. Form submission started')
     e.preventDefault()
+    console.log('2. Default form submission prevented')
     setIsSubmitting(true)
-
-    const form = e.target as HTMLFormElement
-    const formDataToSend = {
-      "form-name": "waitlist",
-      ...formData
-    }
-
-    console.log('Submitting form with data:', formDataToSend)
+    console.log('3. Set isSubmitting to true')
 
     try {
-      // First, try to submit using the fetch API
-      const response = await fetch("/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: encode(formDataToSend)
+      const form = e.target as HTMLFormElement
+      console.log('4. Got form element:', form)
+      console.log('5. Form attributes:', {
+        name: form.getAttribute('name'),
+        method: form.getAttribute('method'),
+        'data-netlify': form.getAttribute('data-netlify'),
+        action: form.getAttribute('action')
       })
 
-      console.log('Form submission response:', {
-        status: response.status,
-        statusText: response.statusText,
-      })
-
-      if (!response.ok) {
-        // If fetch fails, try submitting using the form's native submit
-        console.log('Fetch submission failed, trying form submit')
-        const formElement = document.createElement('form')
-        formElement.method = 'POST'
-        formElement.action = '/'
-        formElement.style.display = 'none'
-
-        // Add all form fields
-        Object.entries(formDataToSend).forEach(([key, value]) => {
-          const input = document.createElement('input')
-          input.type = 'hidden'
-          input.name = key
-          input.value = value as string
-          formElement.appendChild(input)
-        })
-
-        // Add required Netlify attributes
-        formElement.setAttribute('data-netlify', 'true')
-        formElement.setAttribute('name', 'waitlist')
-
-        document.body.appendChild(formElement)
-        formElement.submit()
-        document.body.removeChild(formElement)
-
-        // Show success message for form submit approach
-        toast({
-          title: "Form Submitted!",
-          description: "You've been added to our waitlist. We'll be in touch soon!",
-        })
-
-        // Track successful signup
-        if (typeof window !== 'undefined' && (window as any).gtag) {
-          (window as any).gtag('event', 'generate_lead', {
-            'event_category': 'waitlist',
-            'event_label': formData.plan,
-            'value': formData.plan === 'enterprise' ? 250 : 99,
-            'locations': formData.locations,
-            'company': formData.company
-          });
-        }
-
-        setFormData({
-          email: "",
-          name: "",
-          company: "",
-          locations: "1",
-          plan: "professional",
-        })
-
-        return
-      }
-
-      // If fetch was successful
-      console.log('Form submitted successfully via fetch')
+      const data = new FormData(form)
+      console.log('6. Form data created:', Object.fromEntries(data.entries()))
+      
+      // Show toast before submitting (since submit will refresh the page)
       toast({
-        title: "Success!",
-        description: "You've been added to our waitlist. We'll be in touch soon!",
+        title: "Submitting...",
+        description: "Adding you to our waitlist...",
+      })
+      console.log('7. Submitting toast shown')
+      
+      // Small delay to ensure toast is visible
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Submit the form
+      console.log('8. About to submit form...')
+      form.submit()
+      console.log('9. Form submitted')
+
+    } catch (error) {
+      console.error('❌ Form submission error:', error)
+      console.error('Error details:', {
+        name: error instanceof Error ? error.name : 'Unknown',
+        message: error instanceof Error ? error.message : 'Unknown error occurred',
+        stack: error instanceof Error ? error.stack : 'No stack trace'
       })
       
-      // Track successful signup
-      if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'generate_lead', {
-          'event_category': 'waitlist',
-          'event_label': formData.plan,
-          'value': formData.plan === 'enterprise' ? 250 : 99,
-          'locations': formData.locations,
-          'company': formData.company
-        });
-      }
-
-      setFormData({
-        email: "",
-        name: "",
-        company: "",
-        locations: "1",
-        plan: "professional",
-      })
-    } catch (error) {
-      console.error('Form submission error:', error)
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       })
     } finally {
+      console.log('10. Setting isSubmitting back to false')
       setIsSubmitting(false)
     }
   }
 
   return (
-    <>
-      {/* Hidden form for Netlify form detection */}
-      <form name="waitlist" netlify netlify-honeypot="bot-field" hidden>
-        <input type="email" name="email" />
-        <input type="text" name="name" />
-        <input type="text" name="company" />
-        <input type="text" name="locations" />
-        <input type="text" name="plan" />
-      </form>
+    <form
+      name="waitlist"
+      method="POST"
+      data-netlify="true"
+      onSubmit={handleSubmit}
+      className="space-y-6 w-full"
+    >
+      <input type="hidden" name="form-name" value="waitlist" />
 
-      <form
-        name="waitlist"
-        method="POST"
-        data-netlify="true"
-        netlify-honeypot="bot-field"
-        onSubmit={handleSubmit}
-        className="space-y-6 w-full"
-      >
-        <input type="hidden" name="form-name" value="waitlist" />
-        <p hidden>
-          <label>
-            Don't fill this out if you're human: <input name="bot-field" />
-          </label>
-        </p>
+      <div className="space-y-2 w-full">
+        <Label htmlFor="email" className="text-sm font-medium">
+          Email
+        </Label>
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          placeholder="you@company.com"
+          className="w-full h-10"
+          required
+        />
+      </div>
 
-        <div className="space-y-2 w-full">
-          <Label htmlFor="email" className="text-sm font-medium">
-            Email
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            placeholder="you@company.com"
-            className="w-full h-10"
-            value={formData.email}
-            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-            required
-          />
-        </div>
+      <div className="space-y-2 w-full">
+        <Label htmlFor="name" className="text-sm font-medium">
+          Full Name
+        </Label>
+        <Input
+          id="name"
+          name="name"
+          placeholder="John Doe"
+          className="w-full h-10"
+          required
+        />
+      </div>
 
-        <div className="space-y-2 w-full">
-          <Label htmlFor="name" className="text-sm font-medium">
-            Full Name
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            placeholder="John Doe"
-            className="w-full h-10"
-            value={formData.name}
-            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-            required
-          />
-        </div>
+      <div className="space-y-2 w-full">
+        <Label htmlFor="company" className="text-sm font-medium">
+          Company Name
+        </Label>
+        <Input
+          id="company"
+          name="company"
+          placeholder="Acme Inc"
+          className="w-full h-10"
+          required
+        />
+      </div>
 
-        <div className="space-y-2 w-full">
-          <Label htmlFor="company" className="text-sm font-medium">
-            Company Name
-          </Label>
-          <Input
-            id="company"
-            name="company"
-            placeholder="Acme Inc"
-            className="w-full h-10"
-            value={formData.company}
-            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-            required
-          />
-        </div>
+      <div className="space-y-2 w-full">
+        <Label className="text-sm font-medium">Number of Locations</Label>
+        <RadioGroup
+          name="locations"
+          defaultValue="1"
+          className="space-y-3"
+        >
+          <div className="flex items-center space-x-3 h-10">
+            <RadioGroupItem value="1" id="1-location" />
+            <Label htmlFor="1-location">1 Location</Label>
+          </div>
+          <div className="flex items-center space-x-3 h-10">
+            <RadioGroupItem value="2-3" id="2-3-locations" />
+            <Label htmlFor="2-3-locations">2-3 Locations</Label>
+          </div>
+          <div className="flex items-center space-x-3 h-10">
+            <RadioGroupItem value="4+" id="4-plus-locations" />
+            <Label htmlFor="4-plus-locations">4+ Locations</Label>
+          </div>
+        </RadioGroup>
+      </div>
 
-        <div className="space-y-2 w-full">
-          <Label className="text-sm font-medium">Number of Locations</Label>
-          <RadioGroup
-            name="locations"
-            value={formData.locations}
-            onValueChange={(value) => setFormData({ ...formData, locations: value })}
-            className="space-y-3"
-          >
-            <div className="flex items-center space-x-3 h-10">
-              <RadioGroupItem value="1" id="1-location" />
-              <Label htmlFor="1-location">1 Location</Label>
-            </div>
-            <div className="flex items-center space-x-3 h-10">
-              <RadioGroupItem value="2-3" id="2-3-locations" />
-              <Label htmlFor="2-3-locations">2-3 Locations</Label>
-            </div>
-            <div className="flex items-center space-x-3 h-10">
-              <RadioGroupItem value="4+" id="4-plus-locations" />
-              <Label htmlFor="4-plus-locations">4+ Locations</Label>
-            </div>
-          </RadioGroup>
-        </div>
+      <div className="space-y-2 w-full">
+        <Label className="text-sm font-medium">Interested Plan</Label>
+        <RadioGroup
+          name="plan"
+          defaultValue="professional"
+          className="space-y-3"
+        >
+          <div className="flex items-center space-x-3 h-10">
+            <RadioGroupItem value="professional" id="professional" />
+            <Label htmlFor="professional">Professional ($99/month)</Label>
+          </div>
+          <div className="flex items-center space-x-3 h-10">
+            <RadioGroupItem value="enterprise" id="enterprise" />
+            <Label htmlFor="enterprise">Enterprise (Starting at $250/month)</Label>
+          </div>
+        </RadioGroup>
+      </div>
 
-        <div className="space-y-2 w-full">
-          <Label className="text-sm font-medium">Interested Plan</Label>
-          <RadioGroup
-            name="plan"
-            value={formData.plan}
-            onValueChange={(value) => setFormData({ ...formData, plan: value })}
-            className="space-y-3"
-          >
-            <div className="flex items-center space-x-3 h-10">
-              <RadioGroupItem value="professional" id="professional" />
-              <Label htmlFor="professional">Professional ($99/month)</Label>
-            </div>
-            <div className="flex items-center space-x-3 h-10">
-              <RadioGroupItem value="enterprise" id="enterprise" />
-              <Label htmlFor="enterprise">Enterprise (Starting at $250/month)</Label>
-            </div>
-          </RadioGroup>
-        </div>
+      <Button type="submit" className="w-full" disabled={isSubmitting}>
+        {isSubmitting ? "Joining..." : "Join Waitlist"}
+      </Button>
 
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting ? "Joining..." : "Join Waitlist"}
-        </Button>
-
-        <p className="text-center text-sm text-muted-foreground">
-          By joining the waitlist, you'll be notified when we launch and receive your exclusive 30% discount on annual
-          plans.
-        </p>
-      </form>
-    </>
+      <p className="text-center text-sm text-muted-foreground">
+        By joining the waitlist, you'll be notified when we launch and receive your exclusive 30% discount on annual
+        plans.
+      </p>
+    </form>
   )
 }
