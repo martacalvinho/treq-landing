@@ -22,12 +22,37 @@ export function WaitlistForm() {
     setIsSubmitting(true)
 
     try {
-      // In a real application, you would send this data to your API
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      const form = e.target as HTMLFormElement
+      const formData = new FormData(form)
+
+      const response = await fetch('/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams(formData as any).toString(),
+      })
+
+      if (!response.ok) {
+        throw new Error('Form submission failed')
+      }
+
+      // Track successful signup with detailed data
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'generate_lead', {
+          'event_category': 'waitlist',
+          'event_label': formData.get('plan'),
+          'value': formData.get('plan') === 'enterprise' ? 250 : 99,
+          'locations': formData.get('locations'),
+          'company': formData.get('company')
+        });
+      }
+
       toast({
         title: "Success!",
         description: "You've been added to our waitlist. We'll be in touch soon!",
       })
+      
       setFormData({
         email: "",
         name: "",
@@ -36,6 +61,7 @@ export function WaitlistForm() {
         plan: "professional",
       })
     } catch (error) {
+      console.error('Form submission error:', error)
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -47,13 +73,39 @@ export function WaitlistForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full">
+    <>
+      {/* Hidden form for Netlify form detection */}
+      <form name="waitlist" data-netlify="true" hidden>
+        <input type="text" name="name" />
+        <input type="email" name="email" />
+        <input type="text" name="company" />
+        <input type="text" name="locations" />
+        <input type="text" name="plan" />
+      </form>
+
+      {/* Actual form */}
+      <form
+        name="waitlist"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        onSubmit={handleSubmit}
+        className="space-y-6 w-full"
+      >
+        <input type="hidden" name="form-name" value="waitlist" />
+        <p hidden>
+          <label>
+            Don't fill this out if you're human: <input name="bot-field" />
+          </label>
+        </p>
+
       <div className="space-y-2 w-full">
         <Label htmlFor="email" className="text-sm font-medium">
           Email
         </Label>
         <Input
           id="email"
+          name="email"
           type="email"
           placeholder="you@company.com"
           className="w-full h-10"
@@ -69,6 +121,7 @@ export function WaitlistForm() {
         </Label>
         <Input
           id="name"
+          name="name"
           placeholder="John Doe"
           className="w-full h-10"
           value={formData.name}
@@ -83,6 +136,7 @@ export function WaitlistForm() {
         </Label>
         <Input
           id="company"
+          name="company"
           placeholder="Acme Inc"
           className="w-full h-10"
           value={formData.company}
@@ -94,6 +148,7 @@ export function WaitlistForm() {
       <div className="space-y-2 w-full">
         <Label className="text-sm font-medium">Number of Locations</Label>
         <RadioGroup
+          name="locations"
           value={formData.locations}
           onValueChange={(value) => setFormData({ ...formData, locations: value })}
           className="space-y-3"
@@ -116,6 +171,7 @@ export function WaitlistForm() {
       <div className="space-y-2 w-full">
         <Label className="text-sm font-medium">Interested Plan</Label>
         <RadioGroup
+          name="plan"
           value={formData.plan}
           onValueChange={(value) => setFormData({ ...formData, plan: value })}
           className="space-y-3"
@@ -140,6 +196,6 @@ export function WaitlistForm() {
         plans.
       </p>
     </form>
+    </>
   )
 }
-
