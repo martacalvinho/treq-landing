@@ -33,18 +33,84 @@ export function WaitlistForm() {
       ...formData
     }
 
+    console.log('Submitting form with data:', formDataToSend)
+
     try {
+      // First, try to submit using the fetch API
       const response = await fetch("/", {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
         body: encode(formDataToSend)
       })
 
+      console.log('Form submission response:', {
+        status: response.status,
+        statusText: response.statusText,
+      })
+
       if (!response.ok) {
-        throw new Error('Form submission failed')
+        // If fetch fails, try submitting using the form's native submit
+        console.log('Fetch submission failed, trying form submit')
+        const formElement = document.createElement('form')
+        formElement.method = 'POST'
+        formElement.action = '/'
+        formElement.style.display = 'none'
+
+        // Add all form fields
+        Object.entries(formDataToSend).forEach(([key, value]) => {
+          const input = document.createElement('input')
+          input.type = 'hidden'
+          input.name = key
+          input.value = value as string
+          formElement.appendChild(input)
+        })
+
+        // Add required Netlify attributes
+        formElement.setAttribute('data-netlify', 'true')
+        formElement.setAttribute('name', 'waitlist')
+
+        document.body.appendChild(formElement)
+        formElement.submit()
+        document.body.removeChild(formElement)
+
+        // Show success message for form submit approach
+        toast({
+          title: "Form Submitted!",
+          description: "You've been added to our waitlist. We'll be in touch soon!",
+        })
+
+        // Track successful signup
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'generate_lead', {
+            'event_category': 'waitlist',
+            'event_label': formData.plan,
+            'value': formData.plan === 'enterprise' ? 250 : 99,
+            'locations': formData.locations,
+            'company': formData.company
+          });
+        }
+
+        setFormData({
+          email: "",
+          name: "",
+          company: "",
+          locations: "1",
+          plan: "professional",
+        })
+
+        return
       }
 
-      // Track successful signup with detailed data
+      // If fetch was successful
+      console.log('Form submitted successfully via fetch')
+      toast({
+        title: "Success!",
+        description: "You've been added to our waitlist. We'll be in touch soon!",
+      })
+      
+      // Track successful signup
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'generate_lead', {
           'event_category': 'waitlist',
@@ -55,11 +121,6 @@ export function WaitlistForm() {
         });
       }
 
-      toast({
-        title: "Success!",
-        description: "You've been added to our waitlist. We'll be in touch soon!",
-      })
-      
       setFormData({
         email: "",
         name: "",
@@ -81,6 +142,15 @@ export function WaitlistForm() {
 
   return (
     <>
+      {/* Hidden form for Netlify form detection */}
+      <form name="waitlist" netlify netlify-honeypot="bot-field" hidden>
+        <input type="email" name="email" />
+        <input type="text" name="name" />
+        <input type="text" name="company" />
+        <input type="text" name="locations" />
+        <input type="text" name="plan" />
+      </form>
+
       <form
         name="waitlist"
         method="POST"
