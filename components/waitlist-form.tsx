@@ -6,14 +6,20 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "@/components/ui/use-toast"
-import { useForm, ValidationError } from '@formspree/react'
+import { useForm } from '@formspree/react'
 
 export function WaitlistForm() {
   const [state, handleSubmit] = useForm("mjkgrqaz")
 
-  // Use useEffect to handle success/error states
   useEffect(() => {
+    // Only show success toast if form was actually submitted (not on initial render)
     if (state.succeeded) {
+      console.log('Form submitted successfully')
+      toast({
+        title: "Success!",
+        description: "You've been added to our waitlist. We'll be in touch soon!",
+      })
+
       // Track successful signup
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'generate_lead', {
@@ -24,23 +30,25 @@ export function WaitlistForm() {
           'company': state.values?.company
         });
       }
-
-      // Show success toast
-      toast({
-        title: "Success!",
-        description: "You've been added to our waitlist. We'll be in touch soon!",
-      })
     }
+  }, [state.succeeded, state.values])
 
-    // Show error toast if there are any errors
-    if (state.errors?.length > 0) {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    console.log('Starting form submission...')
+    
+    try {
+      await handleSubmit(e)
+      console.log('Form submission handled by Formspree')
+    } catch (error) {
+      console.error('Form submission error:', error)
       toast({
         title: "Error",
-        description: state.errors[0].message || "Something went wrong. Please try again.",
+        description: "Something went wrong. Please try again.",
         variant: "destructive",
       })
     }
-  }, [state.succeeded, state.errors])
+  }
 
   // If form was submitted successfully, show success message
   if (state.succeeded) {
@@ -55,7 +63,7 @@ export function WaitlistForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full">
+    <form onSubmit={onSubmit} className="space-y-6 w-full">
       <div className="space-y-2 w-full">
         <Label htmlFor="email" className="text-sm font-medium">
           Email
@@ -141,7 +149,11 @@ export function WaitlistForm() {
         <ValidationError prefix="Plan" field="plan" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
-      <Button type="submit" className="w-full" disabled={state.submitting}>
+      <Button 
+        type="submit" 
+        className="w-full" 
+        disabled={state.submitting}
+      >
         {state.submitting ? "Joining..." : "Join Waitlist"}
       </Button>
 
