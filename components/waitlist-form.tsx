@@ -1,79 +1,61 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "@/components/ui/use-toast"
+import { useForm, ValidationError } from '@formspree/react'
 
 export function WaitlistForm() {
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [state, handleSubmit] = useForm("mjkgrqaz")
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log('1. Form submission started')
-    e.preventDefault()
-    console.log('2. Default form submission prevented')
-    setIsSubmitting(true)
-    console.log('3. Set isSubmitting to true')
+  // Use useEffect to handle success/error states
+  useEffect(() => {
+    if (state.succeeded) {
+      // Track successful signup
+      if (typeof window !== 'undefined' && (window as any).gtag) {
+        (window as any).gtag('event', 'generate_lead', {
+          'event_category': 'waitlist',
+          'event_label': state.values?.plan || 'professional',
+          'value': state.values?.plan === 'enterprise' ? 250 : 99,
+          'locations': state.values?.locations || '1',
+          'company': state.values?.company
+        });
+      }
 
-    try {
-      const form = e.target as HTMLFormElement
-      console.log('4. Got form element:', form)
-      console.log('5. Form attributes:', {
-        name: form.getAttribute('name'),
-        method: form.getAttribute('method'),
-        'data-netlify': form.getAttribute('data-netlify'),
-        action: form.getAttribute('action')
-      })
-
-      const data = new FormData(form)
-      console.log('6. Form data created:', Object.fromEntries(data.entries()))
-      
-      // Show toast before submitting (since submit will refresh the page)
+      // Show success toast
       toast({
-        title: "Submitting...",
-        description: "Adding you to our waitlist...",
+        title: "Success!",
+        description: "You've been added to our waitlist. We'll be in touch soon!",
       })
-      console.log('7. Submitting toast shown')
-      
-      // Small delay to ensure toast is visible
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Submit the form
-      console.log('8. About to submit form...')
-      form.submit()
-      console.log('9. Form submitted')
+    }
 
-    } catch (error) {
-      console.error('❌ Form submission error:', error)
-      console.error('Error details:', {
-        name: error instanceof Error ? error.name : 'Unknown',
-        message: error instanceof Error ? error.message : 'Unknown error occurred',
-        stack: error instanceof Error ? error.stack : 'No stack trace'
-      })
-      
+    // Show error toast if there are any errors
+    if (state.errors?.length > 0) {
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: state.errors[0].message || "Something went wrong. Please try again.",
         variant: "destructive",
       })
-    } finally {
-      console.log('10. Setting isSubmitting back to false')
-      setIsSubmitting(false)
     }
+  }, [state.succeeded, state.errors])
+
+  // If form was submitted successfully, show success message
+  if (state.succeeded) {
+    return (
+      <div className="text-center p-6 space-y-4">
+        <h3 className="text-2xl font-semibold">Thank you for joining!</h3>
+        <p className="text-muted-foreground">
+          We'll be in touch soon with more information about TREQ.
+        </p>
+      </div>
+    )
   }
 
   return (
-    <form
-      name="waitlist"
-      method="POST"
-      data-netlify="true"
-      onSubmit={handleSubmit}
-      className="space-y-6 w-full"
-    >
-      <input type="hidden" name="form-name" value="waitlist" />
-
+    <form onSubmit={handleSubmit} className="space-y-6 w-full">
       <div className="space-y-2 w-full">
         <Label htmlFor="email" className="text-sm font-medium">
           Email
@@ -86,6 +68,7 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
+        <ValidationError prefix="Email" field="email" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -99,6 +82,7 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
+        <ValidationError prefix="Name" field="name" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -112,6 +96,7 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
+        <ValidationError prefix="Company" field="company" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -134,6 +119,7 @@ export function WaitlistForm() {
             <Label htmlFor="4-plus-locations">4+ Locations</Label>
           </div>
         </RadioGroup>
+        <ValidationError prefix="Locations" field="locations" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -152,10 +138,11 @@ export function WaitlistForm() {
             <Label htmlFor="enterprise">Enterprise (Starting at $250/month)</Label>
           </div>
         </RadioGroup>
+        <ValidationError prefix="Plan" field="plan" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Joining..." : "Join Waitlist"}
+      <Button type="submit" className="w-full" disabled={state.submitting}>
+        {state.submitting ? "Joining..." : "Join Waitlist"}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
