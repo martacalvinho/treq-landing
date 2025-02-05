@@ -25,16 +25,19 @@ export function WaitlistForm() {
       const data = Object.fromEntries(formData.entries())
       console.log('Form data:', data)
 
-      // Submit to Google Sheets
-      console.log('Sending request to:', GOOGLE_SCRIPT_URL)
-      const response = await fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify(data),
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
+      // Create URL with parameters
+      const params = new URLSearchParams({
+        email: data.email as string,
+        name: data.name as string,
+        company: data.company as string,
+        locations: data.locations as string,
+        plan: data.plan as string
+      }).toString()
 
+      const url = `${GOOGLE_SCRIPT_URL}?${params}`
+      console.log('Sending request to:', url)
+
+      const response = await fetch(url)
       console.log('Response status:', response.status)
       
       if (!response.ok) {
