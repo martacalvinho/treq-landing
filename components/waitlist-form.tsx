@@ -76,7 +76,6 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
-        <ValidationError prefix="Email" field="email" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -90,7 +89,6 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
-        <ValidationError prefix="Name" field="name" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -104,7 +102,6 @@ export function WaitlistForm() {
           className="w-full h-10"
           required
         />
-        <ValidationError prefix="Company" field="company" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -127,7 +124,6 @@ export function WaitlistForm() {
             <Label htmlFor="4-plus-locations">4+ Locations</Label>
           </div>
         </RadioGroup>
-        <ValidationError prefix="Locations" field="locations" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <div className="space-y-2 w-full">
@@ -146,7 +142,6 @@ export function WaitlistForm() {
             <Label htmlFor="enterprise">Enterprise (Starting at $250/month)</Label>
           </div>
         </RadioGroup>
-        <ValidationError prefix="Plan" field="plan" errors={state.errors} className="text-sm text-red-500" />
       </div>
 
       <Button 
