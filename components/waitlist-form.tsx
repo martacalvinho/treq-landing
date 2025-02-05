@@ -1,45 +1,62 @@
 "use client"
 
-import { useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { toast } from "@/components/ui/use-toast"
-import { useForm } from '@formspree/react'
+
+// Replace this with your Google Apps Script web app URL
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_zJTPA78ZuZ9ogEQ6fPq4lXR53f2_ZFEYYpfnk4glxNdD9YesbGBNJVm93O0W8p1U/exec'
 
 export function WaitlistForm() {
-  const [state, handleSubmit] = useForm("mjkgrqaz")
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submitted, setSubmitted] = useState(false)
 
-  useEffect(() => {
-    // Only show success toast if form was actually submitted (not on initial render)
-    if (state.succeeded) {
-      console.log('Form submitted successfully')
-      toast({
-        title: "Success!",
-        description: "You've been added to our waitlist. We'll be in touch soon!",
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+    console.log('Starting form submission...')
+
+    try {
+      const form = e.target as HTMLFormElement
+      const formData = new FormData(form)
+      const data = Object.fromEntries(formData.entries())
+      console.log('Form data:', data)
+
+      // Submit to Google Sheets
+      const response = await fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        mode: 'cors',
       })
+
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
 
       // Track successful signup
       if (typeof window !== 'undefined' && (window as any).gtag) {
         (window as any).gtag('event', 'generate_lead', {
           'event_category': 'waitlist',
-          'event_label': state.values?.plan || 'professional',
-          'value': state.values?.plan === 'enterprise' ? 250 : 99,
-          'locations': state.values?.locations || '1',
-          'company': state.values?.company
+          'event_label': data.plan,
+          'value': data.plan === 'enterprise' ? 250 : 99,
+          'locations': data.locations,
+          'company': data.company
         });
       }
-    }
-  }, [state.succeeded, state.values])
 
-  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    console.log('Starting form submission...')
-    
-    try {
-      await handleSubmit(e)
-      console.log('Form submission handled by Formspree')
+      // Show success message
+      toast({
+        title: "Success!",
+        description: "You've been added to our waitlist. We'll be in touch soon!",
+      })
+
+      setSubmitted(true)
     } catch (error) {
       console.error('Form submission error:', error)
       toast({
@@ -47,11 +64,13 @@ export function WaitlistForm() {
         description: "Something went wrong. Please try again.",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
   // If form was submitted successfully, show success message
-  if (state.succeeded) {
+  if (submitted) {
     return (
       <div className="text-center p-6 space-y-4">
         <h3 className="text-2xl font-semibold">Thank you for joining!</h3>
@@ -63,7 +82,7 @@ export function WaitlistForm() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6 w-full">
+    <form onSubmit={handleSubmit} className="space-y-6 w-full">
       <div className="space-y-2 w-full">
         <Label htmlFor="email" className="text-sm font-medium">
           Email
@@ -147,9 +166,9 @@ export function WaitlistForm() {
       <Button 
         type="submit" 
         className="w-full" 
-        disabled={state.submitting}
+        disabled={isSubmitting}
       >
-        {state.submitting ? "Joining..." : "Join Waitlist"}
+        {isSubmitting ? "Joining..." : "Join Waitlist"}
       </Button>
 
       <p className="text-center text-sm text-muted-foreground">
