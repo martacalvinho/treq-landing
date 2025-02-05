@@ -14,6 +14,34 @@ export function WaitlistForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
+  const jsonp = (url: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      // Create a unique callback name
+      const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+      
+      // Create script element
+      const script = document.createElement('script');
+      script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
+      
+      // Define the callback function
+      (window as any)[callbackName] = (data: any) => {
+        delete (window as any)[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
+      };
+      
+      // Handle errors
+      script.onerror = () => {
+        delete (window as any)[callbackName];
+        document.body.removeChild(script);
+        reject(new Error('JSONP request failed'));
+      };
+      
+      // Add script to document
+      document.body.appendChild(script);
+    });
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsSubmitting(true)
@@ -37,14 +65,8 @@ export function WaitlistForm() {
       const url = `${GOOGLE_SCRIPT_URL}?${params}`
       console.log('Sending request to:', url)
 
-      const response = await fetch(url)
-      console.log('Response status:', response.status)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const result = await response.json()
+      // Use JSONP instead of fetch
+      const result = await jsonp(url)
       console.log('Response data:', result)
 
       if (result.result === 'error') {
