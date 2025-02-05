@@ -147,12 +147,12 @@ export function WaitlistForm() {
 
       <div className="space-y-2 w-full">
         <Label htmlFor="company" className="text-sm font-medium">
-          Company Name
+          Restaurant
         </Label>
         <Input
           id="company"
           name="company"
-          placeholder="Acme Inc"
+          placeholder="Your restaurant name"
           className="w-full h-10"
           required
         />

@@ -22,9 +22,29 @@ export default function LandingPage() {
             <Badge variant="secondary" className="w-fit">
               Limited Time Offer - 30% Off Annual Plans
             </Badge>
-            <h1 className="text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:text-5xl lg:leading-[1.1] px-4 md:px-0 space-y-4">
-              <div>Never Miss a <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant License</span></div>
-              <div className="mt-4">or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again</div>
+            <h1 className="text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:text-5xl lg:leading-[1.3] px-4 md:px-0 text-center">
+              {/* Mobile Layout */}
+              <div className="flex flex-col items-center gap-4 md:hidden">
+                <div>
+                  Never Miss a <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant</span>
+                </div>
+                <div>
+                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">License</span> or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span>
+                </div>
+                <div>
+                  Again
+                </div>
+              </div>
+              
+              {/* Desktop Layout */}
+              <div className="hidden md:flex md:flex-col md:items-center md:gap-6">
+                <div>
+                  Never Miss a <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
+                </div>
+                <div>
+                  or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
+                </div>
+              </div>
             </h1>
             <p className="max-w-[750px] text-base text-muted-foreground sm:text-lg md:text-xl px-4 md:px-0">
               <span className="font-bold text-foreground">One dashboard</span> for all your restaurant's permits, licenses, and compliance deadlines. Get <span className="font-semibold text-foreground">automatic reminders</span>, <span className="font-semibold text-foreground">document tracking</span>, and <span className="font-semibold text-foreground">pre-made checklists</span> to stay compliant year-round.
@@ -41,13 +61,14 @@ export default function LandingPage() {
                 NYC Compliance - Managed by You, Simplified by Treq
               </p>
               <div className="space-y-4 max-w-[100%] mx-auto">
-                <p className="text-lg leading-relaxed text-muted-foreground">
+                <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
                   A complete toolkit for managing permits, licenses, and operations.
                 </p>
-                <p className="text-lg leading-relaxed text-muted-foreground">
-                  <span className="inline-flex items-center gap-2">
-                    <Clock4 className="h-5 w-5 text-primary" />
-                    Save 10+ hours every week on compliance tasks.
+                <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
+                  <span className="inline-flex items-center gap-1 md:gap-2">
+                    <Clock4 className="h-4 w-4 md:h-5 md:w-5 text-primary" />
+                    <span className="md:hidden">Save 10+ hours/week</span>
+                    <span className="hidden md:inline">Save 10+ hours every week on compliance tasks</span>
                   </span>
                 </p>
               </div>
@@ -56,20 +77,20 @@ export default function LandingPage() {
 
           <Tabs defaultValue="dashboard" className="w-full mt-12">
             <div className="px-4 md:px-0 overflow-x-auto pb-2">
-              <TabsList className="inline-flex w-[600px] md:w-full">
-                <TabsTrigger value="dashboard" className="flex-1 min-w-[120px]">
+              <TabsList className="inline-flex h-9 w-full md:w-auto min-w-[300px] md:min-w-0">
+                <TabsTrigger value="dashboard" className="flex-1 px-2 md:px-4 text-sm">
                   Dashboard
                 </TabsTrigger>
-                <TabsTrigger value="compliance" className="flex-1 min-w-[120px]">
+                <TabsTrigger value="compliance" className="flex-1 px-2 md:px-4 text-sm">
                   Compliance
                 </TabsTrigger>
-                <TabsTrigger value="tasks" className="flex-1 min-w-[120px]">
+                <TabsTrigger value="tasks" className="flex-1 px-2 md:px-4 text-sm">
                   Tasks
                 </TabsTrigger>
-                <TabsTrigger value="waste" className="flex-1 min-w-[120px]">
+                <TabsTrigger value="waste" className="flex-1 px-2 md:px-4 text-sm">
                   Waste
                 </TabsTrigger>
-                <TabsTrigger value="staff" className="flex-1 min-w-[120px]">
+                <TabsTrigger value="staff" className="flex-1 px-2 md:px-4 text-sm">
                   Staff
                 </TabsTrigger>
               </TabsList>
@@ -77,37 +98,31 @@ export default function LandingPage() {
 
             <TabsContent value="dashboard" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                <div className="flex flex-col justify-center space-y-4 px-4 lg:w-1/2 lg:px-0">
-                  <div className="space-y-2">
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Comprehensive Dashboard</h3>
-                    <p className="text-lg leading-relaxed text-muted-foreground">
+                    <p className="text-base text-muted-foreground sm:text-lg">
                       Get a bird's eye view of your business operations with real-time insights and alerts.
                     </p>
                   </div>
-                  <ul className="grid gap-4 mt-6">
+                  <ul className="grid gap-3">
                     <li className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Check className="h-5 w-5 text-primary" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
                       </div>
-                      <span className="text-base">Real-time compliance alerts</span>
+                      <span>Real-time compliance alerts</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Check className="h-5 w-5 text-primary" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
                       </div>
-                      <span className="text-base">Activity monitoring</span>
+                      <span>Key metrics overview</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Check className="h-5 w-5 text-primary" />
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
                       </div>
-                      <span className="text-base">Key metrics overview</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                        <Check className="h-5 w-5 text-primary" />
-                      </div>
-                      <span className="text-base">Customizable widgets</span>
+                      <span>Customizable widgets</span>
                     </li>
                   </ul>
                 </div>
@@ -118,9 +133,9 @@ export default function LandingPage() {
                         src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Dashboard-CA9B553AARFZjv4J8sbg4UW85FWcoN.png",
                         alt: "Dashboard Overview",
                         label: "Overview",
-                      },
+                      }
                     ]}
-                    className="rounded-lg border bg-background shadow-xl"
+                    className="bg-background shadow-md"
                   />
                 </div>
               </div>
@@ -128,23 +143,37 @@ export default function LandingPage() {
 
             <TabsContent value="compliance" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                <div className="flex flex-col justify-center space-y-4 px-4 lg:w-1/2 lg:px-0">
-                  <h3 className="text-xl font-bold sm:text-2xl">Compliance Management</h3>
-                  <p className="text-base sm:text-lg text-muted-foreground">
-                    Stay on top of your regulatory requirements with automated reminders and document tracking.
-                  </p>
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Compliance Management</h3>
+                    <p className="text-base text-muted-foreground sm:text-lg">
+                      Stay on top of your regulatory requirements with automated reminders and document tracking.
+                    </p>
+                  </div>
                   <ul className="grid gap-3">
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Document expiration alerts
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Document expiration alerts</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Compliance calendar
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Compliance calendar</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Digital document vault
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Digital document vault</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Audit trail tracking
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Audit trail tracking</span>
                     </li>
                   </ul>
                 </div>
@@ -162,31 +191,45 @@ export default function LandingPage() {
                         label: "Calendar",
                       },
                     ]}
-                    className="rounded-lg border bg-background shadow-xl"
+                    className="bg-background shadow-md"
                   />
                 </div>
               </div>
             </TabsContent>
+
             <TabsContent value="tasks" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                <div className="flex flex-col justify-center space-y-4 px-4 lg:w-1/2 lg:px-0">
-                  <h3 className="text-xl font-bold sm:text-2xl">Task Management</h3>
-                  <p className="text-base sm:text-lg text-muted-foreground">
-                    Efficiently manage and track tasks across your organization with our intuitive task management
-                    system.
-                  </p>
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Task Management</h3>
+                    <p className="text-base text-muted-foreground sm:text-lg">
+                      Efficiently manage and track tasks across your organization with our intuitive task management system.
+                    </p>
+                  </div>
                   <ul className="grid gap-3">
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Multiple task views
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Multiple task views</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Customizable checklists
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Customizable checklists</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Email reminders
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Email reminders</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Progress tracking
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Progress tracking</span>
                     </li>
                   </ul>
                 </div>
@@ -219,30 +262,45 @@ export default function LandingPage() {
                         label: "Reminders",
                       },
                     ]}
-                    className="rounded-lg border bg-background shadow-xl"
+                    className="bg-background shadow-md"
                   />
                 </div>
               </div>
             </TabsContent>
+
             <TabsContent value="waste" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                <div className="flex flex-col justify-center space-y-4 px-4 lg:w-1/2 lg:px-0">
-                  <h3 className="text-xl font-bold sm:text-2xl">Waste Management</h3>
-                  <p className="text-base sm:text-lg text-muted-foreground">
-                    Track and optimize your waste management processes with detailed logging and analytics.
-                  </p>
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Waste Management</h3>
+                    <p className="text-base text-muted-foreground sm:text-lg">
+                      Track and optimize your waste management processes with detailed logging and analytics.
+                    </p>
+                  </div>
                   <ul className="grid gap-3">
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Waste tracking logs
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Waste tracking logs</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Pickup scheduling
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Pickup scheduling</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Cost analysis
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Cost analysis</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Environmental reporting
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Environmental reporting</span>
                     </li>
                   </ul>
                 </div>
@@ -265,31 +323,45 @@ export default function LandingPage() {
                         label: "Reports",
                       },
                     ]}
-                    className="rounded-lg border bg-background shadow-xl"
+                    className="bg-background shadow-md"
                   />
                 </div>
               </div>
             </TabsContent>
+
             <TabsContent value="staff" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
-                <div className="flex flex-col justify-center space-y-4 px-4 lg:w-1/2 lg:px-0">
-                  <h3 className="text-xl font-bold sm:text-2xl">Staff Management</h3>
-                  <p className="text-base sm:text-lg text-muted-foreground">
-                    Efficiently manage your staff with integrated scheduling, certification tracking, and performance
-                    monitoring.
-                  </p>
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Staff Management</h3>
+                    <p className="text-base text-muted-foreground sm:text-lg">
+                      Efficiently manage your staff with integrated scheduling, certification tracking, and performance monitoring.
+                    </p>
+                  </div>
                   <ul className="grid gap-3">
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Staff directory
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Staff directory</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Shift scheduling
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Shift scheduling</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Certification tracking
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Certification tracking</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <Check className="h-5 w-5 flex-shrink-0" /> Time-off management
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                        <Check className="h-4 w-4" />
+                      </div>
+                      <span>Time-off management</span>
                     </li>
                   </ul>
                 </div>
@@ -307,7 +379,7 @@ export default function LandingPage() {
                         label: "Schedule",
                       },
                     ]}
-                    className="rounded-lg border bg-background shadow-xl"
+                    className="bg-background shadow-md"
                   />
                 </div>
               </div>
@@ -339,16 +411,28 @@ export default function LandingPage() {
                 </p>
                 <ul className="grid gap-2">
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Single location
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Single location</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Up to 50 staff members
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Up to 50 staff members</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> All core features
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>All core features</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Email support
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Email support</span>
                   </li>
                 </ul>
               </CardContent>
@@ -370,19 +454,34 @@ export default function LandingPage() {
                 <p className="text-sm text-muted-foreground">Additional locations $50/month each</p>
                 <ul className="grid gap-2">
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Up to 3 locations included
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Up to 3 locations included</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Unlimited staff members
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Unlimited staff members</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Advanced analytics
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Advanced analytics</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Priority support
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Priority support</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <Check className="h-4 w-4" /> Custom integrations
+                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Check className="h-4 w-4" />
+                    </div>
+                    <span>Custom integrations</span>
                   </li>
                 </ul>
               </CardContent>
