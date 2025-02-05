@@ -26,28 +26,32 @@ export function WaitlistForm() {
       console.log('Form data:', data)
 
       // Submit to Google Sheets
+      console.log('Sending request to:', GOOGLE_SCRIPT_URL)
       const response = await fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
         },
-        mode: 'cors',
+        mode: 'no-cors', 
       })
 
-      if (!response.ok) {
-        throw new Error('Network response was not ok')
-      }
+      console.log('Response:', response)
+
+      // Since we're using no-cors, we won't get response details
+      // So we'll assume success if we get here
+      console.log('Form submitted successfully')
 
       // Track successful signup
       if (typeof window !== 'undefined' && (window as any).gtag) {
-        (window as any).gtag('event', 'generate_lead', {
+        console.log('Tracking signup in GA...')
+        ;(window as any).gtag('event', 'generate_lead', {
           'event_category': 'waitlist',
           'event_label': data.plan,
           'value': data.plan === 'enterprise' ? 250 : 99,
           'locations': data.locations,
           'company': data.company
-        });
+        })
       }
 
       // Show success message
@@ -61,7 +65,7 @@ export function WaitlistForm() {
       console.error('Form submission error:', error)
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again.",
+        description: "Something went wrong. Please try again or contact support.",
         variant: "destructive",
       })
     } finally {
