@@ -32,15 +32,21 @@ export function WaitlistForm() {
         body: JSON.stringify(data),
         headers: {
           'Content-Type': 'application/json',
-        },
-        mode: 'no-cors', 
+        }
       })
 
-      console.log('Response:', response)
+      console.log('Response status:', response.status)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const result = await response.json()
+      console.log('Response data:', result)
 
-      // Since we're using no-cors, we won't get response details
-      // So we'll assume success if we get here
-      console.log('Form submitted successfully')
+      if (result.result === 'error') {
+        throw new Error(result.message || 'Unknown error occurred')
+      }
 
       // Track successful signup
       if (typeof window !== 'undefined' && (window as any).gtag) {
@@ -65,7 +71,7 @@ export function WaitlistForm() {
       console.error('Form submission error:', error)
       toast({
         title: "Error",
-        description: "Something went wrong. Please try again or contact support.",
+        description: error instanceof Error ? error.message : "Something went wrong. Please try again or contact support.",
         variant: "destructive",
       })
     } finally {
