@@ -110,7 +110,7 @@ export function WaitlistForm() {
       <div className="text-center p-6 space-y-4">
         <h3 className="text-2xl font-semibold">Thank you for joining!</h3>
         <p className="text-muted-foreground">
-          We'll be in touch soon with more information about TREQ.
+          We'll be in touch soon with more information about Treqy.
         </p>
       </div>
     )

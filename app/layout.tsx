@@ -3,8 +3,8 @@ import Script from 'next/script'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Treq - NYC Restaurant Compliance Made Simple',
-  description: 'Streamline your NYC restaurant operations with Treq. Manage permits, licenses, and compliance tasks all in one place.',
+  title: 'Treqy - NYC Restaurant Compliance Made Simple',
+  description: 'Streamline your NYC restaurant operations with Treqy. Manage permits, licenses, and compliance tasks all in one place.',
 }
 
 export default function RootLayout({

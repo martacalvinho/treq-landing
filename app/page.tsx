@@ -26,13 +26,13 @@ export default function LandingPage() {
               {/* Mobile Layout */}
               <div className="flex flex-col items-center gap-4 md:hidden">
                 <div>
-                  Never Miss a <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant</span>
+                  Never Miss a
                 </div>
                 <div>
-                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">License</span> or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span>
+                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
                 </div>
                 <div>
-                  Again
+                  or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
                 </div>
               </div>
               
@@ -58,7 +58,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold leading-[1.1] sm:text-4xl md:text-5xl">Features</h2>
             <div className="space-y-3">
               <p className="text-xl sm:text-2xl font-medium text-foreground">
-                NYC Compliance - Managed by You, Simplified by Treq
+                NYC Compliance - Managed by You, Simplified by Treqy
               </p>
               <div className="space-y-4 max-w-[100%] mx-auto">
                 <p className="text-base md:text-lg leading-relaxed text-muted-foreground">
@@ -97,7 +97,19 @@ export default function LandingPage() {
             </div>
 
             <TabsContent value="dashboard" className="mt-6">
-              <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+              <div className="flex flex-col-reverse gap-8 lg:flex-row">
+                <div className="lg:w-1/2">
+                  <TabbedShowcase
+                    images={[
+                      {
+                        src: "/Dashboard.JPG",
+                        alt: "Dashboard Overview",
+                        label: "Overview",
+                      }
+                    ]}
+                    className="bg-background shadow-md"
+                  />
+                </div>
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Comprehensive Dashboard</h3>
@@ -125,18 +137,6 @@ export default function LandingPage() {
                       <span>Customizable widgets</span>
                     </li>
                   </ul>
-                </div>
-                <div className="lg:w-1/2">
-                  <TabbedShowcase
-                    images={[
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Dashboard-CA9B553AARFZjv4J8sbg4UW85FWcoN.png",
-                        alt: "Dashboard Overview",
-                        label: "Overview",
-                      }
-                    ]}
-                    className="bg-background shadow-md"
-                  />
                 </div>
               </div>
             </TabsContent>
@@ -181,15 +181,45 @@ export default function LandingPage() {
                   <TabbedShowcase
                     images={[
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Compliance%20-%20document%20vault.JPG-DGGYGAAvMonEbICz4snTFiQsK0PmOn.jpeg",
+                        src: "/Compliance- Documents.JPG",
                         alt: "Compliance Management - Document Vault",
-                        label: "Document Vault",
+                        label: "Documents",
                       },
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Compliance-%20calendar.JPG-YVk0bupaKAxw7cKMGBrL8Pvlmr6QZs.jpeg",
-                        alt: "Compliance Management - Calendar View",
+                        src: "/Compliance- Inspections.jpg",
+                        alt: "Compliance Management - Inspections",
+                        label: "Inspections",
+                      },
+                      {
+                        src: "/Compliance- Training.jpg",
+                        alt: "Compliance Management - Training",
+                        label: "Training",
+                      },
+                      {
+                        src: "/Compliance- Equipment.jpg",
+                        alt: "Compliance Management - Equipment",
+                        label: "Equipment",
+                      },
+                      {
+                        src: "/Compliance- Safety.jpg",
+                        alt: "Compliance Management - Safety",
+                        label: "Safety",
+                      },
+                      {
+                        src: "/Compliance- Signage.jpg",
+                        alt: "Compliance Management - Signage",
+                        label: "Signage",
+                      },
+                      {
+                        src: "/Compliance- Calendar.jpg",
+                        alt: "Compliance Management - Calendar",
                         label: "Calendar",
                       },
+                      {
+                        src: "/Compliance- Information.jpg",
+                        alt: "Compliance Management - Information",
+                        label: "Information",
+                      }
                     ]}
                     className="bg-background shadow-md"
                   />
@@ -237,30 +267,30 @@ export default function LandingPage() {
                   <TabbedShowcase
                     images={[
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tasks-%20List%20View.JPG-WNrpCq1gFCJ815aUJQiZihuNmaijRI.jpeg",
-                        alt: "Task Management - List View",
+                        src: "/Tasks- List View.jpg",
+                        alt: "Tasks Management - List View",
                         label: "List View",
                       },
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tasks-%20Board%20View.JPG-rO6qjFhidWVzXxUjIr42PjAjChlkvJ.jpeg",
-                        alt: "Task Management - Board View",
+                        src: "/Tasks- Board View.jpg",
+                        alt: "Tasks Management - Board View",
                         label: "Board View",
                       },
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tasks-%20Checklists.JPG-esvxL6GbDaonGhBaXU9DufWC3n5t1f.jpeg",
-                        alt: "Task Management - Checklists",
+                        src: "/Tasks- Checklists.jpg",
+                        alt: "Tasks Management - Checklists",
                         label: "Checklists",
                       },
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tasks-%20Saved%20Checklists.JPG-A2hvpibdyafIhyz7E7eEGDigr7xsPe.jpeg",
-                        alt: "Task Management - Saved Checklists",
-                        label: "Saved Lists",
+                        src: "/Tasks- Saved Checklists.jpg",
+                        alt: "Tasks Management - Saved Checklists",
+                        label: "Saved Checklists",
                       },
                       {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Tasks-%20Email%20Reminders.JPG-f2CIbsNQuJGtOB4vhu9otOSH4JYyll.jpeg",
-                        alt: "Task Management - Email Reminders",
-                        label: "Reminders",
-                      },
+                        src: "/Tasks- Email Reminders.jpg",
+                        alt: "Tasks Management - Email Reminders",
+                        label: "Email Reminders",
+                      }
                     ]}
                     className="bg-background shadow-md"
                   />
@@ -269,7 +299,29 @@ export default function LandingPage() {
             </TabsContent>
 
             <TabsContent value="waste" className="mt-6">
-              <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+              <div className="flex flex-col gap-8 lg:flex-row">
+                <div className="lg:w-1/2">
+                  <TabbedShowcase
+                    images={[
+                      {
+                        src: "/Waste- Waste Log.jpg",
+                        alt: "Waste Management - Waste Log",
+                        label: "Waste Log",
+                      },
+                      {
+                        src: "/Waste- Schedule.jpg",
+                        alt: "Waste Management - Schedule",
+                        label: "Schedule",
+                      },
+                      {
+                        src: "/Waste- Report.jpg",
+                        alt: "Waste Management - Report",
+                        label: "Report",
+                      }
+                    ]}
+                    className="bg-background shadow-md"
+                  />
+                </div>
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Waste Management</h3>
@@ -304,33 +356,23 @@ export default function LandingPage() {
                     </li>
                   </ul>
                 </div>
-                <div className="lg:w-1/2">
-                  <TabbedShowcase
-                    images={[
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Waste%20-%20Log.JPG-L4Fjzd3XVpFUYCTvRxibDzudtLId8o.jpeg",
-                        alt: "Waste Management - Waste Log",
-                        label: "Waste Log",
-                      },
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/waste%20-%20schedule.JPG-hGrtNnIh8mrATJVRfLt7xMYAcLAQTS.jpeg",
-                        alt: "Waste Management - Schedule",
-                        label: "Schedule",
-                      },
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Waste%20-%20report.JPG-V7PfLRbXLzmyZDJ41DpgylMXXqJvH3.jpeg",
-                        alt: "Waste Management - Reports",
-                        label: "Reports",
-                      },
-                    ]}
-                    className="bg-background shadow-md"
-                  />
-                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="staff" className="mt-6">
-              <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+              <div className="flex flex-col-reverse gap-8 lg:flex-row">
+                <div className="lg:w-1/2">
+                  <TabbedShowcase
+                    images={[
+                      {
+                        src: "/Staff.jpg",
+                        alt: "Staff Management - Overview",
+                        label: "Overview",
+                      }
+                    ]}
+                    className="bg-background shadow-md"
+                  />
+                </div>
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Staff Management</h3>
@@ -364,23 +406,6 @@ export default function LandingPage() {
                       <span>Time-off management</span>
                     </li>
                   </ul>
-                </div>
-                <div className="lg:w-1/2">
-                  <TabbedShowcase
-                    images={[
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Staff-%20Staff%20directory.JPG-3kaDoXyggxNE4YqMa92bpZHkoYVxGr.jpeg",
-                        alt: "Staff Management - Directory",
-                        label: "Directory",
-                      },
-                      {
-                        src: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Staff-%20%20schedule.JPG-BSbXe0Lt8nmS24HCOsCwpW2X8rI8nR.jpeg",
-                        alt: "Staff Management - Schedule",
-                        label: "Schedule",
-                      },
-                    ]}
-                    className="bg-background shadow-md"
-                  />
                 </div>
               </div>
             </TabsContent>
@@ -561,8 +586,8 @@ export default function LandingPage() {
         <div className="container flex flex-col items-center justify-between gap-4 md:h-24 md:flex-row">
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Treq-FxPFWJ6qzF7ntQv8yF2ds4lE6SW1Wd.png"
-              alt="TREQ Logo"
+              src="/treqy-logo.svg"
+              alt="Treqy Logo"
               width={80}
               height={27}
               className="dark:brightness-0 dark:invert"
@@ -570,7 +595,7 @@ export default function LandingPage() {
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
               Built by{" "}
               <a href="#" className="font-medium underline underline-offset-4">
-                TREQ
+                Treqy
               </a>
               . All rights reserved.
             </p>

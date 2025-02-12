@@ -12,13 +12,13 @@ interface TabbledShowcaseProps {
 export function TabbedShowcase({ images, className, imageClassName }: TabbledShowcaseProps) {
   return (
     <Tabs defaultValue={images[0].label} className={cn("w-full", className)}>
-      <div className="overflow-x-auto -mx-4 px-4 pb-2">
-        <TabsList className="inline-flex min-w-[300px] w-full">
+      <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-none">
+        <TabsList className="inline-flex h-10 w-auto min-w-[300px]">
           {images.map((image) => (
             <TabsTrigger 
               key={image.label} 
               value={image.label} 
-              className="flex-1 px-2 py-1.5 text-sm"
+              className="min-w-[100px] whitespace-nowrap px-3 py-1.5 text-sm"
             >
               {image.label}
             </TabsTrigger>

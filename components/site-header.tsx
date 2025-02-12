@@ -21,14 +21,14 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-6">
         <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex items-center mt-5">
             <Image
-              src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Treq-FxPFWJ6qzF7ntQv8yF2ds4lE6SW1Wd.png"
-              alt="TREQ Logo"
-              width={80}
-              height={27}
+              src="/treqy-logo.svg"
+              alt="Treqy Logo"
+              width={100}
+              height={34}
               className="dark:brightness-0 dark:invert"
             />
           </div>
