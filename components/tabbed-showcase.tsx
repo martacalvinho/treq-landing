@@ -25,7 +25,7 @@ export function TabbedShowcase({ images, className, imageClassName }: TabbledSho
           ))}
         </TabsList>
       </div>
-      <div className="relative mt-4 h-[400px] sm:h-[500px] md:h-[600px] overflow-hidden rounded-xl border bg-background">
+      <div className="relative mt-3 h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden rounded-xl border bg-background">
         {images.map((image) => (
           <TabsContent 
             key={image.label} 
@@ -37,7 +37,7 @@ export function TabbedShowcase({ images, className, imageClassName }: TabbledSho
               alt={image.alt}
               fill
               className={cn(
-                "object-contain p-2",
+                "object-contain p-1",
                 imageClassName
               )}
               priority

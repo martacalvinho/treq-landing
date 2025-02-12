@@ -343,7 +343,7 @@ export default function LandingPage() {
             </TabsContent>
 
             <TabsContent value="staff" className="mt-6">
-              <div className="flex flex-col-reverse gap-8 lg:flex-row">
+              <div className="flex flex-col gap-8 lg:flex-row">
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Staff Management</h3>
