@@ -11,6 +11,7 @@ import { SiteHeader } from "@/components/site-header"
 import { HeroButtons } from "@/components/hero-buttons"
 import { PricingCardButton } from "@/components/pricing-card-button"
 import { Clock4 } from "lucide-react"
+import { CheckCircle } from "lucide-react"
 
 export default function LandingPage() {
   return (
@@ -113,28 +114,26 @@ export default function LandingPage() {
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Comprehensive Dashboard</h3>
-                    <p className="text-base text-muted-foreground sm:text-lg">
-                      Get a bird's eye view of your business operations with real-time insights and alerts.
+                    <p className="text-muted-foreground">
+                      Get a bird's eye view of your restaurant's compliance and operations.
                     </p>
                   </div>
-                  <ul className="grid gap-3">
+                  <ul className="grid gap-4">
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Real-time compliance alerts</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Real-time alerts and notifications</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
+                      <CheckCircle className="h-5 w-5 text-primary" />
                       <span>Key metrics overview</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Customizable widgets</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Quick action shortcuts</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Recent activity feed</span>
                     </li>
                   </ul>
                 </div>
@@ -142,38 +141,38 @@ export default function LandingPage() {
             </TabsContent>
 
             <TabsContent value="compliance" className="mt-6">
-              <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+              <div className="flex flex-col gap-8 lg:flex-row">
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Compliance Management</h3>
-                    <p className="text-base text-muted-foreground sm:text-lg">
-                      Stay on top of your regulatory requirements with automated reminders and document tracking.
+                    <p className="text-muted-foreground">
+                      Keep your restaurant compliant with NYC regulations through our comprehensive document management system.
                     </p>
                   </div>
-                  <ul className="grid gap-3">
+                  <ul className="grid gap-4">
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Document expiration alerts</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Centralized document vault</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Compliance calendar</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Automated expiration tracking</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Digital document vault</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Required documents checklist</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Audit trail tracking</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Inspection history and scheduling</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Training records management</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Equipment maintenance tracking</span>
                     </li>
                   </ul>
                 </div>
@@ -228,38 +227,30 @@ export default function LandingPage() {
             </TabsContent>
 
             <TabsContent value="tasks" className="mt-6">
-              <div className="flex flex-col gap-8 lg:flex-row lg:gap-12">
+              <div className="flex flex-col gap-8 lg:flex-row">
                 <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
                   <div className="space-y-3">
                     <h3 className="text-2xl font-bold sm:text-3xl">Task Management</h3>
-                    <p className="text-base text-muted-foreground sm:text-lg">
-                      Efficiently manage and track tasks across your organization with our intuitive task management system.
+                    <p className="text-muted-foreground">
+                      Streamline your operations with flexible task management.
                     </p>
                   </div>
-                  <ul className="grid gap-3">
+                  <ul className="grid gap-4">
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Multiple task views</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Multiple task views (List & Board)</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
+                      <CheckCircle className="h-5 w-5 text-primary" />
                       <span>Customizable checklists</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Email reminders</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Template management</span>
                     </li>
                     <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Progress tracking</span>
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Email notifications</span>
                     </li>
                   </ul>
                 </div>
@@ -300,6 +291,32 @@ export default function LandingPage() {
 
             <TabsContent value="waste" className="mt-6">
               <div className="flex flex-col gap-8 lg:flex-row">
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Waste Management</h3>
+                    <p className="text-muted-foreground">
+                      Track and optimize your waste management operations.
+                    </p>
+                  </div>
+                  <ul className="grid gap-4">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Comprehensive waste logging</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Pickup schedule management</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Performance metrics and reports</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Recycling rate tracking</span>
+                    </li>
+                  </ul>
+                </div>
                 <div className="lg:w-1/2">
                   <TabbedShowcase
                     images={[
@@ -322,45 +339,37 @@ export default function LandingPage() {
                     className="bg-background shadow-md"
                   />
                 </div>
-                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-bold sm:text-3xl">Waste Management</h3>
-                    <p className="text-base text-muted-foreground sm:text-lg">
-                      Track and optimize your waste management processes with detailed logging and analytics.
-                    </p>
-                  </div>
-                  <ul className="grid gap-3">
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Waste tracking logs</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Pickup scheduling</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Cost analysis</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Environmental reporting</span>
-                    </li>
-                  </ul>
-                </div>
               </div>
             </TabsContent>
 
             <TabsContent value="staff" className="mt-6">
               <div className="flex flex-col-reverse gap-8 lg:flex-row">
+                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
+                  <div className="space-y-3">
+                    <h3 className="text-2xl font-bold sm:text-3xl">Staff Management</h3>
+                    <p className="text-muted-foreground">
+                      Track staff certifications and maintain compliance records.
+                    </p>
+                  </div>
+                  <ul className="grid gap-4">
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Staff directory and profiles</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Certification tracking</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Document status monitoring</span>
+                    </li>
+                    <li className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-primary" />
+                      <span>Incident tracking</span>
+                    </li>
+                  </ul>
+                </div>
                 <div className="lg:w-1/2">
                   <TabbedShowcase
                     images={[
@@ -372,40 +381,6 @@ export default function LandingPage() {
                     ]}
                     className="bg-background shadow-md"
                   />
-                </div>
-                <div className="flex flex-col justify-center space-y-6 px-4 lg:w-1/2 lg:px-0">
-                  <div className="space-y-3">
-                    <h3 className="text-2xl font-bold sm:text-3xl">Staff Management</h3>
-                    <p className="text-base text-muted-foreground sm:text-lg">
-                      Efficiently manage your staff with integrated scheduling, certification tracking, and performance monitoring.
-                    </p>
-                  </div>
-                  <ul className="grid gap-3">
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Staff directory</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Shift scheduling</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Certification tracking</span>
-                    </li>
-                    <li className="flex items-center gap-3">
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Check className="h-4 w-4" />
-                      </div>
-                      <span>Time-off management</span>
-                    </li>
-                  </ul>
                 </div>
               </div>
             </TabsContent>
