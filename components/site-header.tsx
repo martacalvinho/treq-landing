@@ -1,6 +1,7 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { useState } from "react"
 import { Menu, X } from "lucide-react"
@@ -24,13 +25,15 @@ export function SiteHeader() {
       <div className="container mx-auto px-6">
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center mt-5">
-            <Image
-              src="/treqy-logo.svg"
-              alt="Treqy Logo"
-              width={100}
-              height={34}
-              className="dark:brightness-0 dark:invert"
-            />
+            <Link href="/">
+              <Image
+                src="/treqy-logo.svg"
+                alt="Treqy Logo"
+                width={100}
+                height={34}
+                className="dark:brightness-0 dark:invert"
+              />
+            </Link>
           </div>
 
           {/* Desktop Navigation */}
