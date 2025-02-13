@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -12,8 +14,18 @@ import { HeroButtons } from "@/components/hero-buttons"
 import { PricingCardButton } from "@/components/pricing-card-button"
 import { Clock4 } from "lucide-react"
 import { CheckCircle } from "lucide-react"
+import { useState } from "react"
 
 export default function LandingPage() {
+  const [waitlistCount, setWaitlistCount] = useState(234)
+  const totalSpots = 2000
+  const spotsRemaining = totalSpots - waitlistCount
+  const progressPercentage = (waitlistCount / totalSpots) * 100
+
+  const handleWaitlistJoin = () => {
+    setWaitlistCount(prev => Math.min(prev + 1, totalSpots))
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <SiteHeader />
@@ -391,117 +403,253 @@ export default function LandingPage() {
           <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
             <h2 className="text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">Simple, Transparent Pricing</h2>
             <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              Choose the plan that's right for your business. Save 30% with annual billing.
+              Choose the plan that's right for your business. Save 30% on annual plans by joining the waitlist now.
             </p>
           </div>
 
-          <div className="grid gap-6 pt-12 px-4 md:px-0 lg:grid-cols-2 xl:gap-12">
-            <Card className="flex flex-col h-full">
-              <CardHeader className="space-y-2">
-                <CardTitle>Professional</CardTitle>
-                <CardDescription>Perfect for single location businesses</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                <div>
-                  <span className="text-4xl font-bold">$99</span>
-                  <span className="text-muted-foreground">/month</span>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Save 30% with annual billing - First 200 waitlist members only
-                </p>
-                <ul className="grid gap-2">
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Single location</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Up to 50 staff members</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>All core features</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Email support</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="mt-auto">
-                <PricingCardButton className="w-full" />
-              </CardFooter>
-            </Card>
+          <div className="grid gap-6 pt-12 px-4 md:px-0">
+            <Tabs defaultValue="monthly" className="w-full">
+              <div className="flex justify-center mb-8">
+                <TabsList className="grid w-[300px] grid-cols-2">
+                  <TabsTrigger value="monthly">Monthly</TabsTrigger>
+                  <TabsTrigger value="annual">Annual (30% off)</TabsTrigger>
+                </TabsList>
+              </div>
 
-            <Card className="flex flex-col h-full">
-              <CardHeader className="space-y-2">
-                <CardTitle>Enterprise</CardTitle>
-                <CardDescription>For businesses with multiple locations</CardDescription>
-              </CardHeader>
-              <CardContent className="flex flex-col gap-6">
-                <div>
-                  <span className="text-4xl font-bold">$250</span>
-                  <span className="text-muted-foreground">/month</span>
+              <TabsContent value="monthly">
+                <div className="grid gap-6 lg:grid-cols-2 xl:gap-12">
+                  <Card className="flex flex-col h-full">
+                    <CardHeader className="space-y-2">
+                      <CardTitle>Professional</CardTitle>
+                      <CardDescription>Perfect for single location businesses</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                      <div>
+                        <span className="text-4xl font-bold">$99</span>
+                        <span className="text-muted-foreground">/month</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Switch to annual billing to save 30%
+                      </p>
+                      <ul className="grid gap-2">
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Single location</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Up to 50 staff members</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>All core features</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Email support</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="mt-auto">
+                      <PricingCardButton className="w-full" />
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="flex flex-col h-full">
+                    <CardHeader className="space-y-2">
+                      <CardTitle>Enterprise</CardTitle>
+                      <CardDescription>For businesses with multiple locations</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                      <div>
+                        <span className="text-4xl font-bold">$250</span>
+                        <span className="text-muted-foreground">/month</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Additional locations $50/month each</p>
+                      <ul className="grid gap-2">
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Up to 3 locations included</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Unlimited staff members</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Advanced analytics</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Priority support</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Custom integrations</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="mt-auto">
+                      <PricingCardButton className="w-full" />
+                    </CardFooter>
+                  </Card>
                 </div>
-                <p className="text-sm text-muted-foreground">Additional locations $50/month each</p>
-                <ul className="grid gap-2">
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Up to 3 locations included</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Unlimited staff members</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Advanced analytics</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Priority support</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
-                      <Check className="h-4 w-4" />
-                    </div>
-                    <span>Custom integrations</span>
-                  </li>
-                </ul>
-              </CardContent>
-              <CardFooter className="mt-auto">
-                <PricingCardButton className="w-full" />
-              </CardFooter>
-            </Card>
+              </TabsContent>
+
+              <TabsContent value="annual">
+                <div className="grid gap-6 lg:grid-cols-2 xl:gap-12">
+                  <Card className="flex flex-col h-full">
+                    <CardHeader className="space-y-2">
+                      <CardTitle>Professional</CardTitle>
+                      <CardDescription>Perfect for single location businesses</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-4xl font-bold">$69</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground line-through">
+                          $99/month
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Billed annually at $828 (30% off)
+                      </p>
+                      <ul className="grid gap-2">
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Single location</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Up to 50 staff members</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>All core features</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Email support</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="mt-auto">
+                      <PricingCardButton className="w-full" />
+                    </CardFooter>
+                  </Card>
+
+                  <Card className="flex flex-col h-full">
+                    <CardHeader className="space-y-2">
+                      <CardTitle>Enterprise</CardTitle>
+                      <CardDescription>For businesses with multiple locations</CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex flex-col gap-6">
+                      <div className="space-y-2">
+                        <div>
+                          <span className="text-4xl font-bold">$175</span>
+                          <span className="text-muted-foreground">/month</span>
+                        </div>
+                        <div className="text-sm text-muted-foreground line-through">
+                          $250/month
+                        </div>
+                      </div>
+                      <p className="text-sm text-muted-foreground">Additional locations $35/month each (billed annually)</p>
+                      <ul className="grid gap-2">
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Up to 3 locations included</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Unlimited staff members</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Advanced analytics</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Priority support</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-muted">
+                            <Check className="h-4 w-4" />
+                          </div>
+                          <span>Custom integrations</span>
+                        </li>
+                      </ul>
+                    </CardContent>
+                    <CardFooter className="mt-auto">
+                      <PricingCardButton className="w-full" />
+                    </CardFooter>
+                  </Card>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </section>
 
-        <section id="waitlist" className="container mx-auto px-4 py-24 sm:py-32">
-          <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center">
-            <h2 className="text-3xl font-bold leading-[1.1] sm:text-3xl md:text-5xl">Join the Waitlist</h2>
-            <p className="max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7">
-              Be one of the first 200 members to get 30% off annual plans when we launch.
+        <section id="waitlist" className="container mx-auto px-4 py-16 sm:py-24">
+          <div className="mx-auto flex max-w-[58rem] flex-col items-center space-y-3 sm:space-y-4 text-center">
+            <h2 className="text-2xl sm:text-3xl font-bold leading-[1.1] md:text-5xl">Join the Waitlist</h2>
+            <p className="max-w-[85%] leading-normal text-muted-foreground text-sm sm:text-lg sm:leading-7">
+              Be one of the first 2000 members to get 30% off annual plans when we launch.
             </p>
+            <div className="w-full max-w-md mt-2 sm:mt-4">
+              <div className="mb-1.5 sm:mb-2 flex justify-between text-xs sm:text-sm">
+                <span>{waitlistCount} spots claimed</span>
+                <span>{totalSpots} spots total</span>
+              </div>
+              <div className="h-1.5 sm:h-2 w-full bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500 ease-out" 
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+              <p className="mt-1.5 sm:mt-2 text-xs sm:text-sm text-muted-foreground">
+                Only {spotsRemaining} spots remaining - Join now to secure your discount!
+              </p>
+            </div>
           </div>
 
-          <div className="mx-auto max-w-lg pt-12 px-4 md:px-0">
-            <WaitlistForm />
+          <div className="mx-auto max-w-lg pt-8 sm:pt-12 px-4 md:px-0">
+            <WaitlistForm onSuccessfulJoin={handleWaitlistJoin} />
           </div>
         </section>
 
@@ -532,7 +680,7 @@ export default function LandingPage() {
               <AccordionItem value="item-3">
                 <AccordionTrigger>How do I claim the 30% discount?</AccordionTrigger>
                 <AccordionContent>
-                  The 30% discount on annual plans is available to the first 200 members who join our waitlist. Once we
+                  The 30% discount on annual plans is available to the first 2000 members who join our waitlist. Once we
                   launch, waitlist members will receive instructions on how to claim their discount.
                 </AccordionContent>
               </AccordionItem>

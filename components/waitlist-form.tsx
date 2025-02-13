@@ -10,7 +10,11 @@ import { toast } from "@/components/ui/use-toast"
 // Replace this with your Google Apps Script web app URL
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx_zJTPA78ZuZ9ogEQ6fPq4lXR53f2_ZFEYYpfnk4glxNdD9YesbGBNJVm93O0W8p1U/exec'
 
-export function WaitlistForm() {
+interface WaitlistFormProps {
+  onSuccessfulJoin?: () => void;
+}
+
+export function WaitlistForm({ onSuccessfulJoin }: WaitlistFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
@@ -92,6 +96,7 @@ export function WaitlistForm() {
       })
 
       setSubmitted(true)
+      onSuccessfulJoin?.()
     } catch (error) {
       console.error('Form submission error:', error)
       toast({
@@ -117,35 +122,37 @@ export function WaitlistForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 w-full">
-      <div className="space-y-2 w-full">
-        <Label htmlFor="email" className="text-sm font-medium">
-          Email
-        </Label>
-        <Input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="you@company.com"
-          className="w-full h-10"
-          required
-        />
+    <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 w-full">
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-2">
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="email" className="text-sm font-medium">
+            Email
+          </Label>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="you@company.com"
+            className="w-full h-9 sm:h-10"
+            required
+          />
+        </div>
+
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label htmlFor="name" className="text-sm font-medium">
+            Full Name
+          </Label>
+          <Input
+            id="name"
+            name="name"
+            placeholder="John Doe"
+            className="w-full h-9 sm:h-10"
+            required
+          />
+        </div>
       </div>
 
-      <div className="space-y-2 w-full">
-        <Label htmlFor="name" className="text-sm font-medium">
-          Full Name
-        </Label>
-        <Input
-          id="name"
-          name="name"
-          placeholder="John Doe"
-          className="w-full h-10"
-          required
-        />
-      </div>
-
-      <div className="space-y-2 w-full">
+      <div className="space-y-1.5 sm:space-y-2">
         <Label htmlFor="company" className="text-sm font-medium">
           Restaurant
         </Label>
@@ -153,62 +160,63 @@ export function WaitlistForm() {
           id="company"
           name="company"
           placeholder="Your restaurant name"
-          className="w-full h-10"
+          className="w-full h-9 sm:h-10"
           required
         />
       </div>
 
-      <div className="space-y-2 w-full">
-        <Label className="text-sm font-medium">Number of Locations</Label>
-        <RadioGroup
-          name="locations"
-          defaultValue="1"
-          className="space-y-3"
-        >
-          <div className="flex items-center space-x-3 h-10">
-            <RadioGroupItem value="1" id="1-location" />
-            <Label htmlFor="1-location">1 Location</Label>
-          </div>
-          <div className="flex items-center space-x-3 h-10">
-            <RadioGroupItem value="2-3" id="2-3-locations" />
-            <Label htmlFor="2-3-locations">2-3 Locations</Label>
-          </div>
-          <div className="flex items-center space-x-3 h-10">
-            <RadioGroupItem value="4+" id="4-plus-locations" />
-            <Label htmlFor="4-plus-locations">4+ Locations</Label>
-          </div>
-        </RadioGroup>
-      </div>
+      <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label className="text-sm font-medium">Number of Locations</Label>
+          <RadioGroup
+            name="locations"
+            defaultValue="1"
+            className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 sm:gap-4"
+          >
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <RadioGroupItem value="1" id="1-location" />
+              <Label htmlFor="1-location" className="text-sm">1 Location</Label>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <RadioGroupItem value="2-3" id="2-3-locations" />
+              <Label htmlFor="2-3-locations" className="text-sm">2-3 Locations</Label>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <RadioGroupItem value="4+" id="4-plus-locations" />
+              <Label htmlFor="4-plus-locations" className="text-sm">4+ Locations</Label>
+            </div>
+          </RadioGroup>
+        </div>
 
-      <div className="space-y-2 w-full">
-        <Label className="text-sm font-medium">Interested Plan</Label>
-        <RadioGroup
-          name="plan"
-          defaultValue="professional"
-          className="space-y-3"
-        >
-          <div className="flex items-center space-x-3 h-10">
-            <RadioGroupItem value="professional" id="professional" />
-            <Label htmlFor="professional">Professional ($99/month)</Label>
-          </div>
-          <div className="flex items-center space-x-3 h-10">
-            <RadioGroupItem value="enterprise" id="enterprise" />
-            <Label htmlFor="enterprise">Enterprise (Starting at $250/month)</Label>
-          </div>
-        </RadioGroup>
+        <div className="space-y-1.5 sm:space-y-2">
+          <Label className="text-sm font-medium">Interested Plan</Label>
+          <RadioGroup
+            name="plan"
+            defaultValue="professional"
+            className="grid gap-2 sm:gap-4"
+          >
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <RadioGroupItem value="professional" id="professional" />
+              <Label htmlFor="professional" className="text-sm">Professional ($99/month)</Label>
+            </div>
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <RadioGroupItem value="enterprise" id="enterprise" />
+              <Label htmlFor="enterprise" className="text-sm">Enterprise (Starting at $250/month)</Label>
+            </div>
+          </RadioGroup>
+        </div>
       </div>
 
       <Button 
         type="submit" 
-        className="w-full" 
+        className="w-full h-9 sm:h-10 mt-2"
         disabled={isSubmitting}
       >
         {isSubmitting ? "Joining..." : "Join Waitlist"}
       </Button>
 
-      <p className="text-center text-sm text-muted-foreground">
-        By joining the waitlist, you'll be notified when we launch and receive your exclusive 30% discount on annual
-        plans.
+      <p className="text-xs sm:text-sm text-muted-foreground text-center px-2">
+        By joining the waitlist, you'll be notified when we launch and receive your exclusive 30% discount on annual plans.
       </p>
     </form>
   )
