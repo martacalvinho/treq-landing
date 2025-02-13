@@ -3,11 +3,23 @@
 import Link from "next/link"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { SiteHeader } from "@/components/site-header"
-import { Badge } from "@/components/ui/badge"
-import { Analytics } from '@vercel/analytics/react'
+import { Analytics } from "@vercel/analytics/react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+
+// Replace this with your Google Apps Script web app URL for the audit responses
+const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuC0QmNOH25VmvA3vlZew4oHCMuxT575_RZiDLIhzX5IthPQZWR14TLQuGHkq_GEOS/exec'
 
 const complianceQuestions = [
   {
@@ -114,17 +126,13 @@ const complianceQuestions = [
 
 export default function NYCAuditPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [answers, setAnswers] = useState<{[key: number]: boolean}>({})
+  const [answers, setAnswers] = useState<Record<string, boolean>>({})
   const [showResults, setShowResults] = useState(false)
-
-  const handleAnswer = (answer: boolean) => {
-    setAnswers(prev => ({ ...prev, [currentQuestion]: answer }))
-    if (currentQuestion < complianceQuestions.length - 1) {
-      setCurrentQuestion(prev => prev + 1)
-    } else {
-      setShowResults(true)
-    }
-  }
+  const [email, setEmail] = useState("")
+  const [restaurantName, setRestaurantName] = useState("")
+  const [showQuestions, setShowQuestions] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showDialog, setShowDialog] = useState(true)
 
   const calculateRiskAmount = () => {
     return Object.entries(answers).reduce((total, [questionId, answer]) => {
@@ -138,6 +146,97 @@ export default function NYCAuditPage() {
   const progress = ((currentQuestion + 1) / complianceQuestions.length) * 100
   const currentViolations = Object.values(answers).filter(a => !a).length
   const currentRiskAmount = calculateRiskAmount()
+
+  const jsonp = (url: string): Promise<any> => {
+    return new Promise((resolve, reject) => {
+      const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+      
+      const script = document.createElement('script');
+      script.src = `${url}${url.includes('?') ? '&' : '?'}callback=${callbackName}`;
+      
+      (window as any)[callbackName] = (data: any) => {
+        delete (window as any)[callbackName];
+        document.body.removeChild(script);
+        resolve(data);
+      };
+      
+      script.onerror = () => {
+        delete (window as any)[callbackName];
+        document.body.removeChild(script);
+        reject(new Error('JSONP request failed'));
+      };
+      
+      document.body.appendChild(script);
+    });
+  };
+
+  const handleEmailSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (email && restaurantName) {
+      setShowQuestions(true);
+    }
+  };
+
+  const handleAnswer = async (answer: boolean) => {
+    const newAnswers = { ...answers, [currentQuestion]: answer }
+    setAnswers(newAnswers)
+
+    if (currentQuestion === complianceQuestions.length - 1) {
+      setIsSubmitting(true)
+      try {
+        // Prepare data for submission
+        const formData = {
+          email,
+          restaurantName,
+          answers: Object.entries(newAnswers).map(([questionId, answer]) => ({
+            question: complianceQuestions[parseInt(questionId)].question,
+            answer: answer ? 'Yes' : 'No',
+            riskAmount: answer ? 0 : complianceQuestions[parseInt(questionId)].riskAmount
+          })),
+          totalRisk: calculateRiskAmount(),
+          totalViolations: Object.values(newAnswers).filter(a => !a).length,
+          timestamp: new Date().toISOString()
+        }
+
+        console.log('Submitting audit results:', formData)
+
+        // Create URL with parameters
+        const params = new URLSearchParams({
+          email,
+          restaurantName,
+          data: JSON.stringify(formData)
+        }).toString()
+
+        const url = `${AUDIT_SCRIPT_URL}?${params}`
+        console.log('Sending request to:', url)
+
+        // Use JSONP
+        const result = await jsonp(url)
+        console.log('Response:', result)
+
+        if (result.result === 'error') {
+          throw new Error(result.message || 'Failed to save audit results')
+        }
+
+        // Track completion in GA
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'complete_audit', {
+            'event_category': 'audit',
+            'total_violations': formData.totalViolations,
+            'total_risk': formData.totalRisk,
+            'restaurant': restaurantName
+          })
+        }
+
+      } catch (error) {
+        console.error('Failed to save audit results:', error)
+      }
+      setIsSubmitting(false)
+      setShowResults(true)
+    } else {
+      setCurrentQuestion(currentQuestion + 1)
+    }
+  }
 
   if (showResults) {
     const riskAmount = calculateRiskAmount()
@@ -320,6 +419,147 @@ export default function NYCAuditPage() {
                   </div>
                 </CardContent>
               </Card>
+            </div>
+          ) : !showQuestions ? (
+            <div className="mx-auto max-w-4xl">
+              <div className="flex flex-col items-center gap-4 text-center mb-12">
+                <Badge variant="secondary" className="w-fit">
+                  Limited Time Offer - 30% Off Annual Plans
+                </Badge>
+                <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:text-5xl lg:leading-[1.2]">
+                  Do a Quick Check on your{" "}
+                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">
+                    NYC Compliance
+                  </span>
+                </h1>
+                <p className="text-xl text-muted-foreground max-w-2xl">
+                  Take 2 minutes to see how your restaurant is doing
+                </p>
+                <p className="text-sm font-medium text-red-600">
+                  92% of NYC restaurants find areas for improvement
+                </p>
+              </div>
+
+              <Card className="border-0 shadow-lg">
+                <CardContent className="p-8 space-y-8">
+                  <div className="space-y-4">
+                    <div className="relative pt-1">
+                      <Progress value={0} className="h-2" />
+                      <div className="flex justify-between mt-2">
+                        <p className="text-sm font-medium text-muted-foreground">
+                          Question 1 of {complianceQuestions.length}
+                        </p>
+                        <p className="text-sm font-medium text-muted-foreground">
+                          0% Complete
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-8">
+                    <div className="bg-[#2563EB]/5 p-8 rounded-xl">
+                      <h3 className="text-xl md:text-2xl font-medium text-center opacity-50">
+                        {complianceQuestions[0].question}
+                      </h3>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto opacity-50">
+                      <Button
+                        size="lg"
+                        className="bg-black hover:bg-black/90 h-16 text-lg"
+                        disabled
+                      >
+                        <span className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          Yes
+                        </span>
+                      </Button>
+                      <Button
+                        size="lg"
+                        className="bg-black hover:bg-black/90 h-16 text-lg"
+                        disabled
+                      >
+                        <span className="flex items-center gap-2">
+                          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                          No
+                        </span>
+                      </Button>
+                    </div>
+                  </div>
+
+                  {!showQuestions && (
+                    <div className="text-center">
+                      <Button
+                        onClick={() => setShowDialog(true)}
+                        className="bg-[#2563EB] hover:bg-[#2563EB]/90"
+                      >
+                        Enter Your Details to Start
+                      </Button>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Dialog 
+                open={showDialog} 
+                onOpenChange={setShowDialog}
+                onClose={(open) => {
+                  // Only allow closing if questions are started
+                  if (showQuestions) {
+                    setShowDialog(open)
+                  }
+                }}
+              >
+                <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => {
+                  // Prevent closing on click outside if questions haven't started
+                  if (!showQuestions) {
+                    e.preventDefault()
+                  }
+                }}>
+                  <DialogHeader>
+                    <DialogTitle>Start Your Assessment</DialogTitle>
+                    <DialogDescription>
+                      Enter your details to begin the compliance check
+                    </DialogDescription>
+                  </DialogHeader>
+                  <form onSubmit={handleEmailSubmit} className="space-y-6">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="restaurant">Restaurant Name</Label>
+                        <Input
+                          id="restaurant"
+                          type="text"
+                          placeholder="Your Restaurant Name"
+                          value={restaurantName}
+                          onChange={(e) => setRestaurantName(e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email Address</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          placeholder="you@restaurant.com"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-black hover:bg-black/90"
+                    >
+                      Start Assessment
+                    </Button>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </div>
           ) : (
             <div className="mx-auto max-w-4xl">
