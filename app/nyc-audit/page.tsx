@@ -348,6 +348,12 @@ export default function NYCAuditPage() {
               This quick assessment is for informational purposes only and does not constitute legal or professional advice. 
               Results are based on your responses and may not reflect all compliance requirements.
             </p>
+            <p className="text-sm text-muted-foreground text-center mt-2">
+              Questions? Contact us at{" "}
+              <a href="mailto:hello@treqy.com" className="text-[#2563EB] hover:underline">
+                hello@treqy.com
+              </a>
+            </p>
           </div>
         </footer>
         <Analytics />
@@ -709,6 +715,12 @@ export default function NYCAuditPage() {
           <p className="text-sm text-muted-foreground text-center">
             This quick assessment is for informational purposes only and does not constitute legal or professional advice. 
             Results are based on your responses and may not reflect all compliance requirements.
+          </p>
+          <p className="text-sm text-muted-foreground text-center mt-2">
+            Questions? Contact us at{" "}
+            <a href="mailto:hello@treqy.com" className="text-[#2563EB] hover:underline">
+              hello@treqy.com
+            </a>
           </p>
         </div>
       </footer>
