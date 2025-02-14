@@ -723,6 +723,12 @@ export default function LandingPage() {
               . All rights reserved.
             </p>
           </div>
+          <div className="text-center text-sm text-muted-foreground">
+            Questions? Contact us at{" "}
+            <a href="mailto:hello@treqy.com" className="text-[#2563EB] hover:underline">
+              hello@treqy.com
+            </a>
+          </div>
         </div>
       </footer>
     </div>
