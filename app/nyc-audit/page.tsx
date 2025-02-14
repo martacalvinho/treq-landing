@@ -17,6 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import toast from "@/components/ui/toast"
 
 // Replace this with your Google Apps Script web app URL for the audit responses
 const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuC0QmNOH25VmvA3vlZew4oHCMuxT575_RZiDLIhzX5IthPQZWR14TLQuGHkq_GEOS/exec'
@@ -136,13 +137,13 @@ const complianceQuestions = [
 
 export default function NYCAuditPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [answers, setAnswers] = useState<Record<string, boolean>>({})
+  const [answers, setAnswers] = useState<{ [key: number]: boolean }>({})
   const [showResults, setShowResults] = useState(false)
-  const [email, setEmail] = useState("")
-  const [restaurantName, setRestaurantName] = useState("")
-  const [showQuestions, setShowQuestions] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showDialog, setShowDialog] = useState(true)
+  const [showQuestions, setShowQuestions] = useState(false)
+  const [email, setEmail] = useState("")
+  const [restaurantName, setRestaurantName] = useState("")
 
   const calculateRiskAmount = () => {
     return Object.entries(answers).reduce((total, [questionId, answer]) => {
@@ -240,9 +241,15 @@ export default function NYCAuditPage() {
 
       } catch (error) {
         console.error('Failed to save audit results:', error)
+        toast({
+          title: "Error",
+          description: "Failed to save your audit results. Please try again.",
+          variant: "destructive"
+        })
+      } finally {
+        setIsSubmitting(false)
+        setShowResults(true)
       }
-      setIsSubmitting(false)
-      setShowResults(true)
     } else {
       setCurrentQuestion(currentQuestion + 1)
     }
@@ -349,8 +356,25 @@ export default function NYCAuditPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex flex-col min-h-screen">
       <SiteHeader />
+      <Analytics />
+
+      {/* Submitting Modal */}
+      <Dialog open={isSubmitting} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Submitting Your Answers</DialogTitle>
+            <DialogDescription>
+              Please wait while we save your audit results...
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex justify-center py-6">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <main className="flex-1">
         <section className="container mx-auto px-4 py-24 sm:py-32">
           {showResults ? (
@@ -688,7 +712,6 @@ export default function NYCAuditPage() {
           </p>
         </div>
       </footer>
-      <Analytics />
     </div>
   )
 }
