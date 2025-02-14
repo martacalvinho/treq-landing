@@ -24,103 +24,113 @@ const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuC0QmNOH25Vm
 const complianceQuestions = [
   {
     id: 1,
-    question: "Have you renewed your Food Service Establishment permit this year?",
-    riskAmount: 1000
+    question: "Have you renewed your Food Service Establishment permit?",
+    riskAmount: 1500
   },
   {
     id: 2,
-    question: "Have you renewed your Sidewalk Café Permit this year?",
-    riskAmount: 800
+    question: "Is your outdoor dining structure compliant with 2025 rules?",
+    riskAmount: 1000
   },
   {
     id: 3,
-    question: "Do you have a certified food protection manager on site during all hours of operation?",
-    riskAmount: 600
+    question: "Do you have a valid Certificate of Fitness for fire safety?",
+    riskAmount: 1000
   },
   {
     id: 4,
-    question: "Are your food temperature logs up to date?",
-    riskAmount: 500
+    question: "Are your food handlers certified?",
+    riskAmount: 600
   },
   {
     id: 5,
-    question: "Do you have proper pest control measures in place?",
-    riskAmount: 700
+    question: "Do you maintain proper food temperatures?",
+    riskAmount: 1000
   },
   {
     id: 6,
-    question: "Is your grease interceptor properly maintained?",
-    riskAmount: 900
+    question: "Is your grease interceptor cleaned monthly?",
+    riskAmount: 500
   },
   {
     id: 7,
-    question: "Do you have proper food storage containers and labels?",
-    riskAmount: 400
+    question: "Do you have proper pest control measures?",
+    riskAmount: 300
   },
   {
     id: 8,
-    question: "Are your employees wearing proper hair restraints?",
+    question: "Are your food storage areas properly maintained?",
     riskAmount: 300
   },
   {
     id: 9,
-    question: "Is your hand washing station properly equipped?",
-    riskAmount: 500
-  },
-  {
-    id: 10,
-    question: "Do you have a current letter grade posted?",
-    riskAmount: 1000
-  },
-  {
-    id: 11,
-    question: "Are your cleaning logs properly maintained?",
+    question: "Do you have proper hand washing stations?",
     riskAmount: 400
   },
   {
+    id: 10,
+    question: "Are your cleaning logs up to date?",
+    riskAmount: 200
+  },
+  {
+    id: 11,
+    question: "Is your ventilation system regularly cleaned?",
+    riskAmount: 800
+  },
+  {
     id: 12,
-    question: "Do you have proper sanitizer test strips?",
+    question: "Do you have proper food labeling?",
     riskAmount: 300
   },
   {
     id: 13,
-    question: "Is your employee health policy up to date?",
-    riskAmount: 600
+    question: "Are your refrigeration units working properly?",
+    riskAmount: 500
   },
   {
     id: 14,
-    question: "Do you have a proper allergen awareness program?",
-    riskAmount: 500
+    question: "Do you have a current health inspection grade card displayed?",
+    riskAmount: 1000
   },
   {
     id: 15,
-    question: "Are your refrigeration units maintaining proper temperature?",
-    riskAmount: 800
+    question: "Are your employees wearing proper hair restraints?",
+    riskAmount: 200
   },
   {
     id: 16,
-    question: "Do you have a current fire suppression system inspection certificate?",
-    riskAmount: 1200
+    question: "Do you have a valid workers' compensation insurance?",
+    riskAmount: 2500
   },
   {
     id: 17,
-    question: "Is your Choking First Aid poster properly displayed in a visible location?",
-    riskAmount: 400
+    question: "Is your alcohol license current (if applicable)?",
+    riskAmount: 5000
   },
   {
     id: 18,
-    question: "Do you maintain proper documentation of your employee food handler certifications?",
-    riskAmount: 600
+    question: "Do you have proper waste disposal contracts?",
+    riskAmount: 1000
   },
   {
     id: 19,
-    question: "Is your waste oil storage and disposal properly documented?",
-    riskAmount: 700
+    question: "Are your emergency exits properly marked and accessible?",
+    riskAmount: 2000
   },
   {
     id: 20,
-    question: "Do you have proper documentation for your food suppliers and deliveries?",
-    riskAmount: 500
+    question: "Do you have proper food allergen warnings?",
+    riskAmount: 1000
+  },
+  {
+    id: 21,
+    question: "Are ADA-compliant entrances/main facilities provided?",
+    riskAmount: 20000
+  },
+  {
+    id: 22,
+    question: "Are you using approved trash containers with secure lids?",
+    riskAmount: 200
   }
 ]
 
