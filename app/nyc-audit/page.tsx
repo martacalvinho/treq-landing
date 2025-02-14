@@ -20,7 +20,7 @@ import {
 import toast from "@/components/ui/toast"
 
 // Replace this with your Google Apps Script web app URL for the audit responses
-const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwuC0QmNOH25VmvA3vlZew4oHCMuxT575_RZiDLIhzX5IthPQZWR14TLQuGHkq_GEOS/exec'
+const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTL3CJdIJIhVOJEC3VmjZUFC3P1TOM_tlO9hAj-YwpHxD0ypgUs4VHTarzdn282AzR/exec'
 
 const complianceQuestions = [
   {
