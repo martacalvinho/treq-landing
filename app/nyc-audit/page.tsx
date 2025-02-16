@@ -268,11 +268,11 @@ export default function NYCAuditPage() {
               <Card className="border-0 shadow-lg">
                 <CardHeader className="space-y-6">
                   <CardTitle className="text-3xl font-bold text-center">
-                    Your Restaurant{" "}
-                    <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">
-                      Quick Check Results
-                    </span>
+                    NYC Restaurant Compliance Check
                   </CardTitle>
+                  <p className="text-center text-muted-foreground">
+                    Answer 15 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   <div className="text-center space-y-8">
@@ -345,8 +345,8 @@ export default function NYCAuditPage() {
         <footer className="py-6 border-t">
           <div className="container mx-auto px-4">
             <p className="text-sm text-muted-foreground text-center">
-              This quick assessment is for informational purposes only and does not constitute legal or professional advice. 
-              Results are based on your responses and may not reflect all compliance requirements.
+              This compliance check is for informational purposes only and does not constitute legal or professional advice. 
+              Results are based on your responses and may not reflect all compliance requirements. Always consult with qualified professionals for specific advice.
             </p>
             <p className="text-sm text-muted-foreground text-center mt-2">
               Questions? Contact us at{" "}
@@ -388,11 +388,11 @@ export default function NYCAuditPage() {
               <Card className="border-0 shadow-lg">
                 <CardHeader className="space-y-6">
                   <CardTitle className="text-3xl font-bold text-center">
-                    Your Restaurant{" "}
-                    <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">
-                      Quick Check Results
-                    </span>
+                    NYC Restaurant Compliance Check
                   </CardTitle>
+                  <p className="text-center text-muted-foreground">
+                    Answer 15 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
                   <div className="text-center space-y-8">
@@ -713,8 +713,8 @@ export default function NYCAuditPage() {
       <footer className="py-6 border-t">
         <div className="container mx-auto px-4">
           <p className="text-sm text-muted-foreground text-center">
-            This quick assessment is for informational purposes only and does not constitute legal or professional advice. 
-            Results are based on your responses and may not reflect all compliance requirements.
+            This compliance check is for informational purposes only and does not constitute legal or professional advice. 
+            Results are based on your responses and may not reflect all compliance requirements. Always consult with qualified professionals for specific advice.
           </p>
           <p className="text-sm text-muted-foreground text-center mt-2">
             Questions? Contact us at{" "}

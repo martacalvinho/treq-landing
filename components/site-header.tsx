@@ -47,6 +47,14 @@ export function SiteHeader() {
                 {item.label}
               </button>
             ))}
+            <Link href="/nyc-audit">
+              <Button
+                variant="outline"
+                className="bg-white text-black hover:bg-gray-50 border-2 border-black"
+              >
+                Free NYC Compliance Quiz →
+              </Button>
+            </Link>
             <Button
               className="bg-primary hover:bg-primary/90"
               onClick={() => scrollToSection("waitlist")}
@@ -80,6 +88,14 @@ export function SiteHeader() {
                 {item.label}
               </button>
             ))}
+            <Link href="/nyc-audit" className="w-full">
+              <Button
+                variant="outline"
+                className="w-full bg-white text-black hover:bg-gray-50 border-2 border-black"
+              >
+                Free NYC Compliance Quiz →
+              </Button>
+            </Link>
             <div className="pt-2 px-4">
               <Button
                 className="w-full bg-primary hover:bg-primary/90"
