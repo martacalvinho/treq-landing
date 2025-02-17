@@ -35,34 +35,54 @@ export default function LandingPage() {
             <Badge variant="secondary" className="w-fit">
               Limited Time Offer - 30% Off Annual Plans
             </Badge>
-            <h1 className="text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:text-5xl lg:leading-[1.3] px-4 md:px-0 text-center">
+            <h1 className="text-2xl font-bold leading-tight tracking-tighter md:text-3xl lg:text-5xl lg:leading-[1.3] px-4 md:px-0 text-center mb-10">
               {/* Mobile Layout */}
               <div className="flex flex-col items-center gap-4 md:hidden">
                 <div>
                   Never Miss a
                 </div>
                 <div>
-                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
+                  <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
                 </div>
                 <div>
-                  or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
+                  or <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
                 </div>
               </div>
               
               {/* Desktop Layout */}
               <div className="hidden md:flex md:flex-col md:items-center md:gap-6">
                 <div>
-                  Never Miss a <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
+                  Never Miss a <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">NYC Restaurant License</span>
                 </div>
                 <div>
-                  or <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
+                  or <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Permit Renewal</span> Again
                 </div>
               </div>
             </h1>
-            <p className="max-w-[750px] text-base text-muted-foreground sm:text-lg md:text-xl px-4 md:px-0">
-              <span className="font-bold text-foreground">One dashboard</span> for all your restaurant's permits, licenses, and compliance deadlines. Get <span className="font-semibold text-foreground">automatic reminders</span>, <span className="font-semibold text-foreground">document tracking</span>, and <span className="font-semibold text-foreground">pre-made checklists</span> to stay compliant year-round.
-            </p>
-            <HeroButtons />
+            <div className="max-w-[1000px] text-base text-muted-foreground sm:text-lg md:text-xl px-4 md:px-0 flex flex-col items-center gap-3">
+              <div className="font-bold text-foreground text-center mb-6 text-xl sm:text-2xl">One dashboard for all your restaurant's permits, licenses, and compliance deadlines.</div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-16 w-full max-w-4xl text-gray-600 mb-12">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Automatic reminders for licenses & permits</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Document tracking in one place</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Pre-made checklists for compliance tasks</span>
+                </div>
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-500 flex-shrink-0 mt-0.5" />
+                  <span>Waste Management and much more!</span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-4 min-[400px]:gap-16 pt-4">
+                <HeroButtons />
+              </div>
+            </div>
           </div>
         </section>
 

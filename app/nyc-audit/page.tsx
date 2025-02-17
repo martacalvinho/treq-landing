@@ -18,6 +18,13 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import toast from "@/components/ui/toast"
+import { Info } from "lucide-react"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 // Replace this with your Google Apps Script web app URL for the audit responses
 const AUDIT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyTL3CJdIJIhVOJEC3VmjZUFC3P1TOM_tlO9hAj-YwpHxD0ypgUs4VHTarzdn282AzR/exec'
@@ -26,114 +33,180 @@ const complianceQuestions = [
   {
     id: 1,
     question: "Have you renewed your Food Service Establishment permit?",
-    riskAmount: 1500
+    riskAmount: 1500,
+    info: "Food Service Establishment permits must be renewed annually. Operating without a valid permit can result in fines up to $1,500."
   },
   {
     id: 2,
     question: "Is your outdoor dining structure compliant with 2025 rules?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "New 2025 rules require structures to be easily removable, have no enclosed ceiling, and maintain clear paths for pedestrians and emergency access."
   },
   {
     id: 3,
     question: "Do you have a valid Certificate of Fitness for fire safety?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "Required for staff handling fire systems and equipment. Must be renewed every 3 years with proper training."
   },
   {
     id: 4,
     question: "Are your food handlers certified?",
-    riskAmount: 600
+    riskAmount: 600,
+    info: "At least one supervisor with food protection certification must be on duty at all times. Certification valid for 5 years."
   },
   {
     id: 5,
     question: "Do you maintain proper food temperatures?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "Cold foods must be kept at 41°F or below, hot foods at 140°F or above. Regular temperature logs required."
   },
   {
     id: 6,
     question: "Is your grease interceptor cleaned monthly?",
-    riskAmount: 500
+    riskAmount: 500,
+    info: "Monthly cleaning and maintenance required. Records must be kept for minimum of 2 years."
   },
   {
     id: 7,
     question: "Do you have proper pest control measures?",
-    riskAmount: 300
+    riskAmount: 300,
+    info: "Professional pest control service required monthly. Must maintain service records and pest monitoring logs."
   },
   {
     id: 8,
     question: "Are your food storage areas properly maintained?",
-    riskAmount: 300
+    riskAmount: 300,
+    info: "Food must be stored 6 inches off floor, properly labeled, and in approved containers. FIFO rotation required."
   },
   {
     id: 9,
     question: "Do you have proper hand washing stations?",
-    riskAmount: 400
+    riskAmount: 400,
+    info: "Dedicated hand washing sinks required in food prep areas with hot water, soap, and paper towels."
   },
   {
     id: 10,
     question: "Are your cleaning logs up to date?",
-    riskAmount: 200
+    riskAmount: 200,
+    info: "Daily cleaning logs required for all food contact surfaces and equipment. Must be readily available for inspection."
   },
   {
     id: 11,
     question: "Is your ventilation system regularly cleaned?",
-    riskAmount: 800
+    riskAmount: 800,
+    info: "Professional hood cleaning required quarterly. Inspection certificates must be displayed."
   },
   {
     id: 12,
     question: "Do you have proper food labeling?",
-    riskAmount: 300
+    riskAmount: 300,
+    info: "All prepared foods must be labeled with name, date of preparation, and use-by date."
   },
   {
     id: 13,
     question: "Are your refrigeration units working properly?",
-    riskAmount: 500
+    riskAmount: 500,
+    info: "Units must maintain 41°F or below. Daily temperature logs and regular maintenance required."
   },
   {
     id: 14,
     question: "Do you have a current health inspection grade card displayed?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "Grade card must be prominently displayed. Failure to post can result in additional fines."
   },
   {
     id: 15,
     question: "Are your employees wearing proper hair restraints?",
-    riskAmount: 200
+    riskAmount: 200,
+    info: "All food handlers must wear hair nets or caps. Beard guards required for facial hair."
   },
   {
     id: 16,
     question: "Do you have a valid workers' compensation insurance?",
-    riskAmount: 2500
+    riskAmount: 2500,
+    info: "Required for all employees. Failure to provide can result in fines and penalties."
   },
   {
     id: 17,
     question: "Is your alcohol license current (if applicable)?",
-    riskAmount: 5000
+    riskAmount: 5000,
+    info: "Required for all establishments serving alcohol. Must be renewed annually."
   },
   {
     id: 18,
     question: "Do you have proper waste disposal contracts?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "Required for all establishments generating waste. Must be renewed annually."
   },
   {
     id: 19,
     question: "Are your emergency exits properly marked and accessible?",
-    riskAmount: 2000
+    riskAmount: 2000,
+    info: "Required for all establishments. Must be clearly marked and accessible at all times."
   },
   {
     id: 20,
     question: "Do you have proper food allergen warnings?",
-    riskAmount: 1000
+    riskAmount: 1000,
+    info: "Required for all establishments serving food. Must be clearly displayed."
   },
   {
     id: 21,
     question: "Are ADA-compliant entrances/main facilities provided?",
-    riskAmount: 20000
+    riskAmount: 20000,
+    info: "Required for all establishments. Must be compliant with ADA regulations."
   },
   {
     id: 22,
     question: "Are you using approved trash containers with secure lids?",
-    riskAmount: 200
+    riskAmount: 200,
+    info: "Required for all establishments generating waste. Must be approved and have secure lids."
   }
 ]
+
+function InfoButton({ info }: { info: string }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false)
+
+  return (
+    <>
+      {/* Desktop Tooltip */}
+      <div className="hidden md:block">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                <Info className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="right" className="max-w-[300px] p-4 text-sm">
+              <p>{info}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Mobile Dialog */}
+      <div className="md:hidden">
+        <button 
+          onClick={() => setIsDialogOpen(true)}
+          className="p-1 hover:bg-gray-100 rounded-full transition-colors"
+        >
+          <Info className="h-5 w-5 text-muted-foreground hover:text-foreground" />
+        </button>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>Additional Information</DialogTitle>
+            </DialogHeader>
+            <div className="p-4 text-sm">
+              <p>{info}</p>
+            </div>
+          </DialogContent>
+        </Dialog>
+      </div>
+    </>
+  )
+}
 
 export default function NYCAuditPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
@@ -468,9 +541,8 @@ export default function NYCAuditPage() {
                 </Badge>
                 <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:text-5xl lg:leading-[1.2]">
                   Do a Quick Check on your{" "}
-                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">
-                    NYC Compliance
-                  </span>
+                  <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">NYC</span>{" "}
+                  <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Compliance</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
                   Take 2 minutes to see how your restaurant is doing
@@ -498,9 +570,12 @@ export default function NYCAuditPage() {
 
                   <div className="space-y-8">
                     <div className="bg-[#2563EB]/5 p-8 rounded-xl">
-                      <h3 className="text-xl md:text-2xl font-medium text-center opacity-50">
-                        {complianceQuestions[0].question}
-                      </h3>
+                      <div className="flex items-center justify-center gap-2">
+                        <h3 className="text-xl md:text-2xl font-medium text-center">
+                          {complianceQuestions[0].question}
+                        </h3>
+                        <InfoButton info={complianceQuestions[0].info} />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto opacity-50">
@@ -609,9 +684,8 @@ export default function NYCAuditPage() {
                 </Badge>
                 <h1 className="text-3xl font-bold leading-tight tracking-tighter md:text-4xl lg:text-5xl lg:leading-[1.2]">
                   Do a Quick Check on your{" "}
-                  <span className="bg-[#2563EB] text-white px-3 py-1 rounded-md">
-                    NYC Compliance
-                  </span>
+                  <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">NYC</span>{" "}
+                  <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Compliance</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
                   Take 2 minutes to see how your restaurant is doing
@@ -639,9 +713,12 @@ export default function NYCAuditPage() {
 
                   <div className="space-y-8">
                     <div className="bg-[#2563EB]/5 p-8 rounded-xl">
-                      <h3 className="text-xl md:text-2xl font-medium text-center">
-                        {complianceQuestions[currentQuestion].question}
-                      </h3>
+                      <div className="flex items-center justify-center gap-2">
+                        <h3 className="text-xl md:text-2xl font-medium text-center">
+                          {complianceQuestions[currentQuestion].question}
+                        </h3>
+                        <InfoButton info={complianceQuestions[currentQuestion].info} />
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
