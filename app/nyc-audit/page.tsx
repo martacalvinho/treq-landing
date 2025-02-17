@@ -17,8 +17,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import toast from "@/components/ui/toast"
-import { Info } from "lucide-react"
+import { useToast } from "@/components/ui/use-toast"
+import {
+  AlertTriangle,
+  Info,
+  Share2,
+  Copy,
+  Check,
+  Download,
+} from "lucide-react"
 import {
   Tooltip,
   TooltipContent,
@@ -212,11 +219,15 @@ export default function NYCAuditPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0)
   const [answers, setAnswers] = useState<{ [key: number]: boolean }>({})
   const [showResults, setShowResults] = useState(false)
+  const [showShareDialog, setShowShareDialog] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showDialog, setShowDialog] = useState(true)
   const [showQuestions, setShowQuestions] = useState(false)
   const [email, setEmail] = useState("")
   const [restaurantName, setRestaurantName] = useState("")
+  const { toast } = useToast()
 
   const calculateRiskAmount = () => {
     return Object.entries(answers).reduce((total, [questionId, answer]) => {
@@ -230,6 +241,56 @@ export default function NYCAuditPage() {
   const progress = ((currentQuestion + 1) / complianceQuestions.length) * 100
   const currentViolations = Object.values(answers).filter(a => !a).length
   const currentRiskAmount = calculateRiskAmount()
+
+  const handleDownloadChecklist = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch('/api/generate-checklist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          riskAmount: calculateRiskAmount(),
+          violations: currentViolations,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (!response.ok) throw new Error(data.error);
+
+      // Create blob from base64 PDF
+      const pdfBlob = new Blob(
+        [Uint8Array.from(atob(data.pdf), c => c.charCodeAt(0))],
+        { type: 'application/pdf' }
+      );
+
+      // Create download link
+      const url = window.URL.createObjectURL(pdfBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'NYC_Restaurant_Compliance_Checklist.pdf';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Checklist downloaded!",
+        description: "Use this checklist to track your compliance progress.",
+      });
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: "Download failed",
+        description: error.message || "Please try again later",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   const jsonp = (url: string): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -344,7 +405,7 @@ export default function NYCAuditPage() {
                     NYC Restaurant Compliance Check
                   </CardTitle>
                   <p className="text-center text-muted-foreground">
-                    Answer 15 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
+                    Answer 22 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -401,14 +462,75 @@ export default function NYCAuditPage() {
                     <p className="text-lg text-muted-foreground">
                       Get 30% off annual Treqy subscription to fix these compliance risks
                     </p>
-                    <Link href="/#waitlist" className="inline-block w-full sm:w-auto">
-                      <Button 
-                        size="lg"
-                        className="w-full sm:w-auto bg-black hover:bg-black/90 text-lg px-8 py-6 h-auto"
-                      >
-                        Get Protected Now
-                      </Button>
-                    </Link>
+                    <div className="flex flex-col items-center gap-4 w-full">
+                      <Link href="/#waitlist" className="w-full sm:w-auto">
+                        <Button 
+                          size="lg"
+                          className="w-full bg-black hover:bg-black/90 text-lg px-8 py-6 h-auto"
+                        >
+                          Stay Ahead of Potential NYC Fines
+                        </Button>
+                      </Link>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => setShowShareDialog(true)}
+                        >
+                          <Share2 className="h-4 w-4" />
+                          Share Results
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={handleDownloadChecklist}
+                          disabled={isDownloading}
+                        >
+                          <Download className="h-4 w-4" />
+                          {isDownloading ? "Generating..." : "Download Checklist"}
+                        </Button>
+                      </div>
+
+                      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Share Your Results</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="bg-muted p-4 rounded-lg text-sm">
+                              <p>I just checked my restaurant's compliance risk on Treqy and found out I could be at risk for ${calculateRiskAmount()} in fines. If you're running a restaurant in NYC, you NEED to check this before your next inspection!</p>
+                              <p className="mt-2">👉 www.treqy.com/nyc-audit</p>
+                            </div>
+                            <Button
+                              className="w-full gap-2"
+                              onClick={() => {
+                                const text = `I just checked my restaurant's compliance risk on Treqy and found out I could be at risk for $${calculateRiskAmount()} in fines. If you're running a restaurant in NYC, you NEED to check this before your next inspection!\n\n👉 www.treqy.com/nyc-audit`;
+                                navigator.clipboard.writeText(text).then(() => {
+                                  setIsCopied(true);
+                                  toast({
+                                    title: "Copied to clipboard!",
+                                    description: "Share the link with your network",
+                                  });
+                                  setTimeout(() => setIsCopied(false), 2000);
+                                });
+                              }}
+                            >
+                              {isCopied ? (
+                                <>
+                                  <Check className="h-4 w-4" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-4 w-4" />
+                                  Copy to Clipboard
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -464,7 +586,7 @@ export default function NYCAuditPage() {
                     NYC Restaurant Compliance Check
                   </CardTitle>
                   <p className="text-center text-muted-foreground">
-                    Answer 15 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
+                    Answer 22 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
                   </p>
                 </CardHeader>
                 <CardContent className="space-y-8">
@@ -519,16 +641,77 @@ export default function NYCAuditPage() {
                   <div className="bg-[#2563EB]/5 p-8 rounded-lg border border-[#2563EB]/10 text-center space-y-6">
                     <h4 className="text-2xl font-semibold">Ready to protect your business?</h4>
                     <p className="text-lg text-muted-foreground">
-                      Get 30% off annual Treqy subscription to fix these compliance risks
+                      Get 30% off annual Treqy subscription and start taking your compliance seriously!
                     </p>
-                    <Link href="/#waitlist" className="inline-block w-full sm:w-auto">
-                      <Button 
-                        size="lg"
-                        className="w-full sm:w-auto bg-black hover:bg-black/90 text-lg px-8 py-6 h-auto"
-                      >
-                        Get Protected Now
-                      </Button>
-                    </Link>
+                    <div className="flex flex-col items-center gap-4 w-full">
+                      <Link href="/#waitlist" className="w-full sm:w-auto">
+                        <Button 
+                          size="lg"
+                          className="w-full bg-black hover:bg-black/90 text-lg px-8 py-6 h-auto"
+                        >
+                          Stay Ahead of Potential NYC Fines
+                        </Button>
+                      </Link>
+                      <div className="flex gap-2 w-full sm:w-auto">
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={() => setShowShareDialog(true)}
+                        >
+                          <Share2 className="h-4 w-4" />
+                          Share Results
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          onClick={handleDownloadChecklist}
+                          disabled={isDownloading}
+                        >
+                          <Download className="h-4 w-4" />
+                          {isDownloading ? "Generating..." : "Download Checklist"}
+                        </Button>
+                      </div>
+
+                      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+                        <DialogContent className="sm:max-w-[425px]">
+                          <DialogHeader>
+                            <DialogTitle>Share Your Results</DialogTitle>
+                          </DialogHeader>
+                          <div className="space-y-4">
+                            <div className="bg-muted p-4 rounded-lg text-sm">
+                              <p>I just checked my restaurant's compliance risk on Treqy and found out I could be at risk for ${calculateRiskAmount()} in fines. If you're running a restaurant in NYC, you NEED to check this before your next inspection!</p>
+                              <p className="mt-2">👉 www.treqy.com/nyc-audit</p>
+                            </div>
+                            <Button
+                              className="w-full gap-2"
+                              onClick={() => {
+                                const text = `I just checked my restaurant's compliance risk on Treqy and found out I could be at risk for $${calculateRiskAmount()} in fines. If you're running a restaurant in NYC, you NEED to check this before your next inspection!\n\n👉 www.treqy.com/nyc-audit`;
+                                navigator.clipboard.writeText(text).then(() => {
+                                  setIsCopied(true);
+                                  toast({
+                                    title: "Copied to clipboard!",
+                                    description: "Share the link with your network",
+                                  });
+                                  setTimeout(() => setIsCopied(false), 2000);
+                                });
+                              }}
+                            >
+                              {isCopied ? (
+                                <>
+                                  <Check className="h-4 w-4" />
+                                  Copied!
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="h-4 w-4" />
+                                  Copy to Clipboard
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -545,7 +728,7 @@ export default function NYCAuditPage() {
                   <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Compliance</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
-                  Take 2 minutes to see how your restaurant is doing
+                  Answer 22 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
                 </p>
                 <p className="text-sm font-medium text-red-600">
                   92% of NYC restaurants find areas for improvement
@@ -688,7 +871,7 @@ export default function NYCAuditPage() {
                   <span className="bg-[#2D5BFF] text-white px-3 py-1 rounded-md">Compliance</span>
                 </h1>
                 <p className="text-xl text-muted-foreground max-w-2xl">
-                  Take 2 minutes to see how your restaurant is doing
+                  Answer 22 quick questions about your restaurant's compliance with NYC regulations. This check is for informational purposes only and does not constitute legal or professional advice.
                 </p>
                 <p className="text-sm font-medium text-red-600">
                   92% of NYC restaurants find areas for improvement
