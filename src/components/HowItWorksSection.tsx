@@ -7,19 +7,72 @@ const HowItWorksSection = () => {
       icon: Upload,
       title: "Upload Specs",
       description: "Drag 3–5 PDFs—no cleanup needed.",
-      number: "1"
+      number: "1",
+      mockup: (
+        <div className="bg-gray-50 rounded-lg p-4 border-2 border-dashed border-gray-300">
+          <div className="text-center">
+            <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-600 mb-2">Drop PDF schedules here</p>
+            <div className="space-y-1">
+              <div className="bg-white rounded px-2 py-1 text-xs text-gray-700 border">Floor_Plans_Q3.pdf</div>
+              <div className="bg-white rounded px-2 py-1 text-xs text-gray-700 border">Material_Schedule_v2.pdf</div>
+              <div className="bg-white rounded px-2 py-1 text-xs text-gray-700 border">FF&E_Spec.pdf</div>
+            </div>
+          </div>
+        </div>
+      )
     },
     {
       icon: Search,
       title: "We Extract & Tag",
       description: "AI pulls Tag · Category · Manufacturer · Notes.",
-      number: "2"
+      number: "2",
+      mockup: (
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>Processing...</span>
+              <span>78%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="bg-coral h-2 rounded-full" style={{ width: '78%' }}></div>
+            </div>
+            <div className="mt-3 space-y-1 text-xs">
+              <div className="flex gap-2">
+                <span className="bg-coral-100 text-coral-800 px-2 py-1 rounded">Flooring</span>
+                <span className="text-gray-600">Daltile Ceramic</span>
+              </div>
+              <div className="flex gap-2">
+                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded">Lighting</span>
+                <span className="text-gray-600">Philips LED Panel</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
     },
     {
       icon: CheckCircle,
       title: "You Explore",
       description: "Filter by project, typology, or brand. Spot duplicates & discontinued SKUs.",
-      number: "3"
+      number: "3",
+      mockup: (
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="mb-2">
+            <input type="text" placeholder="Search materials..." className="w-full text-xs p-2 border border-gray-300 rounded" />
+          </div>
+          <div className="space-y-1 text-xs">
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span>Acoustic panels</span>
+              <span className="text-coral font-semibold">12 matches</span>
+            </div>
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+              <span>Ceramic tiles</span>
+              <span className="text-coral font-semibold">8 matches</span>
+            </div>
+          </div>
+        </div>
+      )
     }
   ];
 
@@ -41,13 +94,14 @@ const HowItWorksSection = () => {
               <div className="absolute -top-4 -left-4 w-8 h-8 bg-coral rounded-full flex items-center justify-center text-white font-bold text-sm">
                 {step.number}
               </div>
-              <div className="flex items-center gap-4 mb-4">
+              <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-coral-50 rounded-lg flex items-center justify-center">
                   <step.icon className="h-6 w-6 text-coral" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-900">{step.title}</h3>
               </div>
-              <p className="text-gray-600 leading-relaxed">{step.description}</p>
+              <p className="text-gray-600 leading-relaxed mb-6">{step.description}</p>
+              {step.mockup}
             </div>
           ))}
         </div>

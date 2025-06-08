@@ -8,19 +8,83 @@ const DemoCarousel = () => {
   
   const slides = [
     {
-      title: "Library view filtered by 'Healthcare projects'",
-      icon: "📊",
-      description: "Browse materials by project type with intelligent filtering"
+      title: "Library filtered by 'Healthcare projects'",
+      description: "Browse materials by project type with intelligent filtering",
+      mockup: (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="flex gap-2 mb-4">
+            <span className="bg-coral text-white px-3 py-1 rounded-full text-sm font-medium">Healthcare</span>
+            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">2019-2024</span>
+          </div>
+          <div className="space-y-3">
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="flex justify-between">
+                <div>
+                  <h4 className="font-semibold text-sm">Antimicrobial Vinyl</h4>
+                  <p className="text-xs text-gray-600">Tarkett SafeTred</p>
+                </div>
+                <span className="text-xs text-gray-500">St. Mary's Hospital</span>
+              </div>
+            </div>
+            <div className="border border-gray-200 rounded-lg p-3">
+              <div className="flex justify-between">
+                <div>
+                  <h4 className="font-semibold text-sm">LED Panel 2x2</h4>
+                  <p className="text-xs text-gray-600">Cree CR24</p>
+                </div>
+                <span className="text-xs text-gray-500">Wellness Center</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )
     },
     {
-      title: "Search 'EGGER' → see 22 results + last used dates",
-      icon: "🔍",
-      description: "Instantly find all instances of any manufacturer or product"
+      title: "Manufacturer summary table (Top 10 brands used)",
+      description: "See which brands your studio trusts most",
+      mockup: (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <h4 className="font-semibold mb-4 text-sm">Top Manufacturers</h4>
+          <div className="space-y-2">
+            {['Daltile', 'Armstrong', 'Sherwin Williams', 'Herman Miller', 'Steelcase'].map((brand, index) => (
+              <div key={brand} className="flex justify-between items-center py-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-coral font-bold text-sm">#{index + 1}</span>
+                  <span className="text-sm font-medium">{brand}</span>
+                </div>
+                <span className="text-xs text-gray-500">{45 - index * 7} products</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )
     },
     {
-      title: "Alert panel 'Lavabo S-1 discontinued—click for alternates'",
-      icon: "⚠️",
-      description: "Stay ahead of discontinuations with smart alerts and alternatives"
+      title: "Duplicate alert modal with flagged materials",
+      description: "Instantly spot potential cost savings",
+      mockup: (
+        <div className="bg-white rounded-lg border border-gray-200 p-6">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+              <span className="text-yellow-800 font-semibold text-sm">3 Potential Duplicates Found</span>
+            </div>
+            <div className="space-y-2">
+              <div className="text-xs">
+                <div className="font-medium">Ceramic Tile 12x24"</div>
+                <div className="text-gray-600">Found in: Office Lobby, Conference Room</div>
+              </div>
+              <div className="text-xs">
+                <div className="font-medium">LED Downlight 6"</div>
+                <div className="text-gray-600">Found in: Reception, Hallway</div>
+              </div>
+            </div>
+            <Button size="sm" className="mt-3 bg-coral hover:bg-coral-600 text-white text-xs">
+              Review Duplicates
+            </Button>
+          </div>
+        </div>
+      )
     }
   ];
 
@@ -46,15 +110,17 @@ const DemoCarousel = () => {
         
         <div className="relative max-w-4xl mx-auto">
           <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-            <div className="h-80 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100">
-              <div className="text-center">
-                <div className="text-6xl mb-4">{slides[currentSlide].icon}</div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2 max-w-md">
-                  {slides[currentSlide].title}
-                </h3>
-                <p className="text-gray-600 max-w-sm">
-                  {slides[currentSlide].description}
-                </p>
+            <div className="h-80 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8">
+              <div className="w-full max-w-md">
+                <div className="text-center mb-6">
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">
+                    {slides[currentSlide].title}
+                  </h3>
+                  <p className="text-gray-600 text-sm">
+                    {slides[currentSlide].description}
+                  </p>
+                </div>
+                {slides[currentSlide].mockup}
               </div>
             </div>
             

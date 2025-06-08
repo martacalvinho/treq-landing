@@ -12,16 +12,16 @@ const Footer = () => {
           </div>
           
           <div className="flex justify-center gap-8 mb-8">
-            <a href="mailto:hello@specclarity.com" className="text-gray-400 hover:text-coral transition-colors">
+            <a href="mailto:hello@specclarity.com" className="text-gray-400 hover:text-coral transition-colors duration-200">
               Email
             </a>
-            <a href="#" className="text-gray-400 hover:text-coral transition-colors">
+            <a href="#" className="text-gray-400 hover:text-coral transition-colors duration-200">
               LinkedIn
             </a>
           </div>
           
           <div className="border-t border-gray-800 pt-8">
-            <p className="text-sm text-gray-500 max-w-2xl mx-auto">
+            <p className="text-sm text-gray-500 max-w-2xl mx-auto leading-relaxed">
               SpecClarity is an insights tool; it does not replace official cost or compliance consultants.
             </p>
           </div>
