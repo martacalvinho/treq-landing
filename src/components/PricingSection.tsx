@@ -1,85 +1,20 @@
 
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { Check, X } from "lucide-react";
+import { Check, Star } from "lucide-react";
+import PlanFinderWizard from "./PlanFinderWizard";
 
 const PricingSection = () => {
-  const plans = [
-    {
-      name: "Starter",
-      setup: "Free up to 4 specs",
-      setupSub: "Then €8 per project",
-      monthlyPrice: "€29",
-      period: "/mo",
-      description: "Perfect for small studios",
-      features: [
-        { name: "Projects per month", value: "2" },
-        { name: "Search Access", included: true },
-        { name: "Duplicate Alerts", included: false },
-        { name: "Manufacturer Insights", included: false },
-        { name: "Team Tools", included: false },
-        { name: "Export / API", included: false },
-        { name: "Support", value: "Email" }
-      ],
-      cta: "Start Free",
-      popular: false
-    },
-    {
-      name: "Studio",
-      setup: "Includes 25 projects",
-      setupSub: "(€199 value)",
-      monthlyPrice: "€49",
-      period: "/mo",
-      description: "Most popular for growing studios",
-      features: [
-        { name: "Projects per month", value: "10" },
-        { name: "Search Access", included: true },
-        { name: "Duplicate Alerts", included: true },
-        { name: "Manufacturer Insights", included: true },
-        { name: "Team Tools", included: true },
-        { name: "Export / API", included: false },
-        { name: "Support", value: "Priority" }
-      ],
-      cta: "Start Plan",
-      popular: true
-    },
-    {
-      name: "Growth",
-      setup: "Includes 75 projects",
-      setupSub: "(€499 value)",
-      monthlyPrice: "€99",
-      period: "/mo",
-      description: "For established studios",
-      features: [
-        { name: "Projects per month", value: "20" },
-        { name: "Search Access", included: true },
-        { name: "Duplicate Alerts", included: true },
-        { name: "Manufacturer Insights", included: true },
-        { name: "Team Tools", value: "Advanced" },
-        { name: "Export / API", included: true },
-        { name: "Support", value: "Priority + Reports" }
-      ],
-      cta: "Start Plan",
-      popular: false
-    },
-    {
-      name: "Enterprise",
-      setup: "Custom ingestion",
-      setupSub: "White-glove service",
-      monthlyPrice: "Custom",
-      period: "",
-      description: "For large organizations",
-      features: [
-        { name: "Projects per month", value: "Unlimited" },
-        { name: "Search Access", included: true },
-        { name: "Duplicate Alerts", included: true },
-        { name: "Manufacturer Insights", included: true },
-        { name: "Team Tools", included: true },
-        { name: "Export / API", included: true },
-        { name: "Support", value: "Dedicated" }
-      ],
-      cta: "Contact Sales",
-      popular: false
-    }
+  const [showWizard, setShowWizard] = useState(false);
+
+  const studioFeatures = [
+    "Includes 25 projects setup (€199 value)",
+    "10 new projects per month",
+    "Full search access",
+    "Duplicate alerts",
+    "Manufacturer insights", 
+    "Team collaboration tools",
+    "Priority support"
   ];
 
   return (
@@ -94,146 +29,64 @@ const PricingSection = () => {
           </p>
         </div>
 
-        {/* Pricing Table */}
-        <div className="overflow-x-auto">
-          <div className="min-w-4xl">
-            {/* Desktop View */}
-            <div className="hidden lg:block">
-              <div className="grid grid-cols-4 gap-6">
-                {plans.map((plan, index) => (
-                  <div key={index} className={`rounded-2xl p-6 border-2 shadow-lg hover:shadow-xl transition-shadow duration-200 relative ${
-                    plan.popular 
-                      ? "bg-gradient-to-br from-coral-50 to-coral-100 border-coral-200 scale-105" 
-                      : "bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200"
-                  }`}>
-                    {plan.popular && (
-                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                        <span className="bg-coral text-white px-4 py-1 rounded-full text-sm font-bold">
-                          MOST POPULAR
-                        </span>
-                      </div>
-                    )}
-                    
-                    <div className="text-center mb-6">
-                      <h3 className="text-xl font-bold text-gray-900 mb-2 mt-2">{plan.name}</h3>
-                      <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-                      
-                      {/* One-Time Setup */}
-                      <div className="mb-4 p-3 bg-white/50 rounded-lg border">
-                        <div className="text-sm font-semibold text-gray-700 mb-1">One-Time Setup</div>
-                        <div className="text-sm font-bold text-gray-900">{plan.setup}</div>
-                        <div className="text-xs text-gray-600">{plan.setupSub}</div>
-                      </div>
-                      
-                      {/* Monthly Price */}
-                      <div className="text-3xl font-bold text-gray-900 mb-1">
-                        {plan.monthlyPrice}
-                        {plan.period && <span className="text-lg font-medium text-gray-600">{plan.period}</span>}
-                      </div>
-                    </div>
-                    
-                    {/* Features */}
-                    <div className="space-y-3 mb-6">
-                      {plan.features.map((feature, featureIndex) => (
-                        <div key={featureIndex} className="flex items-center justify-between text-sm">
-                          <span className="text-gray-700">{feature.name}</span>
-                          <div className="flex items-center">
-                            {feature.included !== undefined ? (
-                              feature.included ? (
-                                <Check className={`h-4 w-4 ${plan.popular ? "text-coral" : "text-green-600"}`} />
-                              ) : (
-                                <X className="h-4 w-4 text-gray-400" />
-                              )
-                            ) : (
-                              <span className="text-gray-900 font-medium">{feature.value}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                    
-                    <Button 
-                      size="sm" 
-                      className={plan.popular 
-                        ? "bg-coral hover:bg-coral-600 text-white w-full font-semibold transition-all duration-200 hover:scale-105" 
-                        : "border-gray-400 text-gray-700 font-semibold w-full hover:bg-gray-50"
-                      }
-                      variant={plan.popular ? "default" : "outline"}
-                    >
-                      {plan.cta}
-                    </Button>
-                  </div>
-                ))}
+        {/* Featured Studio Plan */}
+        <div className="max-w-md mx-auto mb-12">
+          <div className="relative bg-gradient-to-br from-coral-50 to-coral-100 border-2 border-coral-200 rounded-2xl p-8 shadow-xl">
+            {/* Most Popular Badge */}
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+              <div className="bg-coral text-white px-4 py-1 rounded-full text-sm font-bold flex items-center gap-2">
+                <Star className="h-4 w-4" />
+                MOST POPULAR
               </div>
             </div>
-
-            {/* Mobile View */}
-            <div className="lg:hidden space-y-6">
-              {plans.map((plan, index) => (
-                <div key={index} className={`rounded-2xl p-6 border-2 shadow-lg ${
-                  plan.popular 
-                    ? "bg-gradient-to-br from-coral-50 to-coral-100 border-coral-200" 
-                    : "bg-gradient-to-br from-gray-50 to-gray-100 border-gray-200"
-                }`}>
-                  {plan.popular && (
-                    <div className="text-center mb-4">
-                      <span className="bg-coral text-white px-4 py-1 rounded-full text-sm font-bold">
-                        MOST POPULAR
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="text-center mb-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">{plan.name}</h3>
-                    <p className="text-sm text-gray-600 mb-4">{plan.description}</p>
-                    
-                    {/* One-Time Setup */}
-                    <div className="mb-4 p-3 bg-white/50 rounded-lg border">
-                      <div className="text-sm font-semibold text-gray-700 mb-1">One-Time Setup</div>
-                      <div className="text-sm font-bold text-gray-900">{plan.setup}</div>
-                      <div className="text-xs text-gray-600">{plan.setupSub}</div>
-                    </div>
-                    
-                    {/* Monthly Price */}
-                    <div className="text-3xl font-bold text-gray-900 mb-1">
-                      {plan.monthlyPrice}
-                      {plan.period && <span className="text-lg font-medium text-gray-600">{plan.period}</span>}
-                    </div>
-                  </div>
-                  
-                  {/* Features */}
-                  <div className="space-y-3 mb-6">
-                    {plan.features.map((feature, featureIndex) => (
-                      <div key={featureIndex} className="flex items-center justify-between text-sm">
-                        <span className="text-gray-700">{feature.name}</span>
-                        <div className="flex items-center">
-                          {feature.included !== undefined ? (
-                            feature.included ? (
-                              <Check className={`h-4 w-4 ${plan.popular ? "text-coral" : "text-green-600"}`} />
-                            ) : (
-                              <X className="h-4 w-4 text-gray-400" />
-                            )
-                          ) : (
-                            <span className="text-gray-900 font-medium">{feature.value}</span>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  
-                  <Button 
-                    size="sm" 
-                    className={plan.popular 
-                      ? "bg-coral hover:bg-coral-600 text-white w-full font-semibold transition-all duration-200 hover:scale-105" 
-                      : "border-gray-400 text-gray-700 font-semibold w-full hover:bg-gray-50"
-                    }
-                    variant={plan.popular ? "default" : "outline"}
-                  >
-                    {plan.cta}
-                  </Button>
+            
+            <div className="text-center mb-6 mt-4">
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Studio</h3>
+              <p className="text-gray-600 mb-4">Perfect for growing studios</p>
+              
+              {/* One-Time Setup */}
+              <div className="mb-4 p-3 bg-white/70 rounded-lg border border-coral-200">
+                <div className="text-sm font-semibold text-gray-700 mb-1">One-Time Setup</div>
+                <div className="text-sm font-bold text-gray-900">Includes 25 projects</div>
+                <div className="text-xs text-gray-600">(€199 value)</div>
+              </div>
+              
+              {/* Monthly Price */}
+              <div className="text-4xl font-bold text-gray-900 mb-2">
+                €49<span className="text-lg font-medium text-gray-600">/mo</span>
+              </div>
+            </div>
+            
+            {/* Features */}
+            <div className="space-y-3 mb-8">
+              {studioFeatures.map((feature, index) => (
+                <div key={index} className="flex items-center text-sm">
+                  <Check className="h-4 w-4 text-coral mr-3 flex-shrink-0" />
+                  <span className="text-gray-700">{feature}</span>
                 </div>
               ))}
             </div>
+            
+            <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 transition-all duration-200 hover:scale-105">
+              Start Plan
+            </Button>
+          </div>
+        </div>
+
+        {/* Plan Finder */}
+        <div className="text-center">
+          <div className="bg-gray-50 rounded-lg p-8 max-w-lg mx-auto border border-gray-200">
+            <h4 className="font-semibold text-gray-900 mb-2">Not sure which plan fits?</h4>
+            <p className="text-gray-600 text-sm mb-6">
+              Answer three quick questions and we'll recommend the ideal setup & monthly plan.
+            </p>
+            <Button 
+              onClick={() => setShowWizard(true)}
+              variant="outline" 
+              className="border-coral text-coral hover:bg-coral hover:text-white font-semibold px-6 py-2"
+            >
+              Find My Perfect Plan
+            </Button>
           </div>
         </div>
 
@@ -247,6 +100,12 @@ const PricingSection = () => {
             </p>
           </div>
         </div>
+
+        {/* Plan Finder Wizard Modal */}
+        <PlanFinderWizard 
+          isOpen={showWizard} 
+          onClose={() => setShowWizard(false)} 
+        />
       </div>
     </section>
   );
