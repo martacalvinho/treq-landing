@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { X, CheckCircle } from "lucide-react";
@@ -6,6 +5,12 @@ import { X, CheckCircle } from "lucide-react";
 interface WizardProps {
   isOpen: boolean;
   onClose: () => void;
+}
+
+interface WizardAnswers {
+  importSize: string;
+  monthlyProjects: string;
+  advancedNeeds: string;
 }
 
 interface RecommendationResult {
@@ -18,7 +23,7 @@ interface RecommendationResult {
 
 const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [answers, setAnswers] = useState({
+  const [answers, setAnswers] = useState<WizardAnswers>({
     importSize: '',
     monthlyProjects: '',
     advancedNeeds: ''
@@ -27,7 +32,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
 
   const questions = [
     {
-      id: 'importSize',
+      id: 'importSize' as keyof WizardAnswers,
       title: 'How many historical material schedules do you want digitised right now?',
       options: [
         { value: 'import_tiny', label: '0-4 specs' },
@@ -38,7 +43,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
       ]
     },
     {
-      id: 'monthlyProjects',
+      id: 'monthlyProjects' as keyof WizardAnswers,
       title: 'Roughly how many new projects will you spec each month?',
       options: [
         { value: 'new_low', label: '0-2' },
@@ -48,7 +53,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
       ]
     },
     {
-      id: 'advancedNeeds',
+      id: 'advancedNeeds' as keyof WizardAnswers,
       title: 'Do you need advanced team permissions or API/export access?',
       options: [
         { value: 'adv_yes', label: 'Yes' },
@@ -57,7 +62,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
     }
   ];
 
-  const calculateRecommendation = (answers: typeof answers): RecommendationResult => {
+  const calculateRecommendation = (answers: WizardAnswers): RecommendationResult => {
     // Setup plan mapping
     const setupMapping = {
       'import_tiny': { plan: 'Free Setup', price: 'Free up to 4 specs' },
@@ -98,7 +103,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
     };
   };
 
-  const handleAnswer = (questionId: string, value: string) => {
+  const handleAnswer = (questionId: keyof WizardAnswers, value: string) => {
     const newAnswers = { ...answers, [questionId]: value };
     setAnswers(newAnswers);
     
