@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Edit, Building, Mail, Phone, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AddManufacturerForm from '@/components/forms/AddManufacturerForm';
 
 const Manufacturers = () => {
@@ -86,7 +87,9 @@ const Manufacturers = () => {
                       <Building className="h-6 w-6 text-coral-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{manufacturer.name}</h3>
+                      <Link to={`/manufacturers/${manufacturer.id}`} className="hover:text-coral">
+                        <h3 className="font-semibold text-lg">{manufacturer.name}</h3>
+                      </Link>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                         {manufacturer.contact_name && (
                           <span>Contact: {manufacturer.contact_name}</span>
