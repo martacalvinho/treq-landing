@@ -37,7 +37,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       first_name: '',
       last_name: '',
       role: 'studio_user',
-      studio_id: '',
+      studio_id: 'no-studio',
     },
   });
 
@@ -63,7 +63,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
           first_name: values.first_name,
           last_name: values.last_name,
           role: values.role,
-          studio_id: values.studio_id || null,
+          studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
         });
 
       if (profileError) throw profileError;
@@ -179,7 +179,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No studio</SelectItem>
+                      <SelectItem value="no-studio">No studio</SelectItem>
                       {studios.map((studio) => (
                         <SelectItem key={studio.id} value={studio.id}>
                           {studio.name}
