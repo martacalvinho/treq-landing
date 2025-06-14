@@ -5,10 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Edit, Building, Users } from 'lucide-react';
+import { Search, Building, Users, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddStudioForm from '@/components/forms/AddStudioForm';
+import EditStudioForm from '@/components/forms/EditStudioForm';
 
 const Studios = () => {
   const { isAdmin } = useAuth();
@@ -16,6 +18,7 @@ const Studios = () => {
   const [studios, setStudios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [subscriptionFilter, setSubscriptionFilter] = useState<string>('all');
 
   useEffect(() => {
     if (isAdmin) {
@@ -43,9 +46,11 @@ const Studios = () => {
     }
   };
 
-  const filteredStudios = studios.filter(studio =>
-    studio.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredStudios = studios.filter(studio => {
+    const matchesSearch = studio.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesTier = subscriptionFilter === 'all' || studio.subscription_tier === subscriptionFilter;
+    return matchesSearch && matchesTier;
+  });
 
   const getSubscriptionColor = (tier: string) => {
     switch (tier) {
@@ -57,12 +62,10 @@ const Studios = () => {
   };
 
   const handleManageUsers = (studioId: string) => {
-    // Navigate to users page with studio filter
     navigate(`/users?studio=${studioId}`);
   };
 
   const handleViewData = (studioId: string) => {
-    // Navigate to studio-specific dashboard
     navigate(`/studios/${studioId}/dashboard`);
   };
 
@@ -88,14 +91,30 @@ const Studios = () => {
               <CardTitle>All Studios</CardTitle>
               <CardDescription>Manage all studios in the system</CardDescription>
             </div>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search studios..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Filter className="h-4 w-4 text-gray-400" />
+                <Select value={subscriptionFilter} onValueChange={setSubscriptionFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Filter by tier" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Tiers</SelectItem>
+                    <SelectItem value="starter">Starter</SelectItem>
+                    <SelectItem value="professional">Professional</SelectItem>
+                    <SelectItem value="enterprise">Enterprise</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search studios..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -140,16 +159,19 @@ const Studios = () => {
                     >
                       View Data
                     </Button>
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditStudioForm 
+                      studio={studio} 
+                      onStudioUpdated={fetchStudios}
+                    />
                   </div>
                 </div>
               );
             })}
             {filteredStudios.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm ? 'No studios found matching your search.' : 'No studios yet.'}
+                {searchTerm || subscriptionFilter !== 'all' 
+                  ? 'No studios found matching your filters.' 
+                  : 'No studios yet.'}
               </div>
             )}
           </div>
