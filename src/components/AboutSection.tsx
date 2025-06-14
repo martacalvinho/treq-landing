@@ -45,7 +45,9 @@ const AboutSection = () => {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed">
-                TBD - Technology background and expertise in building solutions for architecture and design professionals.
+                Architectural practice experience in Philadelphia and Chicago, combined with hands-on woodworking 
+                expertise in New York City. This unique blend of architectural design and craft gives deep insight 
+                into material selection, specification challenges, and the critical importance of getting materials right.
               </p>
             </div>
           </div>
