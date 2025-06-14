@@ -18,6 +18,7 @@ const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
   manufacturer_id: z.string().optional(),
+  project_id: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -31,7 +32,9 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [manufacturers, setManufacturers] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentProjectLink, setCurrentProjectLink] = useState<string>('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -39,6 +42,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       name: material.name,
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
+      project_id: '',
       notes: material.notes || '',
     },
   });
@@ -48,9 +52,10 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       name: material.name,
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
+      project_id: currentProjectLink || '',
       notes: material.notes || '',
     });
-  }, [material, form]);
+  }, [material, currentProjectLink, form]);
 
   const fetchManufacturers = async () => {
     if (!studioId) return;
@@ -67,12 +72,49 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     }
   };
 
+  const fetchActiveProjects = async () => {
+    if (!studioId) return;
+    try {
+      console.log('Fetching active projects for studio:', studioId);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name')
+        .eq('studio_id', studioId)
+        .eq('status', 'active');
+      
+      if (error) throw error;
+      console.log('Fetched projects:', data);
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
+
+  const fetchCurrentProjectLink = async () => {
+    if (!studioId || !material.id) return;
+    try {
+      const { data, error } = await supabase
+        .from('proj_materials')
+        .select('project_id')
+        .eq('material_id', material.id)
+        .eq('studio_id', studioId)
+        .maybeSingle();
+      
+      if (error) throw error;
+      setCurrentProjectLink(data?.project_id || '');
+    } catch (error) {
+      console.error('Error fetching current project link:', error);
+    }
+  };
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     if (!studioId) return;
     
     try {
       setLoading(true);
-      const { error } = await supabase
+      
+      // Update the material
+      const { error: materialError } = await supabase
         .from('materials')
         .update({
           name: values.name,
@@ -83,7 +125,30 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
         .eq('id', material.id)
         .eq('studio_id', studioId);
 
-      if (error) throw error;
+      if (materialError) throw materialError;
+
+      // Handle project linking
+      if (currentProjectLink) {
+        // Remove existing project link
+        await supabase
+          .from('proj_materials')
+          .delete()
+          .eq('material_id', material.id)
+          .eq('studio_id', studioId);
+      }
+
+      if (values.project_id && values.project_id !== 'none') {
+        // Add new project link
+        const { error: projMaterialError } = await supabase
+          .from('proj_materials')
+          .insert({
+            project_id: values.project_id,
+            material_id: material.id,
+            studio_id: studioId,
+          });
+
+        if (projMaterialError) throw projMaterialError;
+      }
 
       toast({
         title: "Success",
@@ -109,6 +174,15 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     
     try {
       setLoading(true);
+      
+      // First delete any project links
+      await supabase
+        .from('proj_materials')
+        .delete()
+        .eq('material_id', material.id)
+        .eq('studio_id', studioId);
+      
+      // Then delete the material
       const { error } = await supabase
         .from('materials')
         .delete()
@@ -140,6 +214,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     setOpen(newOpen);
     if (newOpen) {
       fetchManufacturers();
+      fetchActiveProjects();
+      fetchCurrentProjectLink();
     }
   };
 
@@ -201,6 +277,32 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                       {manufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer.id} value={manufacturer.id}>
                           {manufacturer.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="project_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Link to Project (Optional)</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} value={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select an active project" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No project</SelectItem>
+                      {projects.map((project) => (
+                        <SelectItem key={project.id} value={project.id}>
+                          {project.name}
                         </SelectItem>
                       ))}
                     </SelectContent>

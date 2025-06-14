@@ -61,15 +61,25 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   };
 
   const fetchActiveProjects = async () => {
-    if (!studioId) return;
+    if (!studioId) {
+      console.log('No studioId available');
+      return;
+    }
     try {
+      console.log('Fetching active projects for studio:', studioId);
       const { data, error } = await supabase
         .from('projects')
-        .select('id, name')
-        .eq('studio_id', studioId)
-        .eq('status', 'active');
+        .select('id, name, status')
+        .eq('studio_id', studioId);
       
       if (error) throw error;
+      console.log('All projects fetched:', data);
+      
+      // Filter for active projects, but also include other statuses for debugging
+      const activeProjects = data?.filter(project => project.status === 'active') || [];
+      console.log('Active projects:', activeProjects);
+      
+      // For now, let's show all projects to debug the issue
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -98,7 +108,7 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       if (materialError) throw materialError;
 
       // If a project is selected, link the material to the project
-      if (values.project_id && materialData) {
+      if (values.project_id && values.project_id !== 'none' && materialData) {
         const { error: projMaterialError } = await supabase
           .from('proj_materials')
           .insert({
@@ -215,14 +225,14 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
                   <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select an active project" />
+                        <SelectValue placeholder="Select a project" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="none">No project</SelectItem>
                       {projects.map((project) => (
                         <SelectItem key={project.id} value={project.id}>
-                          {project.name}
+                          {project.name} ({project.status})
                         </SelectItem>
                       ))}
                     </SelectContent>
