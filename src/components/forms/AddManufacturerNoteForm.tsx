@@ -34,7 +34,7 @@ const AddManufacturerNoteForm = ({ manufacturerId, materials, onNoteAdded }: Add
     try {
       setLoading(true);
       const { error } = await supabase
-        .from('manufacturer_notes')
+        .from('manufacturer_notes' as any)
         .insert([
           {
             manufacturer_id: manufacturerId,

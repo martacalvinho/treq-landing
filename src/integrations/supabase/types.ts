@@ -108,6 +108,64 @@ export type Database = {
           },
         ]
       }
+      manufacturer_notes: {
+        Row: {
+          contact_date: string
+          created_at: string
+          delivery_time: string | null
+          id: string
+          manufacturer_id: string
+          material_discussed_id: string | null
+          notes: string
+          studio_id: string
+          updated_at: string
+        }
+        Insert: {
+          contact_date: string
+          created_at?: string
+          delivery_time?: string | null
+          id?: string
+          manufacturer_id: string
+          material_discussed_id?: string | null
+          notes: string
+          studio_id: string
+          updated_at?: string
+        }
+        Update: {
+          contact_date?: string
+          created_at?: string
+          delivery_time?: string | null
+          id?: string
+          manufacturer_id?: string
+          material_discussed_id?: string | null
+          notes?: string
+          studio_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manufacturer_notes_manufacturer_id_fkey"
+            columns: ["manufacturer_id"]
+            isOneToOne: false
+            referencedRelation: "manufacturers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manufacturer_notes_material_discussed_id_fkey"
+            columns: ["material_discussed_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "manufacturer_notes_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manufacturers: {
         Row: {
           contact_name: string | null

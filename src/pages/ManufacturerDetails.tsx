@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -65,7 +66,7 @@ const ManufacturerDetails = () => {
   const fetchManufacturerNotes = async () => {
     try {
       const { data, error } = await supabase
-        .from('manufacturer_notes')
+        .from('manufacturer_notes' as any)
         .select(`
           *,
           materials(id, name)
