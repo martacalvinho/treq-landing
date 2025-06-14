@@ -75,7 +75,7 @@ const EditProjectForm = ({ project, onProjectUpdated }: EditProjectFormProps) =>
           name: values.name,
           type: values.type,
           status: values.status,
-          client_id: values.client_id || null,
+          client_id: values.client_id === 'no-client' ? null : values.client_id || null,
           start_date: values.start_date || null,
           end_date: values.end_date || null,
           notes: values.notes || null,
@@ -113,7 +113,7 @@ const EditProjectForm = ({ project, onProjectUpdated }: EditProjectFormProps) =>
         name: project.name || '',
         type: project.type || 'residential',
         status: project.status || 'planning',
-        client_id: project.client_id || '',
+        client_id: project.client_id || 'no-client',
         start_date: project.start_date || '',
         end_date: project.end_date || '',
         notes: project.notes || '',
@@ -213,7 +213,7 @@ const EditProjectForm = ({ project, onProjectUpdated }: EditProjectFormProps) =>
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No client</SelectItem>
+                      <SelectItem value="no-client">No client</SelectItem>
                       {clients.map((client) => (
                         <SelectItem key={client.id} value={client.id}>
                           {client.name}

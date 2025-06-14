@@ -71,7 +71,7 @@ const AddProjectForm = ({ onProjectAdded }: AddProjectFormProps) => {
         .insert({
           name: values.name,
           type: values.type,
-          client_id: values.client_id || null,
+          client_id: values.client_id === 'no-client' ? null : values.client_id || null,
           start_date: values.start_date || null,
           end_date: values.end_date || null,
           notes: values.notes || null,
@@ -175,6 +175,7 @@ const AddProjectForm = ({ onProjectAdded }: AddProjectFormProps) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="no-client">No client</SelectItem>
                       {clients.map((client) => (
                         <SelectItem key={client.id} value={client.id}>
                           {client.name}
