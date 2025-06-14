@@ -1,29 +1,42 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Search } from "lucide-react";
+import { ArrowRight, Play, Search, X, Filter } from "lucide-react";
+import { useState } from "react";
 
 const HeroSection = () => {
+  const [selectedFilters, setSelectedFilters] = useState(['Office Tower', 'Commercial', 'Rockfon']);
+  const [showDuplicates, setShowDuplicates] = useState(true);
+
+  const removeFilter = (filter: string) => {
+    setSelectedFilters(prev => prev.filter(f => f !== filter));
+  };
+
+  const toggleDuplicates = () => {
+    setShowDuplicates(!showDuplicates);
+  };
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-blue-50 py-20 md:py-32 pt-24">
       <div className="container mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="animate-fade-in">
-            <div className="mb-6">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 leading-[0.9] mb-4">
+            <div className="mb-8">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-[0.95] mb-6">
                 Your Studio's
-              </h1>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[0.9] mb-6">
+                <br />
                 <span className="text-coral bg-gradient-to-r from-coral to-coral-600 bg-clip-text text-transparent">
                   Material Memory
                 </span>
               </h1>
             </div>
-            <p className="text-xl md:text-2xl text-gray-600 mb-4 leading-relaxed font-medium">
-              Never lose track of specifications again.
-            </p>
-            <p className="text-lg text-gray-500 mb-8 leading-relaxed">
-              Instantly search every product you've ever specified—by project, typology, or manufacturer. Build your complete material library in 24 hours.
-            </p>
+            <div className="space-y-6 mb-10">
+              <p className="text-xl md:text-2xl text-gray-700 font-semibold leading-tight">
+                Never lose track of materials again.
+              </p>
+              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                Instantly search everything you've ever specified - by project, client, type or manufacturer. Build your own complete intelligent material library.
+              </p>
+            </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 size="lg" 
@@ -43,7 +56,8 @@ const HeroSection = () => {
             </div>
           </div>
           
-          <div className="relative">
+          {/* Desktop Dashboard */}
+          <div className="relative hidden lg:block">
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden hover:shadow-3xl transition-all duration-500 hover:scale-105">
               {/* Dashboard Header */}
               <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-5 border-b border-gray-200">
@@ -54,25 +68,35 @@ const HeroSection = () => {
                   <span className="font-semibold text-gray-800">Material Search</span>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
-                  <span className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-700 border border-gray-200 shadow-sm hover:shadow-md hover:bg-coral-50 hover:border-coral-200 transition-all duration-200 cursor-pointer">
-                    Project: Office Tower
-                  </span>
-                  <span className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-700 border border-gray-200 shadow-sm hover:shadow-md hover:bg-coral-50 hover:border-coral-200 transition-all duration-200 cursor-pointer">
-                    Typology: Commercial
-                  </span>
-                  <span className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-700 border border-gray-200 shadow-sm hover:shadow-md hover:bg-coral-50 hover:border-coral-200 transition-all duration-200 cursor-pointer">
-                    Manufacturer: Rockfon
-                  </span>
+                  {selectedFilters.map((filter, index) => (
+                    <span 
+                      key={filter}
+                      className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-700 border border-gray-200 shadow-sm hover:shadow-md hover:bg-coral-50 hover:border-coral-200 transition-all duration-200 cursor-pointer group flex items-center gap-2"
+                      onClick={() => removeFilter(filter)}
+                    >
+                      {index === 0 ? 'Project: ' : index === 1 ? 'Typology: ' : 'Manufacturer: '}{filter}
+                      <X className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                    </span>
+                  ))}
+                  <button className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-500 border border-gray-200 shadow-sm hover:shadow-md hover:bg-gray-50 transition-all duration-200 flex items-center gap-2">
+                    <Filter className="h-3 w-3" />
+                    Add filter
+                  </button>
                 </div>
-                <div className="bg-gradient-to-r from-coral-100 to-coral-50 border border-coral-300 rounded-xl p-4 hover:from-coral-200 hover:to-coral-100 transition-all duration-200 shadow-sm">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 bg-coral rounded-full animate-pulse shadow-sm"></div>
-                      <span className="text-coral-800 font-bold text-base">12 duplicates found</span>
+                {showDuplicates && (
+                  <div 
+                    className="bg-gradient-to-r from-coral-100 to-coral-50 border border-coral-300 rounded-xl p-4 hover:from-coral-200 hover:to-coral-100 transition-all duration-200 shadow-sm cursor-pointer"
+                    onClick={toggleDuplicates}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-3 h-3 bg-coral rounded-full animate-pulse shadow-sm"></div>
+                        <span className="text-coral-800 font-bold text-base">12 duplicates found</span>
+                      </div>
+                      <span className="text-coral-600 text-sm font-medium">Auto-detected</span>
                     </div>
-                    <span className="text-coral-600 text-sm font-medium">Auto-detected</span>
                   </div>
-                </div>
+                )}
               </div>
               
               {/* Material Cards */}
@@ -127,6 +151,49 @@ const HeroSection = () => {
             {/* Floating elements for visual interest */}
             <div className="absolute -top-4 -right-4 w-8 h-8 bg-coral rounded-full opacity-20 animate-pulse"></div>
             <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-blue-400 rounded-full opacity-20 animate-pulse" style={{ animationDelay: '1s' }}></div>
+          </div>
+
+          {/* Mobile Alternative - Simplified Cards */}
+          <div className="lg:hidden mt-8">
+            <div className="space-y-4">
+              <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-4">
+                <div className="flex items-center gap-3 mb-3">
+                  <Search className="h-5 w-5 text-coral" />
+                  <span className="font-semibold text-gray-800">Quick Search</span>
+                </div>
+                <div className="bg-coral-50 border border-coral-200 rounded-lg p-3">
+                  <span className="text-coral-800 font-medium text-sm">
+                    💡 12 duplicate materials detected across your projects
+                  </span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold text-gray-900">Acoustic Panels</h4>
+                    <span className="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded-full">Duplicate</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Rockfon Blanka Activity™</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold text-gray-900">Ceramic Tiles</h4>
+                    <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Available</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Mutina Puzzle Indoor</p>
+                </div>
+
+                <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm opacity-75">
+                  <div className="flex justify-between items-start mb-2">
+                    <h4 className="font-semibold text-gray-900">LED Lighting</h4>
+                    <span className="bg-red-100 text-red-700 text-xs px-2 py-1 rounded-full">Discontinued</span>
+                  </div>
+                  <p className="text-sm text-gray-600">Artemide Profile Series</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
