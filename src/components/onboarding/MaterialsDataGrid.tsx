@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -183,8 +184,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
             category: m.category,
             subcategory: m.subcategory || null,
             manufacturer_id: manufacturer?.id || null,
-            tag: m.tag || null,
-            location: m.location || null,
+            tag: m.tag === 'none' ? null : m.tag || null,
+            location: m.location === 'none' ? null : m.location || null,
             reference_sku: m.reference_sku || null,
             dimensions: m.dimensions || null,
             notes: m.notes || null,
@@ -316,12 +317,12 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                           />
                         </TableCell>
                         <TableCell>
-                          <Select value={row.tag} onValueChange={(value) => updateMaterial(row.id, 'tag', value)}>
+                          <Select value={row.tag || 'none'} onValueChange={(value) => updateMaterial(row.id, 'tag', value)}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select tag" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">No tag</SelectItem>
+                              <SelectItem value="none">No tag</SelectItem>
                               {COMMON_TAGS.map((tag) => (
                                 <SelectItem key={tag} value={tag}>{tag}</SelectItem>
                               ))}
@@ -329,12 +330,12 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                           </Select>
                         </TableCell>
                         <TableCell>
-                          <Select value={row.location} onValueChange={(value) => updateMaterial(row.id, 'location', value)}>
+                          <Select value={row.location || 'none'} onValueChange={(value) => updateMaterial(row.id, 'location', value)}>
                             <SelectTrigger>
                               <SelectValue placeholder="Select location" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">No location</SelectItem>
+                              <SelectItem value="none">No location</SelectItem>
                               {COMMON_LOCATIONS.map((location) => (
                                 <SelectItem key={location} value={location}>{location}</SelectItem>
                               ))}
