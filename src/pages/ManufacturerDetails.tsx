@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,8 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Building, Package, FolderOpen, Calendar, Clock, FileText } from 'lucide-react';
 import AddManufacturerNoteForm from '@/components/forms/AddManufacturerNoteForm';
-import EditManufacturerNoteForm from '@/components/forms/EditManufacturerNoteForm';
-import DeleteManufacturerNoteForm from '@/components/forms/DeleteManufacturerNoteForm';
 
 const ManufacturerDetails = () => {
   const { id } = useParams();
@@ -210,23 +209,12 @@ const ManufacturerDetails = () => {
                     <Calendar className="h-4 w-4" />
                     <span>{new Date(note.contact_date).toLocaleDateString()}</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {note.delivery_time && (
-                      <div className="flex items-center gap-2 text-sm text-gray-500">
-                        <Clock className="h-4 w-4" />
-                        <span>Delivery: {note.delivery_time}</span>
-                      </div>
-                    )}
-                    <EditManufacturerNoteForm 
-                      note={note}
-                      materials={materials}
-                      onNoteUpdated={fetchManufacturerNotes}
-                    />
-                    <DeleteManufacturerNoteForm 
-                      noteId={note.id}
-                      onNoteDeleted={fetchManufacturerNotes}
-                    />
-                  </div>
+                  {note.delivery_time && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="h-4 w-4" />
+                      <span>Delivery: {note.delivery_time}</span>
+                    </div>
+                  )}
                 </div>
                 
                 {note.materials && (
