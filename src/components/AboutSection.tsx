@@ -1,4 +1,3 @@
-
 import { Users, Lightbulb, Target, TrendingUp, Quote } from "lucide-react";
 
 const AboutSection = () => {
@@ -6,6 +5,7 @@ const AboutSection = () => {
     <section id="about" className="py-24 bg-gradient-to-br from-gray-50 via-white to-coral-50/30">
       <div className="container mx-auto px-6">
         <div className="max-w-6xl mx-auto">
+          {/* Header section */}
           <div className="text-center mb-20">
             <div className="inline-flex items-center gap-2 bg-coral-100 text-coral-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
               <Users className="h-4 w-4" />
@@ -30,7 +30,7 @@ const AboutSection = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-1">Marta</h3>
-                  <p className="text-coral-600 font-semibold text-lg">Co-Founder & Architect</p>
+                  <p className="text-coral-600 font-semibold text-lg">Co-Founder</p>
                   <div className="w-12 h-1 bg-coral-200 rounded-full mt-2"></div>
                 </div>
               </div>
@@ -48,7 +48,7 @@ const AboutSection = () => {
                 </div>
                 <div>
                   <h3 className="text-2xl font-bold text-gray-900 mb-1">Jed</h3>
-                  <p className="text-coral-600 font-semibold text-lg">Co-Founder & Technology</p>
+                  <p className="text-coral-600 font-semibold text-lg">Co-Founder</p>
                   <div className="w-12 h-1 bg-coral-200 rounded-full mt-2"></div>
                 </div>
               </div>
