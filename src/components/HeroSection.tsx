@@ -3,8 +3,11 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
 import MaterialDashboard from "./MaterialDashboard";
 import MobileMaterialView from "./MobileMaterialView";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
+  const navigate = useNavigate();
+
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-blue-50 py-20 md:py-32 pt-24">
       <div className="container mx-auto px-6">
@@ -29,10 +32,11 @@ const HeroSection = () => {
             </div>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
+                onClick={() => navigate('/auth')}
                 size="lg" 
                 className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group"
               >
-                Get Early Access
+                Get Started
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
               </Button>
               <Button 
