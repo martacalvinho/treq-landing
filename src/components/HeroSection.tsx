@@ -1,18 +1,49 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play, Search, X, Filter, Star, Clock, CheckCircle2, AlertTriangle, Package } from "lucide-react";
 import { useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const HeroSection = () => {
   const [selectedFilters, setSelectedFilters] = useState(['Office Tower', 'Commercial', 'Rockfon']);
   const [showDuplicates, setShowDuplicates] = useState(true);
+  const [sortBy, setSortBy] = useState('relevance');
 
   const removeFilter = (filter: string) => {
     setSelectedFilters(prev => prev.filter(f => f !== filter));
   };
 
+  const addFilter = (filter: string) => {
+    if (!selectedFilters.includes(filter)) {
+      setSelectedFilters(prev => [...prev, filter]);
+    }
+  };
+
   const toggleDuplicates = () => {
     setShowDuplicates(!showDuplicates);
   };
+
+  const availableFilters = [
+    { label: 'Project: Residential Tower', value: 'Residential Tower' },
+    { label: 'Type: Flooring', value: 'Flooring' },
+    { label: 'Type: Lighting', value: 'Lighting' },
+    { label: 'Brand: Interface', value: 'Interface' },
+    { label: 'Brand: Artemide', value: 'Artemide' },
+    { label: 'Status: Available', value: 'Available' },
+    { label: 'Status: Discontinued', value: 'Discontinued' },
+  ].filter(filter => !selectedFilters.includes(filter.value));
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-br from-white via-gray-50 to-blue-50 py-20 md:py-32 pt-24">
@@ -98,10 +129,26 @@ const HeroSection = () => {
                       <X className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     </span>
                   ))}
-                  <button className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-500 border border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2">
-                    <Filter className="h-3 w-3" />
-                    Add filter
-                  </button>
+                  
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="bg-white px-3 py-2 rounded-full text-sm font-medium text-gray-500 border border-dashed border-gray-300 hover:border-gray-400 hover:bg-gray-50 transition-all duration-200 flex items-center gap-2">
+                        <Filter className="h-3 w-3" />
+                        Add filter
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      {availableFilters.map((filter) => (
+                        <DropdownMenuItem
+                          key={filter.value}
+                          onClick={() => addFilter(filter.value)}
+                          className="cursor-pointer"
+                        >
+                          {filter.label}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
                 
                 {/* Smart Insights */}
@@ -240,12 +287,18 @@ const HeroSection = () => {
                   <span>Showing 4 of 127 results</span>
                   <div className="flex items-center gap-2">
                     <span>Sort by:</span>
-                    <select className="bg-white border border-gray-200 rounded px-2 py-1 text-xs">
-                      <option>Relevance</option>
-                      <option>Recently used</option>
-                      <option>Price</option>
-                      <option>Availability</option>
-                    </select>
+                    <Select value={sortBy} onValueChange={setSortBy}>
+                      <SelectTrigger className="w-32 h-8 text-xs border-gray-200">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="relevance">Relevance</SelectItem>
+                        <SelectItem value="recent">Recently used</SelectItem>
+                        <SelectItem value="price">Price</SelectItem>
+                        <SelectItem value="availability">Availability</SelectItem>
+                        <SelectItem value="alphabetical">A-Z</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
               </div>
