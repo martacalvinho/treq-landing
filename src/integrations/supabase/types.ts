@@ -228,6 +228,27 @@ export type Database = {
         }
         Relationships: []
       }
+      material_subcategories: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          subcategory: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          subcategory: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          subcategory?: string
+        }
+        Relationships: []
+      }
       materials: {
         Row: {
           category: string

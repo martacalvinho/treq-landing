@@ -1,10 +1,11 @@
 
+import { useState, useEffect } from 'react';
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MATERIAL_CATEGORIES } from '@/utils/materialCategories';
 import { UseFormReturn } from 'react-hook-form';
+import { supabase } from '@/integrations/supabase/client';
 
 interface MaterialFormFieldsProps {
   form: UseFormReturn<any>;
@@ -13,8 +14,63 @@ interface MaterialFormFieldsProps {
 }
 
 const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormFieldsProps) => {
+  const [categories, setCategories] = useState<string[]>([]);
+  const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
+  
   const selectedCategory = form.watch('category');
-  const availableSubcategories = selectedCategory ? MATERIAL_CATEGORIES[selectedCategory as keyof typeof MATERIAL_CATEGORIES] || [] : [];
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchSubcategories(selectedCategory);
+    } else {
+      setSubcategories([]);
+    }
+  }, [selectedCategory]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const { data, error } = await supabase
+        .from('material_subcategories')
+        .select('category')
+        .order('category');
+      
+      if (error) throw error;
+      
+      // Get unique categories
+      const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
+      setCategories(uniqueCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const fetchSubcategories = async (category: string) => {
+    try {
+      setLoadingSubcategories(true);
+      const { data, error } = await supabase
+        .from('material_subcategories')
+        .select('subcategory')
+        .eq('category', category)
+        .order('subcategory');
+      
+      if (error) throw error;
+      
+      setSubcategories(data?.map(item => item.subcategory) || []);
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+    } finally {
+      setLoadingSubcategories(false);
+    }
+  };
 
   const handleCategoryChange = (category: string) => {
     form.setValue('category', category);
@@ -43,14 +99,14 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Category</FormLabel>
-            <Select onValueChange={handleCategoryChange} value={field.value}>
+            <Select onValueChange={handleCategoryChange} value={field.value} disabled={loadingCategories}>
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a category" />
+                  <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {Object.keys(MATERIAL_CATEGORIES).map((category) => (
+                {categories.map((category) => (
                   <SelectItem key={category} value={category}>
                     {category}
                   </SelectItem>
@@ -71,15 +127,21 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
             <Select 
               onValueChange={field.onChange} 
               value={field.value}
-              disabled={!selectedCategory}
+              disabled={!selectedCategory || loadingSubcategories}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder={selectedCategory ? "Select a subcategory" : "Select a category first"} />
+                  <SelectValue placeholder={
+                    loadingSubcategories 
+                      ? "Loading subcategories..." 
+                      : selectedCategory 
+                        ? "Select a subcategory" 
+                        : "Select a category first"
+                  } />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                {availableSubcategories.map((subcategory) => (
+                {subcategories.map((subcategory) => (
                   <SelectItem key={subcategory} value={subcategory}>
                     {subcategory}
                   </SelectItem>

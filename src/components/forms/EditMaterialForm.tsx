@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { MATERIAL_CATEGORIES } from '@/utils/materialCategories';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
@@ -34,7 +34,11 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const [open, setOpen] = useState(false);
   const [manufacturers, setManufacturers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [categories, setCategories] = useState<string[]>([]);
+  const [subcategories, setSubcategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
   const [currentProjectLink, setCurrentProjectLink] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>(material.category || '');
 
@@ -61,6 +65,59 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     });
     setSelectedCategory(material.category || '');
   }, [material, currentProjectLink, form]);
+
+  useEffect(() => {
+    if (open) {
+      fetchCategories();
+    }
+  }, [open]);
+
+  useEffect(() => {
+    if (selectedCategory) {
+      fetchSubcategories(selectedCategory);
+    } else {
+      setSubcategories([]);
+    }
+  }, [selectedCategory]);
+
+  const fetchCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const { data, error } = await supabase
+        .from('material_subcategories')
+        .select('category')
+        .order('category');
+      
+      if (error) throw error;
+      
+      // Get unique categories
+      const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
+      setCategories(uniqueCategories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const fetchSubcategories = async (category: string) => {
+    try {
+      setLoadingSubcategories(true);
+      const { data, error } = await supabase
+        .from('material_subcategories')
+        .select('subcategory')
+        .eq('category', category)
+        .order('subcategory');
+      
+      if (error) throw error;
+      
+      setSubcategories(data?.map(item => item.subcategory) || []);
+    } catch (error) {
+      console.error('Error fetching subcategories:', error);
+    } finally {
+      setLoadingSubcategories(false);
+    }
+  };
 
   const fetchManufacturers = async () => {
     if (!studioId) return;
@@ -231,8 +288,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     }
   };
 
-  const availableSubcategories = selectedCategory ? MATERIAL_CATEGORIES[selectedCategory as keyof typeof MATERIAL_CATEGORIES] || [] : [];
-
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
@@ -266,14 +321,14 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={handleCategoryChange} value={selectedCategory}>
+                  <Select onValueChange={handleCategoryChange} value={selectedCategory} disabled={loadingCategories}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a category" />
+                        <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {Object.keys(MATERIAL_CATEGORIES).map((category) => (
+                      {categories.map((category) => (
                         <SelectItem key={category} value={category}>
                           {category}
                         </SelectItem>
@@ -294,15 +349,21 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                   <Select 
                     onValueChange={field.onChange} 
                     value={field.value}
-                    disabled={!selectedCategory}
+                    disabled={!selectedCategory || loadingSubcategories}
                   >
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select a subcategory" />
+                        <SelectValue placeholder={
+                          loadingSubcategories 
+                            ? "Loading subcategories..." 
+                            : selectedCategory 
+                              ? "Select a subcategory" 
+                              : "Select a category first"
+                        } />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {availableSubcategories.map((subcategory) => (
+                      {subcategories.map((subcategory) => (
                         <SelectItem key={subcategory} value={subcategory}>
                           {subcategory}
                         </SelectItem>
