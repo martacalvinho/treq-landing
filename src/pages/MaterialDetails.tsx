@@ -94,11 +94,19 @@ const MaterialDetails = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Category</label>
-                  <p className="text-lg">{material.category}</p>
+                  <Link to={`/materials/category/${encodeURIComponent(material.category)}`} className="hover:text-coral">
+                    <p className="text-lg hover:underline cursor-pointer">{material.category}</p>
+                  </Link>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Manufacturer</label>
-                  <p className="text-lg">{material.manufacturers?.name || 'Not specified'}</p>
+                  {material.manufacturer_id ? (
+                    <Link to={`/manufacturers/${material.manufacturer_id}`} className="hover:text-coral">
+                      <p className="text-lg hover:underline cursor-pointer">{material.manufacturers?.name || 'Not specified'}</p>
+                    </Link>
+                  ) : (
+                    <p className="text-lg">Not specified</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Created</label>
