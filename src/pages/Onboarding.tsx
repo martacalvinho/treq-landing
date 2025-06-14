@@ -10,6 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Building, FileSpreadsheet, Code, FolderOpen } from 'lucide-react';
 import MaterialsDataGrid from '@/components/onboarding/MaterialsDataGrid';
 import JSONDataInput from '@/components/onboarding/JSONDataInput';
+import AddProjectForm from '@/components/forms/AddProjectForm';
 
 interface Studio {
   id: string;
@@ -85,6 +86,11 @@ const Onboarding = () => {
     }
   };
 
+  const handleProjectAdded = () => {
+    // Refresh projects list when a new project is created
+    fetchProjects();
+  };
+
   if (!isAdmin) {
     return (
       <div className="p-6">
@@ -156,19 +162,22 @@ const Onboarding = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Select value={selectedProject} onValueChange={setSelectedProject}>
-                <SelectTrigger className="w-full max-w-md">
-                  <SelectValue placeholder="Select a project (optional)..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No specific project</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name} ({project.status})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-4">
+                <Select value={selectedProject} onValueChange={setSelectedProject}>
+                  <SelectTrigger className="flex-1 max-w-md">
+                    <SelectValue placeholder="Select a project (optional)..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No specific project</SelectItem>
+                    {projects.map((project) => (
+                      <SelectItem key={project.id} value={project.id}>
+                        {project.name} ({project.status})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <AddProjectForm onProjectAdded={handleProjectAdded} />
+              </div>
             </CardContent>
           </Card>
         )}
