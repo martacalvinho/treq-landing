@@ -1,5 +1,5 @@
 
-import { Upload, Search, CheckCircle } from "lucide-react";
+import { Upload, Search, CheckCircle, ArrowRight } from "lucide-react";
 
 const HowItWorksSection = () => {
   const steps = [
@@ -35,7 +35,7 @@ const HowItWorksSection = () => {
               <span>78%</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-coral h-2 rounded-full" style={{ width: '78%' }}></div>
+              <div className="bg-coral h-2 rounded-full transition-all duration-1000" style={{ width: '78%' }}></div>
             </div>
             <div className="mt-3 space-y-1 text-xs">
               <div className="flex gap-2">
@@ -62,11 +62,11 @@ const HowItWorksSection = () => {
             <input type="text" placeholder="Search materials..." className="w-full text-xs p-2 border border-gray-300 rounded" />
           </div>
           <div className="space-y-1 text-xs">
-            <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer">
               <span>Acoustic panels</span>
               <span className="text-coral font-semibold">12 matches</span>
             </div>
-            <div className="flex justify-between items-center p-2 bg-gray-50 rounded">
+            <div className="flex justify-between items-center p-2 bg-gray-50 rounded hover:bg-gray-100 transition-colors cursor-pointer">
               <span>Ceramic tiles</span>
               <span className="text-coral font-semibold">8 matches</span>
             </div>
@@ -77,7 +77,7 @@ const HowItWorksSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="how-it-works" className="py-20 bg-gray-50">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -88,12 +88,28 @@ const HowItWorksSection = () => {
           </p>
         </div>
         
+        {/* Progress Timeline */}
+        <div className="flex justify-center mb-12">
+          <div className="flex items-center space-x-4">
+            {steps.map((step, index) => (
+              <div key={index} className="flex items-center">
+                <div className="flex flex-col items-center">
+                  <div className="w-10 h-10 bg-coral rounded-full flex items-center justify-center text-white font-bold text-sm">
+                    {step.number}
+                  </div>
+                  <span className="text-sm font-medium text-gray-600 mt-2">{step.title}</span>
+                </div>
+                {index < steps.length - 1 && (
+                  <ArrowRight className="h-5 w-5 text-gray-400 mx-4" />
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+        
         <div className="grid md:grid-cols-3 gap-8">
           {steps.map((step, index) => (
-            <div key={index} className="relative bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-shadow duration-300">
-              <div className="absolute -top-4 -left-4 w-8 h-8 bg-coral rounded-full flex items-center justify-center text-white font-bold text-sm">
-                {step.number}
-              </div>
+            <div key={index} className="relative bg-white rounded-xl p-8 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-300 hover:scale-105">
               <div className="flex items-center gap-4 mb-6">
                 <div className="w-12 h-12 bg-coral-50 rounded-lg flex items-center justify-center">
                   <step.icon className="h-6 w-6 text-coral" />
@@ -101,7 +117,9 @@ const HowItWorksSection = () => {
                 <h3 className="text-xl font-bold text-gray-900">{step.title}</h3>
               </div>
               <p className="text-gray-600 leading-relaxed mb-6">{step.description}</p>
-              {step.mockup}
+              <div className="transition-transform duration-200 hover:scale-105">
+                {step.mockup}
+              </div>
             </div>
           ))}
         </div>

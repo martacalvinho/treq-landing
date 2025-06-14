@@ -1,8 +1,8 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
+import PricingCalculator from "./PricingCalculator";
 
 const PricingSection = () => {
   const monthlyPlans = [
@@ -54,7 +54,7 @@ const PricingSection = () => {
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section id="pricing" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
@@ -63,9 +63,10 @@ const PricingSection = () => {
         </div>
 
         <Tabs defaultValue="monthly" className="w-full max-w-6xl mx-auto">
-          <TabsList className="grid w-full grid-cols-2 max-w-md mx-auto mb-12">
+          <TabsList className="grid w-full grid-cols-3 max-w-lg mx-auto mb-12">
             <TabsTrigger value="monthly">Monthly Pricing</TabsTrigger>
             <TabsTrigger value="onboarding">Onboarding Fee</TabsTrigger>
+            <TabsTrigger value="calculator">Calculator</TabsTrigger>
           </TabsList>
           
           <TabsContent value="monthly">
@@ -125,6 +126,12 @@ const PricingSection = () => {
               <p className="text-gray-600">
                 Want to bring in more history? It's just $1.50 per extra material.
               </p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="calculator">
+            <div className="max-w-2xl mx-auto">
+              <PricingCalculator />
             </div>
           </TabsContent>
         </Tabs>
