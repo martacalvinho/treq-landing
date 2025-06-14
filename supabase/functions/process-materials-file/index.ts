@@ -44,11 +44,13 @@ serve(async (req) => {
       console.log('CSV content preview:', extractedText.substring(0, 500));
     } else if (fileType.startsWith('image/') || fileName.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
       // For images, convert to base64 for vision model
-      imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const uint8Array = new Uint8Array(arrayBuffer);
+      imageBase64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
       console.log('Image converted to base64, length:', imageBase64.length);
     } else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
       // For PDFs, we'll send the base64 content and let AI try to extract text
-      imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      const uint8Array = new Uint8Array(arrayBuffer);
+      imageBase64 = btoa(String.fromCharCode.apply(null, Array.from(uint8Array)));
       console.log('PDF converted to base64 for AI processing, length:', imageBase64.length);
     } else {
       throw new Error(`Unsupported file type: ${fileType}`);
@@ -123,6 +125,19 @@ Please extract all materials and return them in this exact JSON format:
 Return valid JSON only, no other text.
 `;
 
+      // Determine the proper mime type for the data URL
+      let mimeType = fileType;
+      if (fileName.endsWith('.pdf')) {
+        mimeType = 'application/pdf';
+      } else if (!mimeType || mimeType === 'application/octet-stream') {
+        // Fallback for files without proper mime type
+        if (fileName.match(/\.(jpg|jpeg)$/i)) mimeType = 'image/jpeg';
+        else if (fileName.match(/\.png$/i)) mimeType = 'image/png';
+        else if (fileName.match(/\.gif$/i)) mimeType = 'image/gif';
+        else if (fileName.match(/\.webp$/i)) mimeType = 'image/webp';
+        else mimeType = 'image/png'; // default fallback
+      }
+
       messages = [
         {
           role: 'user',
@@ -134,7 +149,7 @@ Return valid JSON only, no other text.
             {
               type: 'image_url',
               image_url: {
-                url: `data:${fileType};base64,${imageBase64}`
+                url: `data:${mimeType};base64,${imageBase64}`
               }
             }
           ]
