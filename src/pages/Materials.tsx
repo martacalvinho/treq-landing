@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit, Package } from 'lucide-react';
+import { Search, Edit, Package } from 'lucide-react';
+import AddMaterialForm from '@/components/forms/AddMaterialForm';
 
 const Materials = () => {
   const { studioId } = useAuth();
@@ -55,10 +56,7 @@ const Materials = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Materials Library</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Material
-        </Button>
+        <AddMaterialForm onMaterialAdded={fetchMaterials} />
       </div>
 
       <Card>

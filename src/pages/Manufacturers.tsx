@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit, Building, Mail, Phone, Globe } from 'lucide-react';
+import { Search, Edit, Building, Mail, Phone, Globe } from 'lucide-react';
+import AddManufacturerForm from '@/components/forms/AddManufacturerForm';
 
 const Manufacturers = () => {
   const { studioId } = useAuth();
@@ -53,10 +54,7 @@ const Manufacturers = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Manufacturers</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Manufacturer
-        </Button>
+        <AddManufacturerForm onManufacturerAdded={fetchManufacturers} />
       </div>
 
       <Card>

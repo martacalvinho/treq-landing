@@ -2,12 +2,13 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit } from 'lucide-react';
+import { Search, Edit } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AddProjectForm from '@/components/forms/AddProjectForm';
 
 const Projects = () => {
   const { studioId } = useAuth();
@@ -62,10 +63,7 @@ const Projects = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Projects</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Project
-        </Button>
+        <AddProjectForm onProjectAdded={fetchProjects} />
       </div>
 
       <Card>

@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit, Users } from 'lucide-react';
+import { Search, Edit, Users } from 'lucide-react';
+import AddClientForm from '@/components/forms/AddClientForm';
 
 const Clients = () => {
   const { studioId } = useAuth();
@@ -62,10 +63,7 @@ const Clients = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Client
-        </Button>
+        <AddClientForm onClientAdded={fetchClients} />
       </div>
 
       <Card>
