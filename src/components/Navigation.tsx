@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -18,7 +19,7 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
       <div className="container mx-auto px-6">
         <div className="flex justify-between items-center h-16">
-          <div className="font-bold text-xl text-coral">SpecClarity</div>
+          <Link to="/" className="font-bold text-xl text-coral">SpecClarity</Link>
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
@@ -34,12 +35,12 @@ const Navigation = () => {
             >
               Pricing
             </button>
-            <button 
-              onClick={() => scrollToSection('about')}
+            <Link 
+              to="/about"
               className="text-gray-700 hover:text-coral transition-colors"
             >
               About
-            </button>
+            </Link>
             <button 
               onClick={() => scrollToSection('faq')}
               className="text-gray-700 hover:text-coral transition-colors"
@@ -82,12 +83,13 @@ const Navigation = () => {
               >
                 Pricing
               </button>
-              <button 
-                onClick={() => scrollToSection('about')}
+              <Link 
+                to="/about"
                 className="text-left text-gray-700 hover:text-coral transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 About
-              </button>
+              </Link>
               <button 
                 onClick={() => scrollToSection('faq')}
                 className="text-left text-gray-700 hover:text-coral transition-colors"

@@ -5,7 +5,6 @@ import PainPromiseSection from "@/components/PainPromiseSection";
 import HowItWorksSection from "@/components/HowItWorksSection";
 import UseCasesSection from "@/components/UseCasesSection";
 import DemoCarousel from "@/components/DemoCarousel";
-import AboutSection from "@/components/AboutSection";
 import PricingSection from "@/components/PricingSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
@@ -19,7 +18,6 @@ const Index = () => {
       <HowItWorksSection />
       <UseCasesSection />
       <DemoCarousel />
-      <AboutSection />
       <PricingSection />
       <FAQSection />
       <Footer />
