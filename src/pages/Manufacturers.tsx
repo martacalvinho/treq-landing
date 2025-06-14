@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Search, Edit, Building, Mail, Phone, Globe } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddManufacturerForm from '@/components/forms/AddManufacturerForm';
+import EditManufacturerForm from '@/components/forms/EditManufacturerForm';
 
 const Manufacturers = () => {
   const { studioId } = useAuth();
@@ -124,9 +124,7 @@ const Manufacturers = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditManufacturerForm manufacturer={manufacturer} onManufacturerUpdated={fetchManufacturers} />
                   </div>
                 </div>
               );
