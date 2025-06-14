@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -34,7 +35,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   const [manufacturers, setManufacturers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -47,6 +47,8 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       notes: '',
     },
   });
+
+  const selectedCategory = form.watch('category');
 
   const fetchManufacturers = async () => {
     if (!studioId) return;
@@ -130,7 +132,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       });
 
       form.reset();
-      setSelectedCategory('');
       setOpen(false);
       onMaterialAdded();
     } catch (error) {
@@ -146,7 +147,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   };
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
     form.setValue('category', category);
     form.setValue('subcategory', ''); // Reset subcategory when category changes
   };
@@ -195,7 +195,7 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={handleCategoryChange} value={selectedCategory}>
+                  <Select onValueChange={handleCategoryChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
