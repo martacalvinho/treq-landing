@@ -71,13 +71,13 @@ const PricingSection = () => {
           <TabsContent value="monthly">
             <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
               {monthlyPlans.map((plan, index) => (
-                <div key={index} className={`bg-white border-2 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow relative ${plan.isPopular ? 'border-coral' : 'border-gray-200'}`}>
+                <div key={index} className={`bg-white border-2 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow relative flex flex-col ${plan.isPopular ? 'border-coral' : 'border-gray-200'}`}>
                   {plan.isPopular && (
                     <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-coral text-white">
                       Most Popular
                     </Badge>
                   )}
-                  <div className="text-center mb-6">
+                  <div className="text-center mb-6 flex-grow">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                     
                     <div className="text-3xl font-bold text-gray-900 mb-2">
@@ -88,7 +88,7 @@ const PricingSection = () => {
                     <p className="text-gray-600 text-sm">{plan.subtitle}</p>
                   </div>
                   
-                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3">
+                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto">
                     Get Started
                   </Button>
                 </div>
@@ -104,8 +104,8 @@ const PricingSection = () => {
           <TabsContent value="onboarding">
             <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
               {onboardingPlans.map((plan, index) => (
-                <div key={index} className="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow">
-                  <div className="text-center mb-6">
+                <div key={index} className="bg-white border-2 border-gray-200 rounded-2xl p-8 shadow-lg hover:shadow-xl transition-shadow flex flex-col">
+                  <div className="text-center mb-6 flex-grow">
                     <h3 className="text-2xl font-bold text-gray-900 mb-2">{plan.name}</h3>
                     <p className="text-gray-600 mb-6">{plan.description}</p>
                     
@@ -115,7 +115,7 @@ const PricingSection = () => {
                     <div className="text-sm text-gray-600">{plan.period}</div>
                   </div>
                   
-                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3">
+                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto">
                     Get Started
                   </Button>
                 </div>
