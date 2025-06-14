@@ -170,7 +170,9 @@ const ProjectDetails = () => {
             {materials.map((projMaterial) => (
               <div key={projMaterial.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
-                  <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
+                  <Link to={`/materials/${projMaterial.materials.id}`} className="hover:text-coral">
+                    <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
+                  </Link>
                   <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                     <span>Category: {projMaterial.materials?.category}</span>
                     {projMaterial.quantity && (

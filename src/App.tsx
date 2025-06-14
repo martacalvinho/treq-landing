@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,6 +12,7 @@ import Dashboard from "./components/dashboard/Dashboard";
 import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import Materials from "./pages/Materials";
+import MaterialDetails from "./pages/MaterialDetails";
 import Manufacturers from "./pages/Manufacturers";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
@@ -53,6 +53,11 @@ const App = () => (
             <Route path="/materials" element={
               <DashboardLayout>
                 <Materials />
+              </DashboardLayout>
+            } />
+            <Route path="/materials/:id" element={
+              <DashboardLayout>
+                <MaterialDetails />
               </DashboardLayout>
             } />
             <Route path="/manufacturers" element={
