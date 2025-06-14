@@ -5,7 +5,6 @@ import HowItWorksSection from "@/components/HowItWorksSection";
 import UseCasesSection from "@/components/UseCasesSection";
 import DemoCarousel from "@/components/DemoCarousel";
 import PricingSection from "@/components/PricingSection";
-import SocialProofSection from "@/components/SocialProofSection";
 import FAQSection from "@/components/FAQSection";
 import Footer from "@/components/Footer";
 
@@ -18,7 +17,6 @@ const Index = () => {
       <UseCasesSection />
       <DemoCarousel />
       <PricingSection />
-      <SocialProofSection />
       <FAQSection />
       <Footer />
     </div>
