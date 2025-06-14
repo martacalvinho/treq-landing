@@ -10,7 +10,8 @@ import {
   Building, 
   Users, 
   Bell,
-  Settings
+  Settings,
+  AlertTriangle
 } from 'lucide-react';
 import ChangePasswordForm from '@/components/forms/ChangePasswordForm';
 
@@ -56,6 +57,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     { icon: LayoutDashboard, label: 'Admin Dashboard', href: '/dashboard' },
     { icon: Building, label: 'Studios', href: '/studios' },
     { icon: Users, label: 'Users', href: '/users' },
+    { icon: AlertTriangle, label: 'Send Alerts', href: '/admin-alerts' },
     { icon: Settings, label: 'Onboarding', href: '/onboarding' },
   ] : [
     { icon: LayoutDashboard, label: 'Dashboard', href: '/dashboard' },

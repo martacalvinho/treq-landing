@@ -20,6 +20,7 @@ import Manufacturers from "./pages/Manufacturers";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Alerts from "./pages/Alerts";
+import AdminAlerts from "./pages/AdminAlerts";
 import Studios from "./pages/Studios";
 import Users from "./pages/Users";
 import Onboarding from "./pages/Onboarding";
@@ -92,6 +93,11 @@ const App = () => (
             <Route path="/alerts" element={
               <DashboardLayout>
                 <Alerts />
+              </DashboardLayout>
+            } />
+            <Route path="/admin-alerts" element={
+              <DashboardLayout>
+                <AdminAlerts />
               </DashboardLayout>
             } />
             <Route path="/studios" element={

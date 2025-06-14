@@ -2,16 +2,48 @@
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 const Navigation = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
+    // If we're not on the home page, navigate there first
+    if (location.pathname !== '/') {
+      navigate('/', { replace: true });
+      // Wait for navigation to complete before scrolling
+      setTimeout(() => {
+        const element = document.getElementById(sectionId);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
     }
+    setIsMenuOpen(false);
+  };
+
+  const handleAboutClick = () => {
+    navigate('/about');
+    // Scroll to top when navigating to About page
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
+    setIsMenuOpen(false);
+  };
+
+  const handleHomeClick = () => {
+    navigate('/');
+    // Scroll to top when navigating to home page
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 0);
     setIsMenuOpen(false);
   };
 
@@ -19,7 +51,9 @@ const Navigation = () => {
     <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
       <div className="container mx-auto px-6">
         <div className="flex justify-between items-center h-16">
-          <Link to="/" className="font-bold text-xl text-coral">Treqy</Link>
+          <button onClick={handleHomeClick} className="font-bold text-xl text-coral">
+            Treqy
+          </button>
           
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
@@ -35,12 +69,12 @@ const Navigation = () => {
             >
               Pricing
             </button>
-            <Link 
-              to="/about"
+            <button 
+              onClick={handleAboutClick}
               className="text-gray-700 hover:text-coral transition-colors"
             >
               About
-            </Link>
+            </button>
             <button 
               onClick={() => scrollToSection('faq')}
               className="text-gray-700 hover:text-coral transition-colors"
@@ -83,13 +117,12 @@ const Navigation = () => {
               >
                 Pricing
               </button>
-              <Link 
-                to="/about"
+              <button 
+                onClick={handleAboutClick}
                 className="text-left text-gray-700 hover:text-coral transition-colors"
-                onClick={() => setIsMenuOpen(false)}
               >
                 About
-              </Link>
+              </button>
               <button 
                 onClick={() => scrollToSection('faq')}
                 className="text-left text-gray-700 hover:text-coral transition-colors"
