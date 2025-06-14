@@ -69,11 +69,13 @@ const AddProjectForm = ({ onProjectAdded }: AddProjectFormProps) => {
       const { error } = await supabase
         .from('projects')
         .insert({
-          ...values,
-          studio_id: studioId,
+          name: values.name,
+          type: values.type,
           client_id: values.client_id || null,
           start_date: values.start_date || null,
           end_date: values.end_date || null,
+          notes: values.notes || null,
+          studio_id: studioId,
         });
 
       if (error) throw error;

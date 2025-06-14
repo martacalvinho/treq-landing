@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -52,10 +51,13 @@ const AddManufacturerForm = ({ onManufacturerAdded }: AddManufacturerFormProps) 
       const { error } = await supabase
         .from('manufacturers')
         .insert({
-          ...values,
-          studio_id: studioId,
+          name: values.name,
+          contact_name: values.contact_name || null,
           email: values.email || null,
+          phone: values.phone || null,
           website: values.website || null,
+          notes: values.notes || null,
+          studio_id: studioId,
         });
 
       if (error) throw error;

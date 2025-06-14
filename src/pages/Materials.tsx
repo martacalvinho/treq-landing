@@ -2,11 +2,11 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Edit, Package } from 'lucide-react';
+import { Search, Package } from 'lucide-react';
 import AddMaterialForm from '@/components/forms/AddMaterialForm';
+import EditMaterialForm from '@/components/forms/EditMaterialForm';
 
 const Materials = () => {
   const { studioId } = useAuth();
@@ -100,9 +100,7 @@ const Materials = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="sm">
-                      <Edit className="h-4 w-4" />
-                    </Button>
+                    <EditMaterialForm material={material} onMaterialUpdated={fetchMaterials} />
                   </div>
                 </div>
               );
