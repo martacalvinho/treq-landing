@@ -161,7 +161,7 @@ const Onboarding = () => {
                   <SelectValue placeholder="Select a project (optional)..." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No specific project</SelectItem>
+                  <SelectItem value="none">No specific project</SelectItem>
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name} ({project.status})
@@ -180,7 +180,7 @@ const Onboarding = () => {
               <CardTitle>Import Data</CardTitle>
               <CardDescription>
                 Choose how you want to input your materials, manufacturers, and clients data
-                {selectedProject && (
+                {selectedProject && selectedProject !== "none" && (
                   <span className="block mt-1 text-sm text-blue-600">
                     Materials will be linked to the selected project
                   </span>
@@ -201,11 +201,17 @@ const Onboarding = () => {
                 </TabsList>
                 
                 <TabsContent value="grid" className="mt-6">
-                  <MaterialsDataGrid studioId={selectedStudio} projectId={selectedProject} />
+                  <MaterialsDataGrid 
+                    studioId={selectedStudio} 
+                    projectId={selectedProject === "none" ? undefined : selectedProject} 
+                  />
                 </TabsContent>
                 
                 <TabsContent value="json" className="mt-6">
-                  <JSONDataInput studioId={selectedStudio} projectId={selectedProject} />
+                  <JSONDataInput 
+                    studioId={selectedStudio} 
+                    projectId={selectedProject === "none" ? undefined : selectedProject} 
+                  />
                 </TabsContent>
               </Tabs>
             </CardContent>
