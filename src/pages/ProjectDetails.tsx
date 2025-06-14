@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -103,7 +102,13 @@ const ProjectDetails = () => {
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Client</label>
-                  <p className="text-lg">{project.clients?.name || 'No client assigned'}</p>
+                  {project.clients && project.client_id ? (
+                    <Link to={`/clients/${project.client_id}`} className="text-lg text-coral hover:text-coral-600 hover:underline">
+                      {project.clients.name}
+                    </Link>
+                  ) : (
+                    <p className="text-lg">No client assigned</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Start Date</label>

@@ -64,6 +64,11 @@ const App = () => (
                 <Clients />
               </DashboardLayout>
             } />
+            <Route path="/clients/:id" element={
+              <DashboardLayout>
+                <ClientDetails />
+              </DashboardLayout>
+            } />
             <Route path="/alerts" element={
               <DashboardLayout>
                 <Alerts />
