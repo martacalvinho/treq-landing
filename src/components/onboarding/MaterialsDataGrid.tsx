@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -18,6 +17,8 @@ interface MaterialRow {
   manufacturer_name: string;
   tag: string;
   location: string;
+  reference_sku: string;
+  dimensions: string;
   notes: string;
 }
 
@@ -69,6 +70,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
       manufacturer_name: '',
       tag: '',
       location: '',
+      reference_sku: '',
+      dimensions: '',
       notes: ''
     };
     setMaterials([...materials, newRow]);
@@ -182,6 +185,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
             manufacturer_id: manufacturer?.id || null,
             tag: m.tag || null,
             location: m.location || null,
+            reference_sku: m.reference_sku || null,
+            dimensions: m.dimensions || null,
             notes: m.notes || null,
             studio_id: studioId
           };
@@ -258,6 +263,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                       <TableHead>Material Name</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Subcategory</TableHead>
+                      <TableHead>Reference/SKU</TableHead>
+                      <TableHead>Dimensions</TableHead>
                       <TableHead>Tag</TableHead>
                       <TableHead>Location</TableHead>
                       <TableHead>Manufacturer Name</TableHead>
@@ -292,6 +299,20 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                             value={row.subcategory}
                             onChange={(e) => updateMaterial(row.id, 'subcategory', e.target.value)}
                             placeholder="Subcategory"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.reference_sku}
+                            onChange={(e) => updateMaterial(row.id, 'reference_sku', e.target.value)}
+                            placeholder="Reference/SKU"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.dimensions}
+                            onChange={(e) => updateMaterial(row.id, 'dimensions', e.target.value)}
+                            placeholder="Dimensions"
                           />
                         </TableCell>
                         <TableCell>

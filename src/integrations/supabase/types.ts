@@ -232,11 +232,13 @@ export type Database = {
         Row: {
           category: string
           created_at: string
+          dimensions: string | null
           id: string
           location: string | null
           manufacturer_id: string | null
           name: string
           notes: string | null
+          reference_sku: string | null
           studio_id: string
           subcategory: string | null
           tag: string | null
@@ -245,11 +247,13 @@ export type Database = {
         Insert: {
           category: string
           created_at?: string
+          dimensions?: string | null
           id?: string
           location?: string | null
           manufacturer_id?: string | null
           name: string
           notes?: string | null
+          reference_sku?: string | null
           studio_id: string
           subcategory?: string | null
           tag?: string | null
@@ -258,11 +262,13 @@ export type Database = {
         Update: {
           category?: string
           created_at?: string
+          dimensions?: string | null
           id?: string
           location?: string | null
           manufacturer_id?: string | null
           name?: string
           notes?: string | null
+          reference_sku?: string | null
           studio_id?: string
           subcategory?: string | null
           tag?: string | null

@@ -22,6 +22,8 @@ const formSchema = z.object({
   project_id: z.string().optional(),
   tag: z.string().optional(),
   location: z.string().optional(),
+  reference_sku: z.string().optional(),
+  dimensions: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -59,6 +61,8 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       project_id: '',
       tag: '',
       location: '',
+      reference_sku: '',
+      dimensions: '',
       notes: '',
     },
   });
@@ -120,6 +124,8 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
           manufacturer_id: values.manufacturer_id || null,
           tag: values.tag || null,
           location: values.location || null,
+          reference_sku: values.reference_sku || null,
+          dimensions: values.dimensions || null,
           notes: values.notes || null,
           studio_id: studioId,
         })
@@ -230,6 +236,34 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
                   <FormLabel>Subcategory (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Hardwood, Marble" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="reference_sku"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reference/SKU (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product reference or SKU number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimensions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dimensions (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 12&quot;x24&quot;, 2m x 1m x 10mm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

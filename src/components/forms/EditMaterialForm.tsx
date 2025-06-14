@@ -19,6 +19,8 @@ const formSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
+  reference_sku: z.string().optional(),
+  dimensions: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -43,6 +45,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
       project_id: '',
+      reference_sku: material.reference_sku || '',
+      dimensions: material.dimensions || '',
       notes: material.notes || '',
     },
   });
@@ -53,6 +57,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
       project_id: currentProjectLink || '',
+      reference_sku: material.reference_sku || '',
+      dimensions: material.dimensions || '',
       notes: material.notes || '',
     });
   }, [material, currentProjectLink, form]);
@@ -120,6 +126,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
           name: values.name,
           category: values.category,
           manufacturer_id: values.manufacturer_id || null,
+          reference_sku: values.reference_sku || null,
+          dimensions: values.dimensions || null,
           notes: values.notes || null,
         })
         .eq('id', material.id)
@@ -254,6 +262,34 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                   <FormLabel>Category</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="reference_sku"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reference/SKU (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product reference or SKU number" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimensions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dimensions (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 12&quot;x24&quot;, 2m x 1m x 10mm" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

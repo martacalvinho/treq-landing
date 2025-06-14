@@ -49,6 +49,8 @@ const Materials = () => {
     material.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.tag?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    material.reference_sku?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    material.dimensions?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.manufacturers?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -101,6 +103,12 @@ const Materials = () => {
                         <span>• Manufacturer: {material.manufacturers?.name || 'None'}</span>
                         <span>• Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
                       </div>
+                      {(material.reference_sku || material.dimensions) && (
+                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                          {material.reference_sku && <span>SKU: {material.reference_sku}</span>}
+                          {material.dimensions && <span>• Dimensions: {material.dimensions}</span>}
+                        </div>
+                      )}
                       <div className="flex items-center gap-2 mt-2">
                         {material.tag && (
                           <Badge variant="secondary" className="text-xs">
