@@ -35,6 +35,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const [projects, setProjects] = useState<any[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
@@ -52,7 +53,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     },
   });
 
-  const selectedCategory = form.watch('category');
+  const watchedCategory = form.watch('category');
 
   useEffect(() => {
     form.reset({
@@ -76,12 +77,13 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   }, [open]);
 
   useEffect(() => {
-    if (selectedCategory) {
-      fetchSubcategories(selectedCategory);
+    if (watchedCategory) {
+      setSelectedCategory(watchedCategory);
+      fetchSubcategories(watchedCategory);
     } else {
       setSubcategories([]);
     }
-  }, [selectedCategory]);
+  }, [watchedCategory]);
 
   const fetchCategories = async () => {
     try {
