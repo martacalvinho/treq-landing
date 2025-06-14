@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Search, Building, Users, Filter } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddStudioForm from '@/components/forms/AddStudioForm';
 import EditStudioForm from '@/components/forms/EditStudioForm';
+import DeleteStudioForm from '@/components/forms/DeleteStudioForm';
 
 const Studios = () => {
   const { isAdmin } = useAuth();
@@ -162,6 +162,10 @@ const Studios = () => {
                     <EditStudioForm 
                       studio={studio} 
                       onStudioUpdated={fetchStudios}
+                    />
+                    <DeleteStudioForm 
+                      studio={studio} 
+                      onStudioDeleted={fetchStudios}
                     />
                   </div>
                 </div>

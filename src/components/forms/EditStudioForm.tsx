@@ -21,7 +21,9 @@ interface EditStudioFormProps {
 const EditStudioForm = ({ studio, onStudioUpdated }: EditStudioFormProps) => {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(studio.name);
-  const [subscriptionTier, setSubscriptionTier] = useState(studio.subscription_tier);
+  const [subscriptionTier, setSubscriptionTier] = useState<'starter' | 'professional' | 'enterprise'>(
+    studio.subscription_tier as 'starter' | 'professional' | 'enterprise'
+  );
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -85,7 +87,7 @@ const EditStudioForm = ({ studio, onStudioUpdated }: EditStudioFormProps) => {
           </div>
           <div className="space-y-2">
             <Label htmlFor="subscription_tier">Subscription Tier</Label>
-            <Select value={subscriptionTier} onValueChange={setSubscriptionTier}>
+            <Select value={subscriptionTier} onValueChange={(value: 'starter' | 'professional' | 'enterprise') => setSubscriptionTier(value)}>
               <SelectTrigger>
                 <SelectValue placeholder="Select subscription tier" />
               </SelectTrigger>

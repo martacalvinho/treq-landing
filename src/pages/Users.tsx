@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +10,7 @@ import { Search, Edit, User, Mail } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import AddUserForm from '@/components/forms/AddUserForm';
 import AssignStudioForm from '@/components/forms/AssignStudioForm';
+import DeleteUserForm from '@/components/forms/DeleteUserForm';
 
 const Users = () => {
   const { isAdmin } = useAuth();
@@ -178,6 +178,10 @@ const Users = () => {
                   <Button variant="ghost" size="sm">
                     <Edit className="h-4 w-4" />
                   </Button>
+                  <DeleteUserForm 
+                    user={user} 
+                    onUserDeleted={fetchUsers}
+                  />
                 </div>
               </div>
             ))}
