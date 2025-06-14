@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -40,7 +39,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
   const [currentProjectLink, setCurrentProjectLink] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>(material.category || '');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,6 +51,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       notes: material.notes || '',
     },
   });
+
+  const selectedCategory = form.watch('category');
 
   useEffect(() => {
     form.reset({
@@ -69,6 +69,9 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   useEffect(() => {
     if (open) {
       fetchCategories();
+      fetchManufacturers();
+      fetchActiveProjects();
+      fetchCurrentProjectLink();
     }
   }, [open]);
 
@@ -88,7 +91,10 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
         .select('category')
         .order('category');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
       
       // Get unique categories
       const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
@@ -109,7 +115,10 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
         .eq('category', category)
         .order('subcategory');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching subcategories:', error);
+        return;
+      }
       
       setSubcategories(data?.map(item => item.subcategory) || []);
     } catch (error) {
@@ -233,7 +242,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   };
 
   const handleCategoryChange = (category: string) => {
-    setSelectedCategory(category);
     form.setValue('category', category);
     form.setValue('subcategory', ''); // Reset subcategory when category changes
   };
@@ -281,11 +289,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
-    if (newOpen) {
-      fetchManufacturers();
-      fetchActiveProjects();
-      fetchCurrentProjectLink();
-    }
   };
 
   return (
@@ -321,7 +324,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={handleCategoryChange} value={selectedCategory} disabled={loadingCategories}>
+                  <Select onValueChange={handleCategoryChange} value={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
@@ -354,11 +357,11 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder={
-                          loadingSubcategories 
-                            ? "Loading subcategories..." 
-                            : selectedCategory 
-                              ? "Select a subcategory" 
-                              : "Select a category first"
+                          !selectedCategory 
+                            ? "Select a category first" 
+                            : loadingSubcategories 
+                              ? "Loading subcategories..." 
+                              : "Select a subcategory"
                         } />
                       </SelectTrigger>
                     </FormControl>

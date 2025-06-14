@@ -28,10 +28,14 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
   useEffect(() => {
     if (selectedCategory) {
       fetchSubcategories(selectedCategory);
+      // Reset subcategory when category changes
+      if (form.getValues('subcategory')) {
+        form.setValue('subcategory', '');
+      }
     } else {
       setSubcategories([]);
     }
-  }, [selectedCategory]);
+  }, [selectedCategory, form]);
 
   const fetchCategories = async () => {
     try {
@@ -41,7 +45,10 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
         .select('category')
         .order('category');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching categories:', error);
+        return;
+      }
       
       // Get unique categories
       const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
@@ -62,7 +69,10 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
         .eq('category', category)
         .order('subcategory');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching subcategories:', error);
+        return;
+      }
       
       setSubcategories(data?.map(item => item.subcategory) || []);
     } catch (error) {
@@ -99,7 +109,7 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
         render={({ field }) => (
           <FormItem>
             <FormLabel>Category</FormLabel>
-            <Select onValueChange={handleCategoryChange} value={field.value} disabled={loadingCategories}>
+            <Select onValueChange={handleCategoryChange} value={field.value}>
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
@@ -132,11 +142,11 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
               <FormControl>
                 <SelectTrigger>
                   <SelectValue placeholder={
-                    loadingSubcategories 
-                      ? "Loading subcategories..." 
-                      : selectedCategory 
-                        ? "Select a subcategory" 
-                        : "Select a category first"
+                    !selectedCategory 
+                      ? "Select a category first" 
+                      : loadingSubcategories 
+                        ? "Loading subcategories..." 
+                        : "Select a subcategory"
                   } />
                 </SelectTrigger>
               </FormControl>
