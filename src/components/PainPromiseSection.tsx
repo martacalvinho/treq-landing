@@ -33,7 +33,7 @@ const PainPromiseSection = () => {
               <h3 className="text-2xl font-bold text-gray-900">Our Promise</h3>
             </div>
             <p className="text-lg text-gray-700 font-medium leading-relaxed">
-              We parse your PDF schedules → build a live, searchable library in 24 hours.
+              We organize your materials → build a live, searchable library personalized for your studio's needs.
             </p>
           </div>
         </div>
