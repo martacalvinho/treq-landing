@@ -5,12 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Building, Users, Filter } from 'lucide-react';
+import { Search, Edit, Building, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import AddStudioForm from '@/components/forms/AddStudioForm';
-import EditStudioForm from '@/components/forms/EditStudioForm';
 
 const Studios = () => {
   const { isAdmin } = useAuth();
@@ -18,7 +16,6 @@ const Studios = () => {
   const [studios, setStudios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedTier, setSelectedTier] = useState<string>('');
 
   useEffect(() => {
     if (isAdmin) {
@@ -46,11 +43,9 @@ const Studios = () => {
     }
   };
 
-  const filteredStudios = studios.filter(studio => {
-    const matchesSearch = studio.name.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTier = selectedTier === '' || studio.subscription_tier === selectedTier;
-    return matchesSearch && matchesTier;
-  });
+  const filteredStudios = studios.filter(studio =>
+    studio.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const getSubscriptionColor = (tier: string) => {
     switch (tier) {
@@ -93,30 +88,14 @@ const Studios = () => {
               <CardTitle>All Studios</CardTitle>
               <CardDescription>Manage all studios in the system</CardDescription>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Input
-                  placeholder="Search studios..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-              <div className="relative w-48">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <Select value={selectedTier} onValueChange={setSelectedTier}>
-                  <SelectTrigger className="pl-10">
-                    <SelectValue placeholder="All tiers" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">All tiers</SelectItem>
-                    <SelectItem value="starter">Starter</SelectItem>
-                    <SelectItem value="professional">Professional</SelectItem>
-                    <SelectItem value="enterprise">Enterprise</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Search studios..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
           </div>
         </CardHeader>
@@ -161,14 +140,16 @@ const Studios = () => {
                     >
                       View Data
                     </Button>
-                    <EditStudioForm studio={studio} onStudioUpdated={fetchStudios} />
+                    <Button variant="ghost" size="sm">
+                      <Edit className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               );
             })}
             {filteredStudios.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm || selectedTier ? 'No studios found matching your criteria.' : 'No studios yet.'}
+                {searchTerm ? 'No studios found matching your search.' : 'No studios yet.'}
               </div>
             )}
           </div>
