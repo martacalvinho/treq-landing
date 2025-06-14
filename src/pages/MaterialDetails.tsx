@@ -26,7 +26,7 @@ const MaterialDetails = () => {
     try {
       const { data, error } = await supabase
         .from('materials')
-        .select('*, manufacturers(id, name)')
+        .select('*, manufacturers(name)')
         .eq('id', id)
         .eq('studio_id', studioId)
         .single();
@@ -94,19 +94,11 @@ const MaterialDetails = () => {
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="text-sm font-medium text-gray-500">Category</label>
-                  <Link to={`/materials/category/${encodeURIComponent(material.category)}`} className="text-lg text-coral hover:text-coral-600 hover:underline block">
-                    {material.category}
-                  </Link>
+                  <p className="text-lg">{material.category}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Manufacturer</label>
-                  {material.manufacturers?.id ? (
-                    <Link to={`/manufacturers/${material.manufacturers.id}`} className="text-lg text-coral hover:text-coral-600 hover:underline block">
-                      {material.manufacturers.name}
-                    </Link>
-                  ) : (
-                    <p className="text-lg">Not specified</p>
-                  )}
+                  <p className="text-lg">{material.manufacturers?.name || 'Not specified'}</p>
                 </div>
                 <div>
                   <label className="text-sm font-medium text-gray-500">Created</label>
