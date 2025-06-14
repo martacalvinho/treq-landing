@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -13,7 +14,9 @@ import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import Materials from "./pages/Materials";
 import MaterialDetails from "./pages/MaterialDetails";
+import MaterialsByCategory from "./pages/MaterialsByCategory";
 import Manufacturers from "./pages/Manufacturers";
+import ManufacturerDetails from "./pages/ManufacturerDetails";
 import Clients from "./pages/Clients";
 import ClientDetails from "./pages/ClientDetails";
 import Alerts from "./pages/Alerts";
@@ -60,9 +63,19 @@ const App = () => (
                 <MaterialDetails />
               </DashboardLayout>
             } />
+            <Route path="/materials/category/:category" element={
+              <DashboardLayout>
+                <MaterialsByCategory />
+              </DashboardLayout>
+            } />
             <Route path="/manufacturers" element={
               <DashboardLayout>
                 <Manufacturers />
+              </DashboardLayout>
+            } />
+            <Route path="/manufacturers/:id" element={
+              <DashboardLayout>
+                <ManufacturerDetails />
               </DashboardLayout>
             } />
             <Route path="/clients" element={
