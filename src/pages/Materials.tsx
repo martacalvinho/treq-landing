@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Package } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AddMaterialForm from '@/components/forms/AddMaterialForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
 
@@ -88,7 +89,9 @@ const Materials = () => {
                       <Package className="h-6 w-6 text-coral-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{material.name}</h3>
+                      <Link to={`/materials/${material.id}`} className="hover:text-coral">
+                        <h3 className="font-semibold text-lg">{material.name}</h3>
+                      </Link>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                         <span>Category: {material.category}</span>
                         <span>Manufacturer: {material.manufacturers?.name || 'None'}</span>

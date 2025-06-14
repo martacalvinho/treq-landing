@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -41,7 +42,7 @@ const ProjectDetails = () => {
     try {
       const { data, error } = await supabase
         .from('proj_materials')
-        .select('*, materials(name, category)')
+        .select('*, materials(id, name, category)')
         .eq('project_id', id)
         .eq('studio_id', studioId);
 
@@ -170,7 +171,7 @@ const ProjectDetails = () => {
             {materials.map((projMaterial) => (
               <div key={projMaterial.id} className="flex items-center justify-between p-4 border rounded-lg">
                 <div className="flex-1">
-                  <Link to={`/materials/${projMaterial.materials.id}`} className="hover:text-coral">
+                  <Link to={`/materials/${projMaterial.material_id}`} className="hover:text-coral">
                     <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
                   </Link>
                   <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
