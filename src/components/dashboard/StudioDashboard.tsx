@@ -30,17 +30,33 @@ const StudioDashboard = () => {
     try {
       setLoading(true);
       
-      // Fetch counts
-      const [projects, materials, manufacturers, clients, alerts] = await Promise.all([
-        supabase.from('projects').select('id, status', { count: 'exact' }).eq('studio_id', studioId),
-        supabase.from('materials').select('id', { count: 'exact', head: true }).eq('studio_id', studioId),
-        supabase.from('manufacturers').select('id', { count: 'exact', head: true }).eq('studio_id', studioId),
-        supabase.from('clients').select('id', { count: 'exact', head: true }).eq('studio_id', studioId),
-        supabase.from('alerts').select('id', { count: 'exact', head: true }).eq('studio_id', studioId).eq('status', 'active')
+      // Fetch counts - using count: 'exact' and head: true for count-only queries
+      const [projectsResult, materialsResult, manufacturersResult, clientsResult, alertsResult] = await Promise.all([
+        supabase
+          .from('projects')
+          .select('id, status', { count: 'exact' })
+          .eq('studio_id', studioId),
+        supabase
+          .from('materials')
+          .select('id', { count: 'exact', head: true })
+          .eq('studio_id', studioId),
+        supabase
+          .from('manufacturers')
+          .select('id', { count: 'exact', head: true })
+          .eq('studio_id', studioId),
+        supabase
+          .from('clients')
+          .select('id', { count: 'exact', head: true })
+          .eq('studio_id', studioId),
+        supabase
+          .from('alerts')
+          .select('id', { count: 'exact', head: true })
+          .eq('studio_id', studioId)
+          .eq('status', 'active')
       ]);
 
-      // Calculate active projects
-      const activeProjects = projects.data?.filter(p => p.status === 'active').length || 0;
+      // Calculate active projects from the actual data
+      const activeProjects = projectsResult.data?.filter(p => p.status === 'active').length || 0;
 
       // Fetch recent materials
       const { data: recentMaterialsData } = await supabase
@@ -61,20 +77,20 @@ const StudioDashboard = () => {
       // Calculate this month's materials (simplified)
       const thisMonth = new Date();
       thisMonth.setDate(1);
-      const { data: monthlyMaterialsData } = await supabase
+      const { count: monthlyMaterialsCount } = await supabase
         .from('proj_materials')
         .select('id', { count: 'exact', head: true })
         .eq('studio_id', studioId)
         .gte('date_added', thisMonth.toISOString());
 
       setStats({
-        totalProjects: projects.count || 0,
+        totalProjects: projectsResult.count || 0,
         activeProjects,
-        totalMaterials: materials.count || 0,
-        totalManufacturers: manufacturers.count || 0,
-        totalClients: clients.count || 0,
-        activeAlerts: alerts.count || 0,
-        monthlyMaterials: monthlyMaterialsData?.count || 0
+        totalMaterials: materialsResult.count || 0,
+        totalManufacturers: manufacturersResult.count || 0,
+        totalClients: clientsResult.count || 0,
+        activeAlerts: alertsResult.count || 0,
+        monthlyMaterials: monthlyMaterialsCount || 0
       });
 
       setRecentMaterials(recentMaterialsData || []);
