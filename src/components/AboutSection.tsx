@@ -28,8 +28,8 @@ const AboutSection = () => {
                 </div>
               </div>
               <p className="text-gray-700 leading-relaxed">
-                A decade of architectural practice spanning global hubs like London, New York, Chicago, and Tokyo. 
-                We intimately understand the challenges you face. We've lived the reality of navigating complex projects 
+                A decade of architectural practice spanning global hubs like Lisbon, London, New York, Chicago, and Tokyo. 
+                Moving from studio to studio I intimately understand the challenges architects face. I've lived the reality of navigating complex projects 
                 and the often-overlooked goldmine hidden within material specifications.
               </p>
             </div>
