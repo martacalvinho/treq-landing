@@ -12,6 +12,7 @@ import {
   Bell,
   Settings
 } from 'lucide-react';
+import ChangePasswordForm from '@/components/forms/ChangePasswordForm';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -103,7 +104,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </ul>
         </nav>
         
-        <div className="p-4 border-t">
+        <div className="p-4 border-t space-y-2">
+          <ChangePasswordForm />
           <Button
             onClick={signOut}
             variant="ghost"

@@ -16,6 +16,7 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['admin', 'studio_user']),
   studio_id: z.string().optional(),
 });
@@ -36,6 +37,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       email: '',
       first_name: '',
       last_name: '',
+      password: 'TempPassword123!',
       role: 'studio_user',
       studio_id: 'no-studio',
     },
@@ -48,7 +50,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       // Create auth user first
       const { data: authData, error: authError } = await supabase.auth.admin.createUser({
         email: values.email,
-        password: 'TempPassword123!', // Temporary password - user should reset
+        password: values.password,
         email_confirm: true,
       });
 
@@ -70,7 +72,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
 
       toast({
         title: "Success",
-        description: "User created successfully. They will need to reset their password.",
+        description: "User created successfully. They can now log in with the provided password.",
       });
 
       form.reset();
@@ -138,6 +140,20 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
                   <FormLabel>Last Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Doe" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Temporary Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter temporary password" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
