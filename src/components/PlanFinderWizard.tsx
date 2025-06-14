@@ -33,12 +33,13 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
   const questions = [
     {
       id: 'importSize' as keyof WizardAnswers,
-      title: 'How many historical materials do you want digitized right now?',
+      title: 'How many historical material schedules do you want digitised right now?',
       options: [
-        { value: 'import_tiny', label: '0-100 materials' },
-        { value: 'import_small', label: '101-500 materials' },
-        { value: 'import_mid', label: '501-1,500 materials' },
-        { value: 'import_large', label: '1,500+ materials' }
+        { value: 'import_tiny', label: '0-4 specs' },
+        { value: 'import_small', label: 'Up to 25' },
+        { value: 'import_mid', label: '26-75' },
+        { value: 'import_large', label: '76-150' },
+        { value: 'import_custom', label: '150+' }
       ]
     },
     {
@@ -64,17 +65,18 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
   const calculateRecommendation = (answers: WizardAnswers): RecommendationResult => {
     // Setup plan mapping
     const setupMapping = {
-      'import_tiny': { plan: 'Starter Setup', price: '$99 (up to 100 materials)' },
-      'import_small': { plan: 'Studio Setup', price: '$499 (up to 500 materials)' },
-      'import_mid': { plan: 'Growth Setup', price: '$999 (up to 1,500 materials)' },
-      'import_large': { plan: 'Custom Setup', price: 'Contact Sales' }
+      'import_tiny': { plan: 'Free Setup', price: 'Free up to 4 specs' },
+      'import_small': { plan: 'Mini Setup', price: '€199' },
+      'import_mid': { plan: 'Pro Setup', price: '€499' },
+      'import_large': { plan: 'Full Studio Setup', price: '€799' },
+      'import_custom': { plan: 'Custom Setup', price: 'Contact Sales' }
     };
 
     // Monthly plan mapping
     let monthlyMapping = {
-      'new_low': { plan: 'Starter', price: '$29/mo' },
-      'new_med': { plan: 'Studio', price: '$49/mo' },
-      'new_high': { plan: 'Growth', price: '$99/mo' },
+      'new_low': { plan: 'Starter', price: '€29/mo' },
+      'new_med': { plan: 'Studio', price: '€49/mo' },
+      'new_high': { plan: 'Growth', price: '€99/mo' },
       'new_ultra': { plan: 'Enterprise', price: 'Custom' }
     };
 
@@ -84,13 +86,13 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
     // Advanced needs logic
     if (answers.advancedNeeds === 'adv_yes') {
       if (answers.monthlyProjects === 'new_low') {
-        monthlyPlan = { plan: 'Studio', price: '$49/mo' };
+        monthlyPlan = { plan: 'Studio', price: '€49/mo' };
       } else if (answers.monthlyProjects === 'new_med') {
-        monthlyPlan = { plan: 'Growth', price: '$99/mo' };
+        monthlyPlan = { plan: 'Growth', price: '€99/mo' };
       }
     }
 
-    const isCustom = answers.importSize === 'import_large' || answers.monthlyProjects === 'new_ultra';
+    const isCustom = answers.importSize === 'import_custom' || answers.monthlyProjects === 'new_ultra';
 
     return {
       setupPlan: setupPlan.plan,
@@ -186,7 +188,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
               <div className="bg-gray-50 rounded-lg p-6 mb-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="text-center">
-                    <h5 className="font-semibold text-gray-900 mb-2">One-Time Setup</h5>
+                    <h5 className="font-semibold text-gray-900 mb-2">Setup</h5>
                     <div className="text-lg font-bold text-coral">{recommendation.setupPlan}</div>
                     <div className="text-sm text-gray-600">{recommendation.setupPrice}</div>
                   </div>
@@ -206,7 +208,7 @@ const PlanFinderWizard: React.FC<WizardProps> = ({ isOpen, onClose }) => {
                 ) : (
                   <>
                     <Button className="w-full bg-coral hover:bg-coral-600 text-white">
-                      Start {recommendation.monthlyPlan} Plan
+                      {recommendation.setupPlan === 'Free Setup' ? 'Start Free Upload' : 'Schedule Setup Call'}
                     </Button>
                     <button
                       onClick={resetWizard}
