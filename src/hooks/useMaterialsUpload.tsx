@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UploadResult {
   success: boolean;
@@ -22,27 +23,34 @@ export const useMaterialsUpload = () => {
       formData.append('file', file);
       formData.append('studioId', studioId);
 
-      const response = await fetch('/functions/v1/process-materials-file', {
-        method: 'POST',
+      const { data, error } = await supabase.functions.invoke('process-materials-file', {
         body: formData,
       });
 
-      const result = await response.json();
+      if (error) {
+        console.error('Supabase function error:', error);
+        toast({
+          title: "Processing failed",
+          description: error.message || "Failed to process the file",
+          variant: "destructive",
+        });
+        return { success: false, error: error.message };
+      }
 
-      if (result.success) {
+      if (data?.success) {
         toast({
           title: "File processed successfully",
-          description: `Extracted ${result.materialsCount} materials from ${result.originalFilename}`,
+          description: `Extracted ${data.materialsCount} materials from ${data.originalFilename}`,
         });
       } else {
         toast({
           title: "Processing failed",
-          description: result.error || "Failed to process the file",
+          description: data?.error || "Failed to process the file",
           variant: "destructive",
         });
       }
 
-      return result;
+      return data;
     } catch (error) {
       console.error('Upload error:', error);
       const errorMessage = 'Failed to upload and process file';
