@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,8 +36,9 @@ const AuthPage = () => {
     const password = formData.get('password') as string;
     const firstName = formData.get('firstName') as string;
     const lastName = formData.get('lastName') as string;
+    const studioName = formData.get('studioName') as string;
     
-    await signUp(email, password, firstName, lastName);
+    await signUp(email, password, firstName, lastName, studioName);
     setIsLoading(false);
   };
 
@@ -55,7 +55,7 @@ const AuthPage = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl font-bold">Materials Dashboard</CardTitle>
-          <CardDescription>Sign in to manage your studio's materials</CardDescription>
+          <CardDescription>Sign in or create an account</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="signin" className="w-full">
@@ -90,6 +90,13 @@ const AuthPage = () => {
             
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
+                <div>
+                  <Input
+                    name="studioName"
+                    placeholder="Studio Name"
+                    required
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-2">
                   <Input
                     name="firstName"
