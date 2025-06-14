@@ -27,52 +27,124 @@ serve(async (req) => {
       throw new Error('OpenRouter API key not configured');
     }
 
-    // Get file content as base64 for AI processing
+    // Get file content
     const arrayBuffer = await file.arrayBuffer();
-    const base64Content = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+    const fileType = file.type;
+    const fileName = file.name;
     
     let extractedText = '';
-    const fileType = file.type;
+    let imageBase64 = '';
 
-    // For CSV files, convert to text directly
-    if (fileType === 'text/csv' || file.name.endsWith('.csv')) {
+    console.log(`Processing file: ${fileName}, type: ${fileType}, size: ${file.size}`);
+
+    // Handle different file types
+    if (fileType === 'text/csv' || fileName.endsWith('.csv')) {
+      // For CSV files, convert to text directly
       extractedText = new TextDecoder().decode(arrayBuffer);
+      console.log('CSV content preview:', extractedText.substring(0, 500));
+    } else if (fileType.startsWith('image/') || fileName.match(/\.(jpg|jpeg|png|gif|bmp|webp)$/i)) {
+      // For images, convert to base64 for vision model
+      imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      console.log('Image converted to base64, length:', imageBase64.length);
+    } else if (fileType === 'application/pdf' || fileName.endsWith('.pdf')) {
+      // For PDFs, we'll send the base64 content and let AI try to extract text
+      imageBase64 = btoa(String.fromCharCode(...new Uint8Array(arrayBuffer)));
+      console.log('PDF converted to base64 for AI processing, length:', imageBase64.length);
     } else {
-      // For PDFs and images, we'll send to AI for text extraction
-      // Note: This is a simplified approach. For production, you might want to use specialized libraries
-      extractedText = `[${fileType} file content - base64: ${base64Content.substring(0, 100)}...]`;
+      throw new Error(`Unsupported file type: ${fileType}`);
     }
 
-    // Create AI prompt to extract material data
-    const prompt = `
-You are an expert at extracting material schedule data from various document formats. 
-I have a file that contains material specifications. Please extract all materials and organize them into a structured format.
+    // Create AI prompt
+    let prompt = '';
+    let messages = [];
 
-File type: ${fileType}
-Content preview: ${extractedText.substring(0, 2000)}
+    if (extractedText) {
+      // Text-based content (CSV)
+      prompt = `
+You are an expert at extracting material schedule data from construction/interior design documents.
 
-Please extract materials and return them in this exact JSON format:
+I have uploaded a material schedule document with the following content:
+
+${extractedText}
+
+CRITICAL INSTRUCTIONS:
+1. Extract ONLY the materials that are explicitly listed in this document
+2. Do NOT create, invent, or add any materials that are not in the original document
+3. Use the EXACT names as written in the document
+4. If you cannot find clear materials in the document, return an empty materials array
+
+Please extract all materials and return them in this exact JSON format:
 {
   "materials": [
     {
-      "material_name": "exact material name",
+      "material_name": "exact name from document",
       "category": "categorize as one of: Flooring, Wall Covering, Ceiling, Window Treatment, Furniture, Lighting, Plumbing, Hardware, Surface, Textile, Other",
       "manufacturer_name": "manufacturer name if available, or null",
-      "notes": "any additional specifications, dimensions, colors, finishes, etc."
+      "notes": "any additional specifications, dimensions, colors, finishes, etc. from the document"
     }
   ]
 }
 
-Rules:
-- Extract ALL materials mentioned
-- Use exact names as written
-- Categorize appropriately
-- Include all relevant details in notes
-- If manufacturer is unclear, use null
-- Return valid JSON only, no other text
+Return valid JSON only, no other text.
 `;
 
-    // Call OpenRouter API
+      messages = [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ];
+    } else if (imageBase64) {
+      // Image or PDF content
+      prompt = `
+You are an expert at extracting material schedule data from construction/interior design documents.
+
+I have uploaded a material schedule document (image or PDF). Please carefully read and extract all materials listed in this document.
+
+CRITICAL INSTRUCTIONS:
+1. Extract ONLY the materials that are explicitly visible/readable in this document
+2. Do NOT create, invent, or add any materials that are not in the original document
+3. Use the EXACT names as written in the document
+4. If the image is unclear or you cannot read materials clearly, return an empty materials array
+5. Look for tables, lists, or schedules that contain material information
+
+Please extract all materials and return them in this exact JSON format:
+{
+  "materials": [
+    {
+      "material_name": "exact name from document",
+      "category": "categorize as one of: Flooring, Wall Covering, Ceiling, Window Treatment, Furniture, Lighting, Plumbing, Hardware, Surface, Textile, Other",
+      "manufacturer_name": "manufacturer name if available, or null",
+      "notes": "any additional specifications, dimensions, colors, finishes, etc. from the document"
+    }
+  ]
+}
+
+Return valid JSON only, no other text.
+`;
+
+      messages = [
+        {
+          role: 'user',
+          content: [
+            {
+              type: 'text',
+              text: prompt
+            },
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${fileType};base64,${imageBase64}`
+              }
+            }
+          ]
+        }
+      ];
+    }
+
+    console.log('Sending request to OpenRouter...');
+
+    // Call OpenRouter API with vision model for images/PDFs
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -82,24 +154,24 @@ Rules:
         'X-Title': 'SpecClarity Material Extraction',
       },
       body: JSON.stringify({
-        model: 'deepseek/deepseek-r1-0528:free',
-        messages: [
-          {
-            role: 'user',
-            content: prompt
-          }
-        ],
+        model: imageBase64 ? 'openai/gpt-4o' : 'deepseek/deepseek-r1-0528:free',
+        messages: messages,
         temperature: 0.1,
         max_tokens: 4000,
       }),
     });
 
     if (!response.ok) {
-      throw new Error(`OpenRouter API error: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('OpenRouter API error:', response.status, errorText);
+      throw new Error(`OpenRouter API error: ${response.status} - ${errorText}`);
     }
 
     const aiResponse = await response.json();
+    console.log('AI response received:', JSON.stringify(aiResponse, null, 2));
+
     const extractedContent = aiResponse.choices[0].message.content;
+    console.log('Extracted content:', extractedContent);
 
     // Parse the AI response to extract JSON
     let materialsData;
@@ -113,7 +185,14 @@ Rules:
       }
     } catch (parseError) {
       console.error('Failed to parse AI response:', extractedContent);
+      console.error('Parse error:', parseError);
       throw new Error('Failed to parse materials data from AI response');
+    }
+
+    console.log('Parsed materials data:', materialsData);
+
+    if (!materialsData.materials || !Array.isArray(materialsData.materials)) {
+      throw new Error('Invalid materials data structure');
     }
 
     // Initialize Supabase client
@@ -131,21 +210,26 @@ Rules:
       processed: false,
     }));
 
+    console.log('Inserting materials:', materialsToInsert);
+
     const { data: insertedMaterials, error: insertError } = await supabase
       .from('onboarding_materials')
       .insert(materialsToInsert)
       .select();
 
     if (insertError) {
+      console.error('Database insert error:', insertError);
       throw new Error(`Database error: ${insertError.message}`);
     }
+
+    console.log('Successfully inserted materials:', insertedMaterials);
 
     return new Response(
       JSON.stringify({
         success: true,
         materialsCount: materialsToInsert.length,
         materials: insertedMaterials,
-        originalFilename: file.name,
+        originalFilename: fileName,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
