@@ -6,19 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Building, Package } from 'lucide-react';
+import { ArrowLeft, Building, Package, FolderOpen } from 'lucide-react';
 
 const ManufacturerDetails = () => {
   const { id } = useParams();
   const { studioId } = useAuth();
   const [manufacturer, setManufacturer] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
+  const [projectsCount, setProjectsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (id && studioId) {
       fetchManufacturerDetails();
       fetchManufacturerMaterials();
+      fetchProjectsCount();
     }
   }, [id, studioId]);
 
@@ -55,6 +57,27 @@ const ManufacturerDetails = () => {
       console.error('Error fetching manufacturer materials:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProjectsCount = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('proj_materials')
+        .select(`
+          project_id,
+          materials!inner(manufacturer_id)
+        `)
+        .eq('materials.manufacturer_id', id)
+        .eq('studio_id', studioId);
+
+      if (error) throw error;
+      
+      // Get unique project IDs
+      const uniqueProjectIds = new Set(data?.map(item => item.project_id) || []);
+      setProjectsCount(uniqueProjectIds.size);
+    } catch (error) {
+      console.error('Error fetching projects count:', error);
     }
   };
 
@@ -112,7 +135,7 @@ const ManufacturerDetails = () => {
           </Card>
         </div>
 
-        <div>
+        <div className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Materials Count</CardTitle>
@@ -120,6 +143,19 @@ const ManufacturerDetails = () => {
             <CardContent>
               <div className="text-2xl font-bold">{materials.length}</div>
               <p className="text-sm text-gray-500">Materials from this manufacturer</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5" />
+                Total Projects
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{projectsCount}</div>
+              <p className="text-sm text-gray-500">Projects using materials from this manufacturer</p>
             </CardContent>
           </Card>
         </div>
