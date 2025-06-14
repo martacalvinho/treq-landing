@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -6,13 +5,15 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Building, Package, FolderOpen } from 'lucide-react';
+import { ArrowLeft, Building, Package, FolderOpen, Calendar, Clock, FileText } from 'lucide-react';
+import AddManufacturerNoteForm from '@/components/forms/AddManufacturerNoteForm';
 
 const ManufacturerDetails = () => {
   const { id } = useParams();
   const { studioId } = useAuth();
   const [manufacturer, setManufacturer] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
+  const [notes, setNotes] = useState<any[]>([]);
   const [projectsCount, setProjectsCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -21,6 +22,7 @@ const ManufacturerDetails = () => {
       fetchManufacturerDetails();
       fetchManufacturerMaterials();
       fetchProjectsCount();
+      fetchManufacturerNotes();
     }
   }, [id, studioId]);
 
@@ -57,6 +59,25 @@ const ManufacturerDetails = () => {
       console.error('Error fetching manufacturer materials:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchManufacturerNotes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('manufacturer_notes')
+        .select(`
+          *,
+          materials(id, name)
+        `)
+        .eq('manufacturer_id', id)
+        .eq('studio_id', studioId)
+        .order('contact_date', { ascending: false });
+
+      if (error) throw error;
+      setNotes(data || []);
+    } catch (error) {
+      console.error('Error fetching manufacturer notes:', error);
     }
   };
 
@@ -160,6 +181,62 @@ const ManufacturerDetails = () => {
           </Card>
         </div>
       </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Communication Notes
+              </CardTitle>
+              <CardDescription>Track communications and material inquiries</CardDescription>
+            </div>
+            <AddManufacturerNoteForm 
+              manufacturerId={id!} 
+              materials={materials}
+              onNoteAdded={fetchManufacturerNotes}
+            />
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {notes.map((note) => (
+              <div key={note.id} className="p-4 border rounded-lg">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-500">
+                    <Calendar className="h-4 w-4" />
+                    <span>{new Date(note.contact_date).toLocaleDateString()}</span>
+                  </div>
+                  {note.delivery_time && (
+                    <div className="flex items-center gap-2 text-sm text-gray-500">
+                      <Clock className="h-4 w-4" />
+                      <span>Delivery: {note.delivery_time}</span>
+                    </div>
+                  )}
+                </div>
+                
+                {note.materials && (
+                  <div className="mb-3">
+                    <span className="text-sm font-medium text-gray-700">Material Discussed: </span>
+                    <Link to={`/materials/${note.materials.id}`} className="text-coral hover:underline">
+                      {note.materials.name}
+                    </Link>
+                  </div>
+                )}
+                
+                <p className="text-gray-700">{note.notes}</p>
+              </div>
+            ))}
+            
+            {notes.length === 0 && (
+              <div className="text-center py-8 text-gray-500">
+                No communication notes yet. Add your first note to track interactions with this manufacturer.
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
