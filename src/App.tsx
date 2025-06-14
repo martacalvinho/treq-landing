@@ -24,6 +24,7 @@ import Studios from "./pages/Studios";
 import Users from "./pages/Users";
 import Onboarding from "./pages/Onboarding";
 import NotFound from "./pages/NotFound";
+import StudioSpecificDashboard from "./components/dashboard/StudioSpecificDashboard";
 
 const queryClient = new QueryClient();
 
@@ -96,6 +97,11 @@ const App = () => (
             <Route path="/studios" element={
               <DashboardLayout>
                 <Studios />
+              </DashboardLayout>
+            } />
+            <Route path="/studios/:studioId/dashboard" element={
+              <DashboardLayout>
+                <StudioSpecificDashboard />
               </DashboardLayout>
             } />
             <Route path="/users" element={

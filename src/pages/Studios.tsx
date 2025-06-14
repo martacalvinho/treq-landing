@@ -62,8 +62,8 @@ const Studios = () => {
   };
 
   const handleViewData = (studioId: string) => {
-    // For now, just show an alert - this could navigate to a studio-specific dashboard
-    alert(`View data functionality for studio ${studioId} would be implemented here.`);
+    // Navigate to studio-specific dashboard
+    navigate(`/studios/${studioId}/dashboard`);
   };
 
   if (!isAdmin) {

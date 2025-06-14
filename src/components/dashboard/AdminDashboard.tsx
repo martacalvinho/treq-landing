@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -61,9 +60,7 @@ const AdminDashboard = () => {
 
   const handleViewStudioDashboard = () => {
     if (selectedStudio) {
-      // For now, navigate to the studios page with the selected studio highlighted
-      // In a full implementation, this might navigate to a studio-specific dashboard
-      navigate(`/studios?highlight=${selectedStudio}`);
+      navigate(`/studios/${selectedStudio}/dashboard`);
     }
   };
 
@@ -72,8 +69,7 @@ const AdminDashboard = () => {
   };
 
   const handleViewData = (studioId: string) => {
-    // Navigate to a studio-specific view
-    navigate(`/studios?view=${studioId}`);
+    navigate(`/studios/${studioId}/dashboard`);
   };
 
   if (!isAdmin) {
