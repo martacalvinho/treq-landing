@@ -46,7 +46,6 @@ const Materials = () => {
   const filteredMaterials = materials.filter(material =>
     material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (material.subcategory && material.subcategory.toLowerCase().includes(searchTerm.toLowerCase())) ||
     material.manufacturers?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -95,15 +94,7 @@ const Materials = () => {
                       </Link>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                         <span>Category: {material.category}</span>
-                        {material.subcategory && (
-                          <>
-                            <span>•</span>
-                            <span>Subcategory: {material.subcategory}</span>
-                          </>
-                        )}
-                        <span>•</span>
                         <span>Manufacturer: {material.manufacturers?.name || 'None'}</span>
-                        <span>•</span>
                         <span>Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
                       </div>
                       {material.notes && (

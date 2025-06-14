@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -16,7 +17,6 @@ import { useToast } from '@/hooks/use-toast';
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
-  subcategory: z.string().min(1, 'Subcategory is required'),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
   notes: z.string().optional(),
@@ -33,12 +33,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const [open, setOpen] = useState(false);
   const [manufacturers, setManufacturers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [subcategories, setSubcategories] = useState<string[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const [loadingCategories, setLoadingCategories] = useState(true);
-  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
   const [currentProjectLink, setCurrentProjectLink] = useState<string>('');
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -46,89 +41,21 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     defaultValues: {
       name: material.name,
       category: material.category,
-      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: '',
       notes: material.notes || '',
     },
   });
 
-  const watchedCategory = form.watch('category');
-
   useEffect(() => {
     form.reset({
       name: material.name,
       category: material.category,
-      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: currentProjectLink || '',
       notes: material.notes || '',
     });
-    setSelectedCategory(material.category || '');
   }, [material, currentProjectLink, form]);
-
-  useEffect(() => {
-    if (open) {
-      fetchCategories();
-      fetchManufacturers();
-      fetchActiveProjects();
-      fetchCurrentProjectLink();
-    }
-  }, [open]);
-
-  useEffect(() => {
-    if (watchedCategory) {
-      setSelectedCategory(watchedCategory);
-      fetchSubcategories(watchedCategory);
-    } else {
-      setSubcategories([]);
-    }
-  }, [watchedCategory]);
-
-  const fetchCategories = async () => {
-    try {
-      setLoadingCategories(true);
-      const { data, error } = await supabase
-        .from('material_subcategories')
-        .select('category')
-        .order('category');
-      
-      if (error) {
-        console.error('Error fetching categories:', error);
-        return;
-      }
-      
-      // Get unique categories
-      const uniqueCategories = [...new Set(data?.map(item => item.category) || [])];
-      setCategories(uniqueCategories);
-    } catch (error) {
-      console.error('Error fetching categories:', error);
-    } finally {
-      setLoadingCategories(false);
-    }
-  };
-
-  const fetchSubcategories = async (category: string) => {
-    try {
-      setLoadingSubcategories(true);
-      const { data, error } = await supabase
-        .from('material_subcategories')
-        .select('subcategory')
-        .eq('category', category)
-        .order('subcategory');
-      
-      if (error) {
-        console.error('Error fetching subcategories:', error);
-        return;
-      }
-      
-      setSubcategories(data?.map(item => item.subcategory) || []);
-    } catch (error) {
-      console.error('Error fetching subcategories:', error);
-    } finally {
-      setLoadingSubcategories(false);
-    }
-  };
 
   const fetchManufacturers = async () => {
     if (!studioId) return;
@@ -192,7 +119,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
         .update({
           name: values.name,
           category: values.category,
-          subcategory: values.subcategory,
           manufacturer_id: values.manufacturer_id || null,
           notes: values.notes || null,
         })
@@ -243,11 +169,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     }
   };
 
-  const handleCategoryChange = (category: string) => {
-    form.setValue('category', category);
-    form.setValue('subcategory', ''); // Reset subcategory when category changes
-  };
-
   const handleDelete = async () => {
     if (!studioId || !confirm('Are you sure you want to delete this material?')) return;
     
@@ -291,6 +212,11 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
 
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
+    if (newOpen) {
+      fetchManufacturers();
+      fetchActiveProjects();
+      fetchCurrentProjectLink();
+    }
   };
 
   return (
@@ -326,55 +252,9 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={handleCategoryChange} value={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={loadingCategories ? "Loading categories..." : "Select a category"} />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subcategory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subcategory</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
-                    value={field.value}
-                    disabled={!selectedCategory || loadingSubcategories}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder={
-                          !selectedCategory 
-                            ? "Select a category first" 
-                            : loadingSubcategories 
-                              ? "Loading subcategories..." 
-                              : "Select a subcategory"
-                        } />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {subcategories.map((subcategory) => (
-                        <SelectItem key={subcategory} value={subcategory}>
-                          {subcategory}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <FormControl>
+                    <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}

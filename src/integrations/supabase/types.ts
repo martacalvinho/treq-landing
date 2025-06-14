@@ -228,27 +228,6 @@ export type Database = {
         }
         Relationships: []
       }
-      material_subcategories: {
-        Row: {
-          category: string
-          created_at: string
-          id: string
-          subcategory: string
-        }
-        Insert: {
-          category: string
-          created_at?: string
-          id?: string
-          subcategory: string
-        }
-        Update: {
-          category?: string
-          created_at?: string
-          id?: string
-          subcategory?: string
-        }
-        Relationships: []
-      }
       materials: {
         Row: {
           category: string
@@ -258,7 +237,6 @@ export type Database = {
           name: string
           notes: string | null
           studio_id: string
-          subcategory: string | null
           updated_at: string
         }
         Insert: {
@@ -269,7 +247,6 @@ export type Database = {
           name: string
           notes?: string | null
           studio_id: string
-          subcategory?: string | null
           updated_at?: string
         }
         Update: {
@@ -280,7 +257,6 @@ export type Database = {
           name?: string
           notes?: string | null
           studio_id?: string
-          subcategory?: string | null
           updated_at?: string
         }
         Relationships: [
