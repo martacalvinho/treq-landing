@@ -8,6 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, Send, Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/types';
+
+type AlertSeverity = Database['public']['Enums']['alert_severity'];
 
 const AdminAlerts = () => {
   const { isAdmin } = useAuth();
@@ -16,39 +19,55 @@ const AdminAlerts = () => {
   const [selectedStudio, setSelectedStudio] = useState<string>('');
   const [loading, setLoading] = useState(true);
 
-  // Common alert templates
+  // Common alert templates for architecture material projects
   const commonAlerts = [
     {
-      message: "Material price update required - Please review and update pricing for recent orders",
-      severity: "medium" as const
+      message: "Material 'Cerastone Grey' is no longer available — used in 3 active projects.",
+      severity: "high" as AlertSeverity
     },
     {
-      message: "New manufacturer partnership available - Contact us for exclusive pricing",
-      severity: "low" as const
+      message: "'Oak Laminate Light' used in 12 projects this quarter — review for alternatives.",
+      severity: "medium" as AlertSeverity
+    },
+    {
+      message: "'Textured Vinyl Wallcovering' missing contact info for vendor.",
+      severity: "medium" as AlertSeverity
+    },
+    {
+      message: "Project 'Green Loft 7' has no updates since March 12.",
+      severity: "low" as AlertSeverity
+    },
+    {
+      message: "'Oakwood Panel' and 'Oak Wood Panel' may be duplicates.",
+      severity: "medium" as AlertSeverity
+    },
+    {
+      message: "12 materials awaiting onboarding for Studio X for over 14 days.",
+      severity: "medium" as AlertSeverity
+    },
+    {
+      message: "'Bianco Quartz' not used in any project since Q1.",
+      severity: "low" as AlertSeverity
+    },
+    {
+      message: "5 materials missing category assignments.",
+      severity: "low" as AlertSeverity
+    },
+    {
+      message: "Material price update required - Please review and update pricing for recent orders",
+      severity: "medium" as AlertSeverity
     },
     {
       message: "Delivery delays expected due to supply chain issues - Plan accordingly",
-      severity: "high" as const
-    },
-    {
-      message: "Inventory levels running low for popular materials - Reorder recommended",
-      severity: "medium" as const
-    },
-    {
-      message: "System maintenance scheduled - Temporary service interruption expected",
-      severity: "high" as const
-    },
-    {
-      message: "New material categories added to catalog - Explore latest options",
-      severity: "low" as const
+      severity: "high" as AlertSeverity
     },
     {
       message: "Quality control issue detected - Some materials may require inspection",
-      severity: "critical" as const
+      severity: "critical" as AlertSeverity
     },
     {
       message: "Seasonal pricing changes effective next month - Review project budgets",
-      severity: "medium" as const
+      severity: "medium" as AlertSeverity
     }
   ];
 
@@ -80,7 +99,7 @@ const AdminAlerts = () => {
     }
   };
 
-  const sendAlert = async (alert: { message: string; severity: string }) => {
+  const sendAlert = async (alert: { message: string; severity: AlertSeverity }) => {
     if (!selectedStudio) {
       toast({
         title: "Error",
@@ -116,7 +135,7 @@ const AdminAlerts = () => {
     }
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: AlertSeverity) => {
     switch (severity) {
       case 'critical': return 'bg-red-100 text-red-700 border-red-200';
       case 'high': return 'bg-orange-100 text-orange-700 border-orange-200';
@@ -171,7 +190,7 @@ const AdminAlerts = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Plus className="h-5 w-5" />
-            Common Alerts
+            Common Architecture Material Alerts
           </CardTitle>
           <CardDescription>
             Click on any alert below to send it to the selected studio
