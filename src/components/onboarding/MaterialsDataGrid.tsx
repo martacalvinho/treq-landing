@@ -18,6 +18,8 @@ interface MaterialRow {
   manufacturer_name: string;
   tag: string;
   location: string;
+  reference_sku: string;
+  dimensions: string;
   notes: string;
 }
 
@@ -69,6 +71,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
       manufacturer_name: '',
       tag: '',
       location: '',
+      reference_sku: '',
+      dimensions: '',
       notes: ''
     };
     setMaterials([...materials, newRow]);
@@ -182,6 +186,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
             manufacturer_id: manufacturer?.id || null,
             tag: m.tag || null,
             location: m.location || null,
+            reference_sku: m.reference_sku || null,
+            dimensions: m.dimensions || null,
             notes: m.notes || null,
             studio_id: studioId
           };
@@ -242,7 +248,7 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle>Materials</CardTitle>
-                  <CardDescription>Add materials with their categories, tags, locations and manufacturers</CardDescription>
+                  <CardDescription>Add materials with their categories, tags, locations, references and manufacturers</CardDescription>
                 </div>
                 <Button onClick={addMaterialRow} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
@@ -260,6 +266,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                       <TableHead>Subcategory</TableHead>
                       <TableHead>Tag</TableHead>
                       <TableHead>Location</TableHead>
+                      <TableHead>Reference/SKU</TableHead>
+                      <TableHead>Dimensions</TableHead>
                       <TableHead>Manufacturer Name</TableHead>
                       <TableHead>Notes</TableHead>
                       <TableHead className="w-10"></TableHead>
@@ -319,6 +327,20 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                               ))}
                             </SelectContent>
                           </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.reference_sku}
+                            onChange={(e) => updateMaterial(row.id, 'reference_sku', e.target.value)}
+                            placeholder="SKU/Reference"
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Input
+                            value={row.dimensions}
+                            onChange={(e) => updateMaterial(row.id, 'dimensions', e.target.value)}
+                            placeholder="Dimensions"
+                          />
                         </TableCell>
                         <TableCell>
                           <Input

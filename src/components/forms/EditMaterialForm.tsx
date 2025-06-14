@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -17,8 +16,13 @@ import { useToast } from '@/hooks/use-toast';
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
+  subcategory: z.string().optional(),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
+  tag: z.string().optional(),
+  location: z.string().optional(),
+  reference_sku: z.string().optional(),
+  dimensions: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -26,6 +30,18 @@ interface EditMaterialFormProps {
   material: any;
   onMaterialUpdated: () => void;
 }
+
+const MATERIAL_CATEGORIES = [
+  'Flooring', 'Surface', 'Tile', 'Stone', 'Wood', 'Metal', 'Glass', 'Fabric', 'Lighting', 'Hardware', 'Other'
+];
+
+const COMMON_TAGS = [
+  'Sustainable', 'Premium', 'Fire-rated', 'Water-resistant', 'Low-maintenance', 'Custom', 'Standard', 'Luxury', 'Budget-friendly', 'Eco-friendly'
+];
+
+const COMMON_LOCATIONS = [
+  'Kitchen', 'Bathroom', 'Living room', 'Bedroom', 'Exterior', 'Commercial', 'Office', 'Hallway', 'Entrance', 'Outdoor'
+];
 
 const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps) => {
   const { studioId } = useAuth();
@@ -41,8 +57,13 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     defaultValues: {
       name: material.name,
       category: material.category,
+      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: '',
+      tag: material.tag || '',
+      location: material.location || '',
+      reference_sku: material.reference_sku || '',
+      dimensions: material.dimensions || '',
       notes: material.notes || '',
     },
   });
@@ -51,8 +72,13 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     form.reset({
       name: material.name,
       category: material.category,
+      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: currentProjectLink || '',
+      tag: material.tag || '',
+      location: material.location || '',
+      reference_sku: material.reference_sku || '',
+      dimensions: material.dimensions || '',
       notes: material.notes || '',
     });
   }, [material, currentProjectLink, form]);
@@ -119,7 +145,12 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
         .update({
           name: values.name,
           category: values.category,
+          subcategory: values.subcategory || null,
           manufacturer_id: values.manufacturer_id || null,
+          tag: values.tag || null,
+          location: values.location || null,
+          reference_sku: values.reference_sku || null,
+          dimensions: values.dimensions || null,
           notes: values.notes || null,
         })
         .eq('id', material.id)
@@ -226,7 +257,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Material</DialogTitle>
         </DialogHeader>
@@ -252,9 +283,114 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {MATERIAL_CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subcategory (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
+                    <Input placeholder="e.g., Hardwood, Marble" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="reference_sku"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Reference/SKU (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Product reference or SKU" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="dimensions"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Dimensions (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., 12\" x 24\", 2m x 1m" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tag"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tag (Optional)</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a tag" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No tag</SelectItem>
+                      {COMMON_TAGS.map((tag) => (
+                        <SelectItem key={tag} value={tag}>
+                          {tag}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location (Optional)</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No location</SelectItem>
+                      {COMMON_LOCATIONS.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
