@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -53,7 +52,7 @@ const ClientDetails = () => {
           .from('proj_materials')
           .select(`
             *,
-            materials(name, category),
+            materials(id, name, category),
             projects(name)
           `)
           .in('project_id', projectIds)
@@ -224,7 +223,9 @@ const ClientDetails = () => {
                     <Package className="h-6 w-6 text-coral-600" />
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
+                    <Link to={`/materials/${projMaterial.materials?.id}`} className="hover:text-coral">
+                      <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
+                    </Link>
                     <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                       <span>Category: {projMaterial.materials?.category}</span>
                       <span>Project: {projMaterial.projects?.name}</span>
