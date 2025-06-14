@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Users } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import AddClientForm from '@/components/forms/AddClientForm';
 import EditClientForm from '@/components/forms/EditClientForm';
 
@@ -96,7 +97,9 @@ const Clients = () => {
                       <Users className="h-6 w-6 text-coral-600" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="font-semibold text-lg">{client.name}</h3>
+                      <Link to={`/clients/${client.id}`} className="hover:text-coral">
+                        <h3 className="font-semibold text-lg">{client.name}</h3>
+                      </Link>
                       <div className="flex items-center gap-4 mt-1">
                         <Badge className={getStatusColor(client.status)}>
                           {client.status}
