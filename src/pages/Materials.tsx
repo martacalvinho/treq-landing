@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Package } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -46,6 +47,8 @@ const Materials = () => {
   const filteredMaterials = materials.filter(material =>
     material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    material.tag?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    material.location?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     material.manufacturers?.name?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -94,8 +97,21 @@ const Materials = () => {
                       </Link>
                       <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                         <span>Category: {material.category}</span>
-                        <span>Manufacturer: {material.manufacturers?.name || 'None'}</span>
-                        <span>Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
+                        {material.subcategory && <span>• {material.subcategory}</span>}
+                        <span>• Manufacturer: {material.manufacturers?.name || 'None'}</span>
+                        <span>• Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-2">
+                        {material.tag && (
+                          <Badge variant="secondary" className="text-xs">
+                            {material.tag}
+                          </Badge>
+                        )}
+                        {material.location && (
+                          <Badge variant="outline" className="text-xs">
+                            📍 {material.location}
+                          </Badge>
+                        )}
                       </div>
                       {material.notes && (
                         <p className="text-sm text-gray-600 mt-1">{material.notes}</p>

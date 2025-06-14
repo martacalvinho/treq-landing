@@ -17,14 +17,29 @@ import { useToast } from '@/hooks/use-toast';
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
+  subcategory: z.string().optional(),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
+  tag: z.string().optional(),
+  location: z.string().optional(),
   notes: z.string().optional(),
 });
 
 interface AddMaterialFormProps {
   onMaterialAdded: () => void;
 }
+
+const MATERIAL_CATEGORIES = [
+  'Flooring', 'Surface', 'Tile', 'Stone', 'Wood', 'Metal', 'Glass', 'Fabric', 'Lighting', 'Hardware', 'Other'
+];
+
+const COMMON_TAGS = [
+  'Sustainable', 'Premium', 'Fire-rated', 'Water-resistant', 'Low-maintenance', 'Custom', 'Standard', 'Luxury', 'Budget-friendly', 'Eco-friendly'
+];
+
+const COMMON_LOCATIONS = [
+  'Kitchen', 'Bathroom', 'Living room', 'Bedroom', 'Exterior', 'Commercial', 'Office', 'Hallway', 'Entrance', 'Outdoor'
+];
 
 const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   const { studioId } = useAuth();
@@ -39,8 +54,11 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
     defaultValues: {
       name: '',
       category: '',
+      subcategory: '',
       manufacturer_id: '',
       project_id: '',
+      tag: '',
+      location: '',
       notes: '',
     },
   });
@@ -98,7 +116,10 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
         .insert({
           name: values.name,
           category: values.category,
+          subcategory: values.subcategory || null,
           manufacturer_id: values.manufacturer_id || null,
+          tag: values.tag || null,
+          location: values.location || null,
           notes: values.notes || null,
           studio_id: studioId,
         })
@@ -182,9 +203,86 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {MATERIAL_CATEGORIES.map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subcategory (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
+                    <Input placeholder="e.g., Hardwood, Marble" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tag"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tag (Optional)</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a tag" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No tag</SelectItem>
+                      {COMMON_TAGS.map((tag) => (
+                        <SelectItem key={tag} value={tag}>
+                          {tag}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Location (Optional)</FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="none">No location</SelectItem>
+                      {COMMON_LOCATIONS.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}

@@ -233,33 +233,39 @@ export type Database = {
           category: string
           created_at: string
           id: string
+          location: string | null
           manufacturer_id: string | null
           name: string
           notes: string | null
           studio_id: string
           subcategory: string | null
+          tag: string | null
           updated_at: string
         }
         Insert: {
           category: string
           created_at?: string
           id?: string
+          location?: string | null
           manufacturer_id?: string | null
           name: string
           notes?: string | null
           studio_id: string
           subcategory?: string | null
+          tag?: string | null
           updated_at?: string
         }
         Update: {
           category?: string
           created_at?: string
           id?: string
+          location?: string | null
           manufacturer_id?: string | null
           name?: string
           notes?: string | null
           studio_id?: string
           subcategory?: string | null
+          tag?: string | null
           updated_at?: string
         }
         Relationships: [

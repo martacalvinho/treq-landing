@@ -16,6 +16,8 @@ interface MaterialRow {
   category: string;
   subcategory: string;
   manufacturer_name: string;
+  tag: string;
+  location: string;
   notes: string;
 }
 
@@ -43,6 +45,14 @@ const MATERIAL_CATEGORIES = [
   'Flooring', 'Surface', 'Tile', 'Stone', 'Wood', 'Metal', 'Glass', 'Fabric', 'Lighting', 'Hardware', 'Other'
 ];
 
+const COMMON_TAGS = [
+  'Sustainable', 'Premium', 'Fire-rated', 'Water-resistant', 'Low-maintenance', 'Custom', 'Standard', 'Luxury', 'Budget-friendly', 'Eco-friendly'
+];
+
+const COMMON_LOCATIONS = [
+  'Kitchen', 'Bathroom', 'Living room', 'Bedroom', 'Exterior', 'Commercial', 'Office', 'Hallway', 'Entrance', 'Outdoor'
+];
+
 const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
   const { toast } = useToast();
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
@@ -57,6 +67,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
       category: '',
       subcategory: '',
       manufacturer_name: '',
+      tag: '',
+      location: '',
       notes: ''
     };
     setMaterials([...materials, newRow]);
@@ -168,6 +180,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
             category: m.category,
             subcategory: m.subcategory || null,
             manufacturer_id: manufacturer?.id || null,
+            tag: m.tag || null,
+            location: m.location || null,
             notes: m.notes || null,
             studio_id: studioId
           };
@@ -228,7 +242,7 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle>Materials</CardTitle>
-                  <CardDescription>Add materials with their categories and manufacturers</CardDescription>
+                  <CardDescription>Add materials with their categories, tags, locations and manufacturers</CardDescription>
                 </div>
                 <Button onClick={addMaterialRow} size="sm">
                   <Plus className="h-4 w-4 mr-2" />
@@ -244,6 +258,8 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                       <TableHead>Material Name</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Subcategory</TableHead>
+                      <TableHead>Tag</TableHead>
+                      <TableHead>Location</TableHead>
                       <TableHead>Manufacturer Name</TableHead>
                       <TableHead>Notes</TableHead>
                       <TableHead className="w-10"></TableHead>
@@ -277,6 +293,32 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
                             onChange={(e) => updateMaterial(row.id, 'subcategory', e.target.value)}
                             placeholder="Subcategory"
                           />
+                        </TableCell>
+                        <TableCell>
+                          <Select value={row.tag} onValueChange={(value) => updateMaterial(row.id, 'tag', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select tag" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">No tag</SelectItem>
+                              {COMMON_TAGS.map((tag) => (
+                                <SelectItem key={tag} value={tag}>{tag}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </TableCell>
+                        <TableCell>
+                          <Select value={row.location} onValueChange={(value) => updateMaterial(row.id, 'location', value)}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select location" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="">No location</SelectItem>
+                              {COMMON_LOCATIONS.map((location) => (
+                                <SelectItem key={location} value={location}>{location}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </TableCell>
                         <TableCell>
                           <Input

@@ -18,6 +18,8 @@ const TEMPLATE_JSON = {
       category: "Flooring",
       subcategory: "Hardwood",
       manufacturer_name: "Premium Woods Co",
+      tag: "Premium",
+      location: "Living room",
       notes: "Available in 3 finishes"
     },
     {
@@ -25,6 +27,8 @@ const TEMPLATE_JSON = {
       category: "Stone", 
       subcategory: "Marble",
       manufacturer_name: "Stone Masters",
+      tag: "Luxury",
+      location: "Kitchen",
       notes: "Bookmatched slabs available"
     }
   ],
@@ -184,6 +188,8 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
               category: m.category,
               subcategory: m.subcategory || null,
               manufacturer_id: manufacturer?.id || null,
+              tag: m.tag || null,
+              location: m.location || null,
               notes: m.notes || null,
               studio_id: studioId
             };
@@ -290,6 +296,10 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
             </ul>
             <p className="mt-4"><strong>Available material categories:</strong></p>
             <p className="text-gray-600">Flooring, Surface, Tile, Stone, Wood, Metal, Glass, Fabric, Lighting, Hardware, Other</p>
+            <p className="mt-4"><strong>Common tags:</strong></p>
+            <p className="text-gray-600">Sustainable, Premium, Fire-rated, Water-resistant, Low-maintenance, Custom, Standard, Luxury, Budget-friendly, Eco-friendly</p>
+            <p className="mt-4"><strong>Common locations:</strong></p>
+            <p className="text-gray-600">Kitchen, Bathroom, Living room, Bedroom, Exterior, Commercial, Office, Hallway, Entrance, Outdoor</p>
           </div>
         </CardContent>
       </Card>
