@@ -15,6 +15,7 @@ import ProjectDetails from "./pages/ProjectDetails";
 import Materials from "./pages/Materials";
 import Manufacturers from "./pages/Manufacturers";
 import Clients from "./pages/Clients";
+import ClientDetails from "./pages/ClientDetails";
 import Alerts from "./pages/Alerts";
 import Studios from "./pages/Studios";
 import Users from "./pages/Users";
