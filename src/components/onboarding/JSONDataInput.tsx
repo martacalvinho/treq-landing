@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +9,7 @@ import { FileText, Upload, Copy } from 'lucide-react';
 
 interface JSONDataInputProps {
   studioId: string;
+  projectId?: string;
 }
 
 const TEMPLATE_MATERIALS = [
@@ -67,7 +67,7 @@ const TEMPLATE_CLIENTS = [
   }
 ];
 
-const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
+const JSONDataInput = ({ studioId, projectId }: JSONDataInputProps) => {
   const { toast } = useToast();
   const [jsonInput, setJsonInput] = useState('');
   const [importing, setImporting] = useState(false);
@@ -162,11 +162,14 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
               manufacturer_id: manufacturer?.id || null,
               tag: m.tag || null,
               location: m.location || null,
+              reference_sku: m.reference_sku || null,
+              dimensions: m.dimensions || null,
               notes: m.notes || null,
               studio_id: studioId
             };
           });
 
+        let savedMaterials: any[] = [];
         if (materialInserts.length > 0) {
           const { data: materialData, error: materialError } = await supabase
             .from('materials')
@@ -174,7 +177,23 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
             .select();
 
           if (materialError) throw materialError;
-          importedCount = materialData?.length || 0;
+          savedMaterials = materialData || [];
+          importedCount = savedMaterials.length;
+
+          // If a project is selected, link materials to the project
+          if (projectId && savedMaterials.length > 0) {
+            const projMaterialInserts = savedMaterials.map(material => ({
+              project_id: projectId,
+              material_id: material.id,
+              studio_id: studioId
+            }));
+
+            const { error: projMaterialError } = await supabase
+              .from('proj_materials')
+              .insert(projMaterialInserts);
+
+            if (projMaterialError) throw projMaterialError;
+          }
         }
       } else if (dataType === 'manufacturers') {
         const manufacturerInserts = data
@@ -220,7 +239,7 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
 
       toast({
         title: "Import successful",
-        description: `Imported ${importedCount} ${dataType}`,
+        description: `Imported ${importedCount} ${dataType}${projectId && dataType === 'materials' ? ' and linked to project' : ''}`,
       });
 
       setJsonInput('');
@@ -271,6 +290,16 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
 
   return (
     <div className="space-y-6">
+      {projectId && (
+        <Card className="border-blue-200 bg-blue-50">
+          <CardContent className="p-4">
+            <p className="text-sm text-blue-700">
+              <strong>Project Selected:</strong> Materials imported will be automatically linked to the selected project.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Data Type Selection */}
       <Card>
         <CardHeader>

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Building, FileSpreadsheet, Code } from 'lucide-react';
+import { Building, FileSpreadsheet, Code, FolderOpen } from 'lucide-react';
 import MaterialsDataGrid from '@/components/onboarding/MaterialsDataGrid';
 import JSONDataInput from '@/components/onboarding/JSONDataInput';
 
@@ -16,16 +16,31 @@ interface Studio {
   name: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  status: string;
+}
+
 const Onboarding = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const [selectedStudio, setSelectedStudio] = useState<string>('');
+  const [selectedProject, setSelectedProject] = useState<string>('');
   const [studios, setStudios] = useState<Studio[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetchStudios();
   }, []);
+
+  useEffect(() => {
+    if (selectedStudio) {
+      fetchProjects();
+      setSelectedProject(''); // Reset project selection when studio changes
+    }
+  }, [selectedStudio]);
 
   const fetchStudios = async () => {
     try {
@@ -45,6 +60,28 @@ const Onboarding = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchProjects = async () => {
+    if (!selectedStudio) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name, status')
+        .eq('studio_id', selectedStudio)
+        .order('name');
+
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load projects",
+        variant: "destructive",
+      });
     }
   };
 
@@ -106,6 +143,36 @@ const Onboarding = () => {
           </CardContent>
         </Card>
 
+        {/* Project Selection */}
+        {selectedStudio && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5" />
+                Select Project (Optional)
+              </CardTitle>
+              <CardDescription>
+                Choose a specific project to link materials to, or leave empty for general studio materials
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={selectedProject} onValueChange={setSelectedProject}>
+                <SelectTrigger className="w-full max-w-md">
+                  <SelectValue placeholder="Select a project (optional)..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="">No specific project</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name} ({project.status})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Data Import Interface */}
         {selectedStudio && (
           <Card>
@@ -113,6 +180,11 @@ const Onboarding = () => {
               <CardTitle>Import Data</CardTitle>
               <CardDescription>
                 Choose how you want to input your materials, manufacturers, and clients data
+                {selectedProject && (
+                  <span className="block mt-1 text-sm text-blue-600">
+                    Materials will be linked to the selected project
+                  </span>
+                )}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -129,11 +201,11 @@ const Onboarding = () => {
                 </TabsList>
                 
                 <TabsContent value="grid" className="mt-6">
-                  <MaterialsDataGrid studioId={selectedStudio} />
+                  <MaterialsDataGrid studioId={selectedStudio} projectId={selectedProject} />
                 </TabsContent>
                 
                 <TabsContent value="json" className="mt-6">
-                  <JSONDataInput studioId={selectedStudio} />
+                  <JSONDataInput studioId={selectedStudio} projectId={selectedProject} />
                 </TabsContent>
               </Tabs>
             </CardContent>

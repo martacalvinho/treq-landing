@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -41,6 +40,7 @@ interface ClientRow {
 
 interface MaterialsDataGridProps {
   studioId: string;
+  projectId?: string;
 }
 
 const MATERIAL_CATEGORIES = [
@@ -55,7 +55,7 @@ const COMMON_LOCATIONS = [
   'Kitchen', 'Bathroom', 'Living room', 'Bedroom', 'Exterior', 'Commercial', 'Office', 'Hallway', 'Entrance', 'Outdoor'
 ];
 
-const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
+const MaterialsDataGrid = ({ studioId, projectId }: MaterialsDataGridProps) => {
   const { toast } = useToast();
   const [materials, setMaterials] = useState<MaterialRow[]>([]);
   const [manufacturers, setManufacturers] = useState<ManufacturerRow[]>([]);
@@ -193,17 +193,35 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
           };
         });
 
+      let savedMaterials: any[] = [];
       if (materialInserts.length > 0) {
-        const { error: materialError } = await supabase
+        const { data: materialData, error: materialError } = await supabase
           .from('materials')
-          .insert(materialInserts);
+          .insert(materialInserts)
+          .select();
 
         if (materialError) throw materialError;
+        savedMaterials = materialData || [];
+      }
+
+      // If a project is selected, link materials to the project
+      if (projectId && savedMaterials.length > 0) {
+        const projMaterialInserts = savedMaterials.map(material => ({
+          project_id: projectId,
+          material_id: material.id,
+          studio_id: studioId
+        }));
+
+        const { error: projMaterialError } = await supabase
+          .from('proj_materials')
+          .insert(projMaterialInserts);
+
+        if (projMaterialError) throw projMaterialError;
       }
 
       toast({
         title: "Success",
-        description: `Imported ${materialInserts.length} materials, ${manufacturerInserts.length} manufacturers, and ${clientInserts.length} clients`,
+        description: `Imported ${materialInserts.length} materials, ${manufacturerInserts.length} manufacturers, and ${clientInserts.length} clients${projectId ? ' and linked to project' : ''}`,
       });
 
       // Clear the form
@@ -228,6 +246,9 @@ const MaterialsDataGrid = ({ studioId }: MaterialsDataGridProps) => {
       <div className="flex justify-between items-center">
         <p className="text-sm text-gray-600">
           Fill in the data below and click Save All to import to the database
+          {projectId && (
+            <span className="block text-blue-600">Materials will be automatically linked to the selected project</span>
+          )}
         </p>
         <Button onClick={saveAllData} disabled={saving} className="bg-coral hover:bg-coral-600">
           <Save className="h-4 w-4 mr-2" />
