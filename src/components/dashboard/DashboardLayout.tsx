@@ -1,6 +1,6 @@
 
 import { useAuth } from '@/hooks/useAuth';
-import { Navigate } from 'react-router-dom';
+import { Navigate, Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   LogOut, 
@@ -19,6 +19,7 @@ interface DashboardLayoutProps {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, userProfile, signOut, loading, isAdmin } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -81,17 +82,24 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         
         <nav className="flex-1 p-4">
           <ul className="space-y-2">
-            {navigationItems.map((item) => (
-              <li key={item.href}>
-                <a
-                  href={item.href}
-                  className="flex items-center gap-3 px-3 py-2 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors"
-                >
-                  <item.icon className="h-5 w-5" />
-                  {item.label}
-                </a>
-              </li>
-            ))}
+            {navigationItems.map((item) => {
+              const isActive = location.pathname === item.href;
+              return (
+                <li key={item.href}>
+                  <Link
+                    to={item.href}
+                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
+                      isActive 
+                        ? 'bg-coral-100 text-coral-700 font-medium' 
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.label}
+                  </Link>
+                </li>
+              );
+            })}
           </ul>
         </nav>
         
