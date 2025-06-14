@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Building, FileSpreadsheet, Code, FolderOpen } from 'lucide-react';
+import { Building, FileSpreadsheet, Code, FolderOpen, Users } from 'lucide-react';
 import MaterialsDataGrid from '@/components/onboarding/MaterialsDataGrid';
 import JSONDataInput from '@/components/onboarding/JSONDataInput';
 import AddProjectForm from '@/components/forms/AddProjectForm';
+import AddClientForm from '@/components/forms/AddClientForm';
 
 interface Studio {
   id: string;
@@ -23,13 +23,21 @@ interface Project {
   status: string;
 }
 
+interface Client {
+  id: string;
+  name: string;
+  status: string;
+}
+
 const Onboarding = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   const [selectedStudio, setSelectedStudio] = useState<string>('');
   const [selectedProject, setSelectedProject] = useState<string>('');
+  const [selectedClient, setSelectedClient] = useState<string>('');
   const [studios, setStudios] = useState<Studio[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [clients, setClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +47,9 @@ const Onboarding = () => {
   useEffect(() => {
     if (selectedStudio) {
       fetchProjects();
+      fetchClients();
       setSelectedProject(''); // Reset project selection when studio changes
+      setSelectedClient(''); // Reset client selection when studio changes
     }
   }, [selectedStudio]);
 
@@ -86,9 +96,36 @@ const Onboarding = () => {
     }
   };
 
+  const fetchClients = async () => {
+    if (!selectedStudio) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('clients')
+        .select('id, name, status')
+        .eq('studio_id', selectedStudio)
+        .order('name');
+
+      if (error) throw error;
+      setClients(data || []);
+    } catch (error) {
+      console.error('Error fetching clients:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load clients",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleProjectAdded = () => {
     // Refresh projects list when a new project is created
     fetchProjects();
+  };
+
+  const handleClientAdded = () => {
+    // Refresh clients list when a new client is created
+    fetchClients();
   };
 
   if (!isAdmin) {
@@ -149,6 +186,39 @@ const Onboarding = () => {
           </CardContent>
         </Card>
 
+        {/* Client Selection */}
+        {selectedStudio && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Select Client (Optional)
+              </CardTitle>
+              <CardDescription>
+                Choose a specific client to link materials to, or leave empty for general studio materials
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <Select value={selectedClient} onValueChange={setSelectedClient}>
+                  <SelectTrigger className="flex-1 max-w-md">
+                    <SelectValue placeholder="Select a client (optional)..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No specific client</SelectItem>
+                    {clients.map((client) => (
+                      <SelectItem key={client.id} value={client.id}>
+                        {client.name} ({client.status})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <AddClientForm onClientAdded={handleClientAdded} />
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Project Selection */}
         {selectedStudio && (
           <Card>
@@ -192,6 +262,11 @@ const Onboarding = () => {
                 {selectedProject && selectedProject !== "none" && (
                   <span className="block mt-1 text-sm text-blue-600">
                     Materials will be linked to the selected project
+                  </span>
+                )}
+                {selectedClient && selectedClient !== "none" && (
+                  <span className="block mt-1 text-sm text-green-600">
+                    Data will be associated with the selected client
                   </span>
                 )}
               </CardDescription>
