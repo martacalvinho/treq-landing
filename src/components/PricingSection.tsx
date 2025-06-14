@@ -1,12 +1,9 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
-import PlanFinderWizard from "./PlanFinderWizard";
 
 const PricingSection = () => {
-  const [showWizard, setShowWizard] = useState(false);
-
   const plans = [
     {
       name: "Starter",
@@ -61,11 +58,14 @@ const PricingSection = () => {
             Choose Your Plan
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-            Each plan includes a one-time onboarding fee based on how much past material history you want us to import for you
+            Each plan includes a one-time onboarding fee based on how much past material history you want us to import for you:
           </p>
-          <p className="text-sm text-gray-500 max-w-2xl mx-auto">
-            Want to bring in more history? It's just $1.50 per extra material
-          </p>
+          <div className="text-sm text-gray-600 max-w-2xl mx-auto space-y-2">
+            <p>Starter: Includes setup of up to 100 materials - $99 one-time onboarding</p>
+            <p>Studio: Includes setup of up to 500 materials – $499 one-time onboarding</p>
+            <p>Growth: Includes setup of up to 1,500 materials – $999 one-time onboarding</p>
+            <p className="mt-4 text-gray-500">Want to bring in more history? It's just $1.50 per extra material</p>
+          </div>
         </div>
 
         {/* Three Column Layout */}
@@ -134,25 +134,8 @@ const PricingSection = () => {
           ))}
         </div>
 
-        {/* Helper Sections */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          
-          {/* Plan Finder */}
-          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
-            <h4 className="font-semibold text-gray-900 mb-2">Not sure which plan fits?</h4>
-            <p className="text-gray-600 text-sm mb-6">
-              Answer three quick questions and we'll recommend the ideal setup & monthly plan for your studio.
-            </p>
-            <Button 
-              onClick={() => setShowWizard(true)}
-              variant="outline" 
-              className="w-full border-coral text-coral hover:bg-coral hover:text-white font-semibold"
-            >
-              Find My Perfect Plan
-            </Button>
-          </div>
-
-          {/* Setup Fee Explanation */}
+        {/* Setup Fee Explanation */}
+        <div className="max-w-2xl mx-auto">
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <h4 className="font-semibold text-gray-900 mb-2">What's the onboarding fee?</h4>
             <div className="space-y-3 text-sm text-gray-600">
@@ -167,14 +150,7 @@ const PricingSection = () => {
               </p>
             </div>
           </div>
-
         </div>
-
-        {/* Plan Finder Wizard Modal */}
-        <PlanFinderWizard 
-          isOpen={showWizard} 
-          onClose={() => setShowWizard(false)} 
-        />
       </div>
     </section>
   );
