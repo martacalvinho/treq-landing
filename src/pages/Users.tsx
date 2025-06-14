@@ -5,17 +5,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Search, Edit, User, Mail } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import AddUserForm from '@/components/forms/AddUserForm';
 import AssignStudioForm from '@/components/forms/AssignStudioForm';
 
 const Users = () => {
   const { isAdmin } = useAuth();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [users, setUsers] = useState<any[]>([]);
   const [studios, setStudios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedStudioFilter, setSelectedStudioFilter] = useState<string>(
+    searchParams.get('studio') || 'all'
+  );
 
   useEffect(() => {
     if (isAdmin) {
@@ -23,6 +29,16 @@ const Users = () => {
       fetchStudios();
     }
   }, [isAdmin]);
+
+  useEffect(() => {
+    // Update URL when studio filter changes
+    if (selectedStudioFilter === 'all') {
+      searchParams.delete('studio');
+    } else {
+      searchParams.set('studio', selectedStudioFilter);
+    }
+    setSearchParams(searchParams);
+  }, [selectedStudioFilter, searchParams, setSearchParams]);
 
   const fetchUsers = async () => {
     try {
@@ -58,12 +74,18 @@ const Users = () => {
     }
   };
 
-  const filteredUsers = users.filter(user =>
-    user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.studios?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredUsers = users.filter(user => {
+    const matchesSearch = user.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.studios?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStudio = selectedStudioFilter === 'all' || 
+      (selectedStudioFilter === 'no-studio' && !user.studio_id) ||
+      user.studio_id === selectedStudioFilter;
+
+    return matchesSearch && matchesStudio;
+  });
 
   const getRoleColor = (role: string) => {
     switch (role) {
@@ -95,14 +117,30 @@ const Users = () => {
               <CardTitle>All Users</CardTitle>
               <CardDescription>Manage all users in the system</CardDescription>
             </div>
-            <div className="relative w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input
-                placeholder="Search users..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
+            <div className="flex items-center gap-4">
+              <Select value={selectedStudioFilter} onValueChange={setSelectedStudioFilter}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Filter by studio" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Studios</SelectItem>
+                  <SelectItem value="no-studio">No Studio Assigned</SelectItem>
+                  {studios.map((studio) => (
+                    <SelectItem key={studio.id} value={studio.id}>
+                      {studio.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <div className="relative w-64">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  placeholder="Search users..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -145,7 +183,9 @@ const Users = () => {
             ))}
             {filteredUsers.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm ? 'No users found matching your search.' : 'No users yet.'}
+                {searchTerm || selectedStudioFilter !== 'all' 
+                  ? 'No users found matching your filters.' 
+                  : 'No users yet.'}
               </div>
             )}
           </div>
