@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -13,10 +12,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Plus } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { MATERIAL_CATEGORIES } from '@/utils/materialCategories';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
+  subcategory: z.string().min(1, 'Subcategory is required'),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
   notes: z.string().optional(),
@@ -33,12 +34,14 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   const [manufacturers, setManufacturers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: '',
       category: '',
+      subcategory: '',
       manufacturer_id: '',
       project_id: '',
       notes: '',
@@ -98,6 +101,7 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
         .insert({
           name: values.name,
           category: values.category,
+          subcategory: values.subcategory,
           manufacturer_id: values.manufacturer_id || null,
           notes: values.notes || null,
           studio_id: studioId,
@@ -126,6 +130,7 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       });
 
       form.reset();
+      setSelectedCategory('');
       setOpen(false);
       onMaterialAdded();
     } catch (error) {
@@ -140,6 +145,12 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
     }
   };
 
+  const handleCategoryChange = (category: string) => {
+    setSelectedCategory(category);
+    form.setValue('category', category);
+    form.setValue('subcategory', ''); // Reset subcategory when category changes
+  };
+
   const handleOpenChange = (newOpen: boolean) => {
     setOpen(newOpen);
     if (newOpen) {
@@ -147,6 +158,8 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       fetchActiveProjects();
     }
   };
+
+  const availableSubcategories = selectedCategory ? MATERIAL_CATEGORIES[selectedCategory as keyof typeof MATERIAL_CATEGORIES] || [] : [];
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -182,9 +195,49 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
-                  </FormControl>
+                  <Select onValueChange={handleCategoryChange} value={selectedCategory}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {Object.keys(MATERIAL_CATEGORIES).map((category) => (
+                        <SelectItem key={category} value={category}>
+                          {category}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subcategory</FormLabel>
+                  <Select 
+                    onValueChange={field.onChange} 
+                    value={field.value}
+                    disabled={!selectedCategory}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a subcategory" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableSubcategories.map((subcategory) => (
+                        <SelectItem key={subcategory} value={subcategory}>
+                          {subcategory}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
