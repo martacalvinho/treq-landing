@@ -1,9 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Check, Star } from "lucide-react";
+import PlanFinderWizard from "./PlanFinderWizard";
 
 const PricingSection = () => {
+  const [showWizard, setShowWizard] = useState(false);
+
   const plans = [
     {
       name: "Starter",
@@ -57,14 +60,14 @@ const PricingSection = () => {
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             Choose Your Plan
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-6">
-            Each plan includes a one-time onboarding fee based on how much past material history you want us to import for you:
-          </p>
-          <div className="text-sm text-gray-600 max-w-2xl mx-auto space-y-2">
-            <p>Starter: Includes setup of up to 100 materials - $99 one-time onboarding</p>
-            <p>Studio: Includes setup of up to 500 materials – $499 one-time onboarding</p>
-            <p>Growth: Includes setup of up to 1,500 materials – $999 one-time onboarding</p>
-            <p className="mt-4 text-gray-500">Want to bring in more history? It's just $1.50 per extra material</p>
+          <div className="text-lg text-gray-600 max-w-4xl mx-auto mb-6 space-y-4">
+            <p>Each plan includes a one-time onboarding fee based on how much past material history you want us to import for you:</p>
+            <div className="text-left max-w-2xl mx-auto space-y-2">
+              <p>Starter: Includes setup of up to 100 materials - $99 one-time onboarding</p>
+              <p>Studio: Includes setup of up to 500 materials – $499 one-time onboarding</p>
+              <p>Growth: Includes setup of up to 1,500 materials – $999 one-time onboarding</p>
+            </div>
+            <p>Want to bring in more history? It's just $1.50 per extra material</p>
           </div>
         </div>
 
@@ -151,6 +154,12 @@ const PricingSection = () => {
             </div>
           </div>
         </div>
+
+        {/* Plan Finder Wizard Modal */}
+        <PlanFinderWizard 
+          isOpen={showWizard} 
+          onClose={() => setShowWizard(false)} 
+        />
       </div>
     </section>
   );
