@@ -16,7 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Project name is required'),
-  type: z.enum(['residential', 'commercial', 'hospitality', 'educational', 'healthcare', 'retail']),
+  type: z.enum(['residential', 'commercial', 'hospitality', 'education', 'healthcare', 'retail', 'office']),
   client_id: z.string().optional(),
   start_date: z.string().optional(),
   end_date: z.string().optional(),
@@ -151,9 +151,10 @@ const AddProjectForm = ({ onProjectAdded }: AddProjectFormProps) => {
                       <SelectItem value="residential">Residential</SelectItem>
                       <SelectItem value="commercial">Commercial</SelectItem>
                       <SelectItem value="hospitality">Hospitality</SelectItem>
-                      <SelectItem value="educational">Educational</SelectItem>
+                      <SelectItem value="education">Education</SelectItem>
                       <SelectItem value="healthcare">Healthcare</SelectItem>
                       <SelectItem value="retail">Retail</SelectItem>
+                      <SelectItem value="office">Office</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -186,35 +187,33 @@ const AddProjectForm = ({ onProjectAdded }: AddProjectFormProps) => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="start_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Start Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <FormField
+              control={form.control}
+              name="start_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Date (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-              <FormField
-                control={form.control}
-                name="end_date"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>End Date</FormLabel>
-                    <FormControl>
-                      <Input type="date" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
+            <FormField
+              control={form.control}
+              name="end_date"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Date (Optional)</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}

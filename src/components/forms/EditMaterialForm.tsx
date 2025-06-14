@@ -190,14 +190,14 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Manufacturer (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a manufacturer" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="">No manufacturer</SelectItem>
+                      <SelectItem value="none">No manufacturer</SelectItem>
                       {manufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer.id} value={manufacturer.id}>
                           {manufacturer.name}

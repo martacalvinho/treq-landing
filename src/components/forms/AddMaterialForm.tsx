@@ -186,13 +186,14 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Manufacturer (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a manufacturer" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">No manufacturer</SelectItem>
                       {manufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer.id} value={manufacturer.id}>
                           {manufacturer.name}
@@ -211,13 +212,14 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Link to Project (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} defaultValue={field.value || "none"}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select an active project" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
+                      <SelectItem value="none">No project</SelectItem>
                       {projects.map((project) => (
                         <SelectItem key={project.id} value={project.id}>
                           {project.name}
