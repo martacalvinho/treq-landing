@@ -6,10 +6,13 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit, Building, Users } from 'lucide-react';
+import { Search, Edit, Building, Users } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import AddStudioForm from '@/components/forms/AddStudioForm';
 
 const Studios = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [studios, setStudios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -53,6 +56,16 @@ const Studios = () => {
     }
   };
 
+  const handleManageUsers = (studioId: string) => {
+    // Navigate to users page with studio filter
+    navigate(`/users?studio=${studioId}`);
+  };
+
+  const handleViewData = (studioId: string) => {
+    // For now, just show an alert - this could navigate to a studio-specific dashboard
+    alert(`View data functionality for studio ${studioId} would be implemented here.`);
+  };
+
   if (!isAdmin) {
     return <div className="p-6">Access denied. Admin privileges required.</div>;
   }
@@ -65,10 +78,7 @@ const Studios = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Studios Management</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add Studio
-        </Button>
+        <AddStudioForm onStudioAdded={fetchStudios} />
       </div>
 
       <Card>
@@ -116,10 +126,18 @@ const Studios = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleManageUsers(studio.id)}
+                    >
                       Manage Users
                     </Button>
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => handleViewData(studio.id)}
+                    >
                       View Data
                     </Button>
                     <Button variant="ghost" size="sm">

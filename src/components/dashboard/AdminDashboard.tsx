@@ -7,9 +7,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Building, Users, FolderOpen, Package, AlertTriangle, Search } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDashboard = () => {
   const { isAdmin } = useAuth();
+  const navigate = useNavigate();
   const [studios, setStudios] = useState<any[]>([]);
   const [selectedStudio, setSelectedStudio] = useState<string>('');
   const [globalStats, setGlobalStats] = useState({
@@ -55,6 +57,23 @@ const AdminDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleViewStudioDashboard = () => {
+    if (selectedStudio) {
+      // For now, navigate to the studios page with the selected studio highlighted
+      // In a full implementation, this might navigate to a studio-specific dashboard
+      navigate(`/studios?highlight=${selectedStudio}`);
+    }
+  };
+
+  const handleManageUsers = (studioId: string) => {
+    navigate(`/users?studio=${studioId}`);
+  };
+
+  const handleViewData = (studioId: string) => {
+    // Navigate to a studio-specific view
+    navigate(`/studios?view=${studioId}`);
   };
 
   if (!isAdmin) {
@@ -143,7 +162,10 @@ const AdminDashboard = () => {
                 ))}
               </SelectContent>
             </Select>
-            <Button disabled={!selectedStudio}>
+            <Button 
+              disabled={!selectedStudio}
+              onClick={handleViewStudioDashboard}
+            >
               View Studio Dashboard
             </Button>
           </div>
@@ -166,10 +188,18 @@ const AdminDashboard = () => {
                   </p>
                 </div>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleManageUsers(studio.id)}
+                  >
                     Manage Users
                   </Button>
-                  <Button variant="outline" size="sm">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => handleViewData(studio.id)}
+                  >
                     View Data
                   </Button>
                 </div>

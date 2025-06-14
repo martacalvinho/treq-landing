@@ -6,17 +6,21 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Plus, Search, Edit, User, Mail } from 'lucide-react';
+import { Search, Edit, User, Mail } from 'lucide-react';
+import AddUserForm from '@/components/forms/AddUserForm';
+import AssignStudioForm from '@/components/forms/AssignStudioForm';
 
 const Users = () => {
   const { isAdmin } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
+  const [studios, setStudios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (isAdmin) {
       fetchUsers();
+      fetchStudios();
     }
   }, [isAdmin]);
 
@@ -37,6 +41,20 @@ const Users = () => {
       console.error('Error fetching users:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchStudios = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('studios')
+        .select('id, name')
+        .order('name');
+      
+      if (error) throw error;
+      setStudios(data || []);
+    } catch (error) {
+      console.error('Error fetching studios:', error);
     }
   };
 
@@ -67,10 +85,7 @@ const Users = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Users Management</h1>
-        <Button className="bg-coral hover:bg-coral-600">
-          <Plus className="h-4 w-4 mr-2" />
-          Add User
-        </Button>
+        <AddUserForm onUserAdded={fetchUsers} studios={studios} />
       </div>
 
       <Card>
@@ -121,9 +136,7 @@ const Users = () => {
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm">
-                    Assign Studio
-                  </Button>
+                  <AssignStudioForm user={user} onUserUpdated={fetchUsers} />
                   <Button variant="ghost" size="sm">
                     <Edit className="h-4 w-4" />
                   </Button>
