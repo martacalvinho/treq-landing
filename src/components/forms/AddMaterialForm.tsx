@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -21,8 +22,6 @@ const formSchema = z.object({
   project_id: z.string().optional(),
   tag: z.string().optional(),
   location: z.string().optional(),
-  reference_sku: z.string().optional(),
-  dimensions: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -60,8 +59,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       project_id: '',
       tag: '',
       location: '',
-      reference_sku: '',
-      dimensions: '',
       notes: '',
     },
   });
@@ -96,9 +93,11 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       if (error) throw error;
       console.log('All projects fetched:', data);
       
+      // Filter for active projects, but also include other statuses for debugging
       const activeProjects = data?.filter(project => project.status === 'active') || [];
       console.log('Active projects:', activeProjects);
       
+      // For now, let's show all projects to debug the issue
       setProjects(data || []);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -121,8 +120,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
           manufacturer_id: values.manufacturer_id || null,
           tag: values.tag || null,
           location: values.location || null,
-          reference_sku: values.reference_sku || null,
-          dimensions: values.dimensions || null,
           notes: values.notes || null,
           studio_id: studioId,
         })
@@ -180,7 +177,7 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
           Add Material
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Add New Material</DialogTitle>
         </DialogHeader>
@@ -233,34 +230,6 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
                   <FormLabel>Subcategory (Optional)</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g., Hardwood, Marble" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="reference_sku"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reference/SKU (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product reference or SKU" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dimensions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dimensions (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 12\" x 24\", 2m x 1m" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

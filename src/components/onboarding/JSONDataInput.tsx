@@ -20,8 +20,6 @@ const TEMPLATE_MATERIALS = [
     manufacturer_name: "Premium Woods Co",
     tag: "Premium",
     location: "Living room",
-    reference_sku: "WO-3414-NAT",
-    dimensions: "3/4\" x 3-1/4\" x RL",
     notes: "Available in 3 finishes"
   },
   {
@@ -31,8 +29,6 @@ const TEMPLATE_MATERIALS = [
     manufacturer_name: "Stone Masters",
     tag: "Luxury",
     location: "Kitchen",
-    reference_sku: "CM-1224-POL",
-    dimensions: "12\" x 24\" x 3/8\"",
     notes: "Bookmatched slabs available"
   }
 ];
@@ -162,8 +158,6 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
               manufacturer_id: manufacturer?.id || null,
               tag: m.tag || null,
               location: m.location || null,
-              reference_sku: m.reference_sku || null,
-              dimensions: m.dimensions || null,
               notes: m.notes || null,
               studio_id: studioId
             };
@@ -245,7 +239,7 @@ const JSONDataInput = ({ studioId }: JSONDataInputProps) => {
         return (
           <div className="space-y-2 text-sm">
             <p><strong>Required fields:</strong> name and category</p>
-            <p><strong>Optional fields:</strong> subcategory, manufacturer_name, tag, location, reference_sku, dimensions, notes</p>
+            <p><strong>Optional fields:</strong> subcategory, manufacturer_name, tag, location, notes</p>
             <p className="mt-4"><strong>Available categories:</strong></p>
             <p className="text-gray-600">Flooring, Surface, Tile, Stone, Wood, Metal, Glass, Fabric, Lighting, Hardware, Other</p>
             <p className="mt-4"><strong>Common tags:</strong></p>
