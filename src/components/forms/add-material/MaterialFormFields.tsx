@@ -71,11 +71,11 @@ const MaterialFormFields = ({ form, manufacturers, projects }: MaterialFormField
             <Select 
               onValueChange={field.onChange} 
               value={field.value}
-              disabled={!selectedCategory || availableSubcategories.length === 0}
+              disabled={!selectedCategory}
             >
               <FormControl>
                 <SelectTrigger>
-                  <SelectValue placeholder="Select a subcategory" />
+                  <SelectValue placeholder={selectedCategory ? "Select a subcategory" : "Select a category first"} />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
