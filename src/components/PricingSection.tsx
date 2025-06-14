@@ -137,8 +137,25 @@ const PricingSection = () => {
           ))}
         </div>
 
-        {/* Setup Fee Explanation */}
-        <div className="max-w-2xl mx-auto">
+        {/* Helper Sections */}
+        <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          
+          {/* Plan Finder */}
+          <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
+            <h4 className="font-semibold text-gray-900 mb-2">Not sure which plan fits?</h4>
+            <p className="text-gray-600 text-sm mb-6">
+              Answer three quick questions and we'll recommend the ideal setup & monthly plan for your studio.
+            </p>
+            <Button 
+              onClick={() => setShowWizard(true)}
+              variant="outline" 
+              className="w-full border-coral text-coral hover:bg-coral hover:text-white font-semibold"
+            >
+              Find My Perfect Plan
+            </Button>
+          </div>
+
+          {/* Setup Fee Explanation */}
           <div className="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <h4 className="font-semibold text-gray-900 mb-2">What's the onboarding fee?</h4>
             <div className="space-y-3 text-sm text-gray-600">
@@ -153,6 +170,7 @@ const PricingSection = () => {
               </p>
             </div>
           </div>
+
         </div>
 
         {/* Plan Finder Wizard Modal */}
