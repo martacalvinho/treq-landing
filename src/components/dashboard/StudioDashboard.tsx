@@ -2,9 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { FolderOpen, Package, Building, Users, AlertTriangle, TrendingUp } from 'lucide-react';
+import { FolderOpen, Package, Building, Users, AlertTriangle, TrendingUp, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import AddProjectForm from '@/components/forms/AddProjectForm';
+import AddMaterialForm from '@/components/forms/AddMaterialForm';
+import AddClientForm from '@/components/forms/AddClientForm';
+import AddManufacturerForm from '@/components/forms/AddManufacturerForm';
 
 const StudioDashboard = () => {
   const { userProfile, studioId } = useAuth();
@@ -159,14 +164,16 @@ const StudioDashboard = () => {
         .filter(item => item.project)
         .sort((a, b) => b.count - a.count)[0] || null;
 
-      // Calculate this month's materials (simplified)
+      // Fix monthly materials count - count materials created this month
       const thisMonth = new Date();
       thisMonth.setDate(1);
+      thisMonth.setHours(0, 0, 0, 0);
+      
       const { count: monthlyMaterialsCount } = await supabase
-        .from('proj_materials')
+        .from('materials')
         .select('id', { count: 'exact', head: true })
         .eq('studio_id', studioId)
-        .gte('date_added', thisMonth.toISOString());
+        .gte('created_at', thisMonth.toISOString());
 
       setStats({
         totalProjects: projectsResult.count || 0,
@@ -188,6 +195,10 @@ const StudioDashboard = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleDataUpdated = () => {
+    fetchStudioData();
   };
 
   if (loading) {
@@ -226,6 +237,22 @@ const StudioDashboard = () => {
               <div className="text-2xl font-bold text-gray-900">{stats.totalMaterials}</div>
               <p className="text-sm text-gray-600">Total materials library</p>
             </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Quick Actions */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+          <CardDescription>Fast access to common tasks</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <AddProjectForm onProjectAdded={handleDataUpdated} />
+            <AddMaterialForm onMaterialAdded={handleDataUpdated} />
+            <AddClientForm onClientAdded={handleDataUpdated} />
+            <AddManufacturerForm onManufacturerAdded={handleDataUpdated} />
           </div>
         </CardContent>
       </Card>
