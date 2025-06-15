@@ -152,7 +152,7 @@ export const MaterialLimitsProvider = ({ children }: MaterialLimitsProviderProps
       } else if (preference === 'per_material') {
         toast({
           title: "Per-material billing enabled",
-          description: "You'll be charged $5 for each material above your monthly limit.",
+          description: "You'll be charged $1.50 for each material above your monthly limit.",
         });
       }
     } catch (error) {
@@ -182,7 +182,7 @@ export const MaterialLimitsProvider = ({ children }: MaterialLimitsProviderProps
       // If we're over the limit and using per-material billing, track the overage
       if (newCount > monthlyLimit && billingPreference === 'per_material') {
         const overageCount = newCount - monthlyLimit;
-        const totalCharge = overageCount * 5.00; // $5 per extra material
+        const totalCharge = overageCount * 1.50; // $1.50 per extra material
 
         await supabase
           .from('material_overages')
@@ -191,7 +191,8 @@ export const MaterialLimitsProvider = ({ children }: MaterialLimitsProviderProps
             user_id: userProfile?.id,
             month_year: currentMonth,
             overage_count: overageCount,
-            total_charge: totalCharge
+            total_charge: totalCharge,
+            per_material_rate: 1.50
           });
       }
 
