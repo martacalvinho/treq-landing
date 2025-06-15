@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Building, Users, FolderOpen, Package, AlertTriangle, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import SystemHealthIndicators from './admin/SystemHealthIndicators';
+import UsageAnalytics from './admin/UsageAnalytics';
+import RecentUserActivity from './admin/RecentUserActivity';
+import QuickStudioManagement from './admin/QuickStudioManagement';
+import PlatformAnnouncements from './admin/PlatformAnnouncements';
 
 const AdminDashboard = () => {
   const { isAdmin } = useAuth();
@@ -95,6 +101,9 @@ const AdminDashboard = () => {
         </div>
       </div>
 
+      {/* System Health */}
+      <SystemHealthIndicators />
+
       {/* Global Overview */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
@@ -137,6 +146,20 @@ const AdminDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Usage Analytics */}
+      <UsageAnalytics />
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Recent User Activity */}
+        <RecentUserActivity />
+
+        {/* Quick Studio Management */}
+        <QuickStudioManagement />
+      </div>
+
+      {/* Platform Announcements */}
+      <PlatformAnnouncements />
 
       {/* Studio Selector */}
       <Card>
