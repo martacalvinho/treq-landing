@@ -51,35 +51,79 @@ export const MaterialLimitsProvider = ({ children }: MaterialLimitsProviderProps
 
   const fetchStudioData = async () => {
     try {
-      const { data, error } = await supabase
+      // First, get the current month materials count from the studio
+      const { data: studioData, error: studioError } = await supabase
         .from('studios')
         .select('current_month_materials, billing_preference, current_month')
         .eq('id', studioId)
         .single();
 
-      if (error) throw error;
+      if (studioError) throw studioError;
 
       const currentMonth = new Date().toISOString().slice(0, 7); // YYYY-MM format
       
-      // Reset monthly count if we're in a new month
-      if (data.current_month !== currentMonth) {
+      // If we're in a new month or the studio doesn't have current_month set, reset and count actual materials
+      if (!studioData.current_month || studioData.current_month !== currentMonth) {
+        // Count actual materials added this month
+        const { count: actualMonthlyCount, error: countError } = await supabase
+          .from('materials')
+          .select('*', { count: 'exact', head: true })
+          .eq('studio_id', studioId)
+          .gte('created_at', `${currentMonth}-01T00:00:00.000Z`)
+          .lt('created_at', `${getNextMonth(currentMonth)}-01T00:00:00.000Z`);
+
+        if (countError) throw countError;
+
+        const realCount = actualMonthlyCount || 0;
+
+        // Update studio with correct count and current month
         await supabase
           .from('studios')
           .update({
             current_month: currentMonth,
-            current_month_materials: 0
+            current_month_materials: realCount
           })
           .eq('id', studioId);
         
-        setMonthlyCount(0);
+        setMonthlyCount(realCount);
       } else {
-        setMonthlyCount(data.current_month_materials || 0);
+        // Use the stored count, but verify it's accurate
+        const { count: actualMonthlyCount, error: countError } = await supabase
+          .from('materials')
+          .select('*', { count: 'exact', head: true })
+          .eq('studio_id', studioId)
+          .gte('created_at', `${currentMonth}-01T00:00:00.000Z`)
+          .lt('created_at', `${getNextMonth(currentMonth)}-01T00:00:00.000Z`);
+
+        if (countError) throw countError;
+
+        const realCount = actualMonthlyCount || 0;
+        
+        // If the stored count doesn't match the actual count, update it
+        if (realCount !== (studioData.current_month_materials || 0)) {
+          await supabase
+            .from('studios')
+            .update({ current_month_materials: realCount })
+            .eq('id', studioId);
+          
+          setMonthlyCount(realCount);
+        } else {
+          setMonthlyCount(studioData.current_month_materials || 0);
+        }
       }
 
-      setBillingPreference(data.billing_preference || 'blocked');
+      setBillingPreference(studioData.billing_preference || 'blocked');
     } catch (error) {
       console.error('Error fetching studio data:', error);
     }
+  };
+
+  // Helper function to get next month in YYYY-MM format
+  const getNextMonth = (monthStr: string) => {
+    const [year, month] = monthStr.split('-').map(Number);
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextYear = month === 12 ? year + 1 : year;
+    return `${nextYear}-${String(nextMonth).padStart(2, '0')}`;
   };
 
   const checkAndHandleMaterialLimit = async (): Promise<boolean> => {
