@@ -79,7 +79,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const commonLocations = [
     "Kitchen", "Bathroom", "Living Room", "Bedroom", "Office",
     "Hallway", "Basement", "Exterior", "Ceiling", "Floor",
-    "Wall", "Wet Areas", "High Traffic Areas", "Commercial Spaces"
+    "Wall", "Wet Areas", "High Traffic Areas", "Commercial Spaces",
+    "Library shelving", "Cabinets", "Lockers", "Storage areas"
   ];
 
   const fetchManufacturers = async () => {
@@ -338,9 +339,15 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                 <FormItem>
                   <FormLabel>Location (Optional)</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter location" {...field} />
+                    <Input 
+                      placeholder="Enter location(s) - separate multiple with commas" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Use commas to separate multiple locations (e.g., "Library shelving, Cabinets, Lockers")
+                  </p>
                 </FormItem>
               )}
             />

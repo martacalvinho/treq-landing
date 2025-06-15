@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -132,6 +131,12 @@ const Materials = () => {
   const hasActiveFilters = projectFilter && projectFilter !== 'all' || 
                           manufacturerFilter && manufacturerFilter !== 'all' || 
                           clientFilter && clientFilter !== 'all';
+
+  // Helper function to parse locations
+  const parseLocations = (locationString: string | null) => {
+    if (!locationString) return [];
+    return locationString.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0);
+  };
 
   if (loading) {
     return <div className="p-6">Loading materials...</div>;
@@ -278,6 +283,8 @@ const Materials = () => {
             {filteredMaterials.map((material) => {
               const projectCount = material.proj_materials?.length || 0;
               const clientName = material.proj_materials?.[0]?.projects?.clients?.name;
+              const locations = parseLocations(material.location);
+              
               return (
                 <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
                   <div className="flex items-center gap-4">
@@ -307,10 +314,14 @@ const Materials = () => {
                             {material.tag}
                           </Badge>
                         )}
-                        {material.location && (
-                          <Badge variant="outline" className="text-xs">
-                            📍 {material.location}
-                          </Badge>
+                        {locations.length > 0 && (
+                          <div className="flex items-center gap-1">
+                            {locations.map((location, index) => (
+                              <Badge key={index} variant="outline" className="text-xs">
+                                📍 {location}
+                              </Badge>
+                            ))}
+                          </div>
                         )}
                       </div>
                       {material.notes && (
