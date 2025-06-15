@@ -54,6 +54,16 @@ const HeroSection = () => {
           <div className="relative hidden lg:block">
             <MaterialDashboard />
             
+            {/* Caption for the interface preview */}
+            <div className="mt-6 text-center">
+              <p className="text-sm text-gray-600 font-medium">
+                Instantly see where and when a material was used
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                Your library, searchable by project, client, or material type
+              </p>
+            </div>
+            
             {/* Enhanced floating elements */}
             <div className="absolute -top-6 -right-6 w-12 h-12 bg-coral/10 rounded-full flex items-center justify-center">
               <div className="w-6 h-6 bg-coral/20 rounded-full animate-pulse"></div>
