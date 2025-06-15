@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -89,15 +90,21 @@ const PricingSection = () => {
                     <p className="text-gray-600 text-sm">{plan.subtitle}</p>
                   </div>
                   
-                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto">
-                    Get Started
+                  <Button 
+                    className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
+                    onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+                  >
+                    Book a Demo
                   </Button>
                 </div>
               ))}
             </div>
             <div className="text-center mt-8">
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-2">
                 $1.50 per extra material per month.
+              </p>
+              <p className="text-gray-600 text-sm">
+                Need more than 1,500 materials? Enterprise plans available with custom pricing per studio.
               </p>
             </div>
           </TabsContent>
@@ -116,15 +123,21 @@ const PricingSection = () => {
                     <div className="text-sm text-gray-600">{plan.period}</div>
                   </div>
                   
-                  <Button className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto">
-                    Get Started
+                  <Button 
+                    className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
+                    onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+                  >
+                    Book a Demo
                   </Button>
                 </div>
               ))}
             </div>
             <div className="text-center mt-8">
-              <p className="text-gray-600">
+              <p className="text-gray-600 mb-2">
                 Want to bring in more history? It's just $1.50 per extra material.
+              </p>
+              <p className="text-gray-600 text-sm">
+                Enterprise onboarding available for studios with 1,500+ materials.
               </p>
             </div>
           </TabsContent>

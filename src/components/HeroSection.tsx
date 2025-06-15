@@ -41,20 +41,21 @@ const HeroSection = () => {
             </div>
             <div className="flex flex-col gap-4">
               <Button 
-                onClick={() => navigate('/auth')}
+                onClick={() => window.open('http://calendly.com/treqy', '_blank')}
                 size="lg" 
                 className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group w-full sm:w-auto"
               >
-                Get Started
+                Book a Demo
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
               </Button>
               <Button 
                 variant="outline" 
                 size="lg" 
+                onClick={() => window.open('http://calendly.com/treqy', '_blank')}
                 className="border-2 border-gray-200 text-gray-700 px-8 py-4 text-lg font-medium hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all duration-200 group w-full sm:w-auto"
               >
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
-                Watch 60-sec demo
+                Book a Demo
               </Button>
             </div>
           </div>

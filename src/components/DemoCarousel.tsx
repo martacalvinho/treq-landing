@@ -1,166 +1,87 @@
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
+import { Play, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 const DemoCarousel = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
-  
-  const slides = [
+  const demoSteps = [
     {
-      title: "Library filtered by 'Healthcare projects'",
-      description: "Browse materials by project type with intelligent filtering",
-      mockup: (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="flex gap-2 mb-4">
-            <span className="bg-coral text-white px-3 py-1 rounded-full text-sm font-medium">Healthcare</span>
-            <span className="bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-sm">2019-2024</span>
-          </div>
-          <div className="space-y-3">
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="flex justify-between">
-                <div>
-                  <h4 className="font-semibold text-sm">Antimicrobial Vinyl</h4>
-                  <p className="text-xs text-gray-600">Tarkett SafeTred</p>
-                </div>
-                <span className="text-xs text-gray-500">St. Mary's Hospital</span>
-              </div>
-            </div>
-            <div className="border border-gray-200 rounded-lg p-3">
-              <div className="flex justify-between">
-                <div>
-                  <h4 className="font-semibold text-sm">LED Panel 2x2</h4>
-                  <p className="text-xs text-gray-600">Cree CR24</p>
-                </div>
-                <span className="text-xs text-gray-500">Wellness Center</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )
+      title: "Upload Your Specs",
+      description: "Simply drag and drop your specification PDFs into Treqy",
+      image: "/placeholder.svg"
     },
     {
-      title: "Manufacturer summary table (Top 10 brands used)",
-      description: "See which brands your studio trusts most",
-      mockup: (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h4 className="font-semibold mb-4 text-sm">Top Manufacturers</h4>
-          <div className="space-y-2">
-            {['Daltile', 'Armstrong', 'Sherwin Williams', 'Herman Miller', 'Steelcase'].map((brand, index) => (
-              <div key={brand} className="flex justify-between items-center py-1">
-                <div className="flex items-center gap-2">
-                  <span className="text-coral font-bold text-sm">#{index + 1}</span>
-                  <span className="text-sm font-medium">{brand}</span>
-                </div>
-                <span className="text-xs text-gray-500">{45 - index * 7} products</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )
+      title: "AI Extraction",
+      description: "Our AI automatically identifies and extracts all material information",
+      image: "/placeholder.svg"
     },
     {
-      title: "Duplicate alert modal with flagged materials",
-      description: "Instantly spot potential cost savings",
-      mockup: (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
-              <span className="text-yellow-800 font-semibold text-sm">3 Potential Duplicates Found</span>
-            </div>
-            <div className="space-y-2">
-              <div className="text-xs">
-                <div className="font-medium">Ceramic Tile 12x24"</div>
-                <div className="text-gray-600">Found in: Office Lobby, Conference Room</div>
-              </div>
-              <div className="text-xs">
-                <div className="font-medium">LED Downlight 6"</div>
-                <div className="text-gray-600">Found in: Reception, Hallway</div>
-              </div>
-            </div>
-            <Button size="sm" className="mt-3 bg-coral hover:bg-coral-600 text-white text-xs">
-              Review Duplicates
-            </Button>
-          </div>
-        </div>
-      )
+      title: "Search & Find",
+      description: "Instantly search your entire material library by name, project, or manufacturer",
+      image: "/placeholder.svg"
+    },
+    {
+      title: "Track Usage",
+      description: "See which materials you use most and discover patterns in your specifications",
+      image: "/placeholder.svg"
     }
   ];
 
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="demo" className="py-20 bg-white">
       <div className="container mx-auto px-6">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
             See It In Action
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Watch how SpecClarity transforms your material workflow
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-8">
+            Watch how Treqy transforms your material workflow
           </p>
+          
+          <Button 
+            size="lg" 
+            className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group"
+            onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+          >
+            <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
+            Book a Demo
+          </Button>
         </div>
-        
-        <div className="relative max-w-4xl mx-auto">
-          <div className="bg-white rounded-xl shadow-xl border border-gray-200 overflow-hidden">
-            <div className="h-80 flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 p-8">
-              <div className="w-full max-w-md">
-                <div className="text-center mb-6">
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">
-                    {slides[currentSlide].title}
-                  </h3>
-                  <p className="text-gray-600 text-sm">
-                    {slides[currentSlide].description}
-                  </p>
-                </div>
-                {slides[currentSlide].mockup}
-              </div>
-            </div>
-            
-            <div className="p-6 bg-white">
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={prevSlide}
-                  className="flex items-center gap-2"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                  Previous
-                </Button>
-                
-                <div className="flex gap-2">
-                  {slides.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setCurrentSlide(index)}
-                      className={`w-3 h-3 rounded-full transition-colors ${
-                        index === currentSlide ? 'bg-coral' : 'bg-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={nextSlide}
-                  className="flex items-center gap-2"
-                >
-                  Next
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-        </div>
+
+        <Carousel className="max-w-5xl mx-auto">
+          <CarouselContent>
+            {demoSteps.map((step, index) => (
+              <CarouselItem key={index} className="md:basis-1/2 lg:basis-1/3">
+                <Card className="border-2 border-gray-100 hover:border-coral/20 transition-colors">
+                  <CardContent className="p-6">
+                    <div className="aspect-video bg-gray-100 rounded-lg mb-4 flex items-center justify-center">
+                      <img 
+                        src={step.image} 
+                        alt={step.title}
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+                    <div className="text-center">
+                      <div className="flex items-center justify-center w-8 h-8 bg-coral text-white rounded-full text-sm font-bold mx-auto mb-3">
+                        {index + 1}
+                      </div>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                        {step.title}
+                      </h3>
+                      <p className="text-gray-600">
+                        {step.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden md:flex" />
+          <CarouselNext className="hidden md:flex" />
+        </Carousel>
       </div>
     </section>
   );
