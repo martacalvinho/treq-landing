@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMaterialLimits } from '@/hooks/useMaterialLimits';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,14 +13,14 @@ import AddManufacturerForm from '@/components/forms/AddManufacturerForm';
 
 const StudioDashboard = () => {
   const { userProfile, studioId } = useAuth();
+  const { monthlyCount, monthlyLimit, billingPreference } = useMaterialLimits();
   const [stats, setStats] = useState({
     totalProjects: 0,
     activeProjects: 0,
     totalMaterials: 0,
     totalManufacturers: 0,
     totalClients: 0,
-    activeAlerts: 0,
-    monthlyMaterials: 0
+    activeAlerts: 0
   });
   const [recentMaterials, setRecentMaterials] = useState<any[]>([]);
   const [recentProjects, setRecentProjects] = useState<any[]>([]);
@@ -164,25 +164,13 @@ const StudioDashboard = () => {
         .filter(item => item.project)
         .sort((a, b) => b.count - a.count)[0] || null;
 
-      // Fix monthly materials count - count materials created this month
-      const thisMonth = new Date();
-      thisMonth.setDate(1);
-      thisMonth.setHours(0, 0, 0, 0);
-      
-      const { count: monthlyMaterialsCount } = await supabase
-        .from('materials')
-        .select('id', { count: 'exact', head: true })
-        .eq('studio_id', studioId)
-        .gte('created_at', thisMonth.toISOString());
-
       setStats({
         totalProjects: projectsResult.count || 0,
         activeProjects,
         totalMaterials: materialsResult.count || 0,
         totalManufacturers: manufacturersResult.count || 0,
         totalClients: clientsResult.count || 0,
-        activeAlerts: alertsResult.count || 0,
-        monthlyMaterials: monthlyMaterialsCount || 0
+        activeAlerts: alertsResult.count || 0
       });
 
       setRecentMaterials(recentMaterialsData || []);
@@ -205,8 +193,24 @@ const StudioDashboard = () => {
     return <div className="p-6">Loading dashboard...</div>;
   }
 
-  const subscriptionLimit = userProfile?.studios?.subscription_tier === 'starter' ? 100 : 
-                           userProfile?.studios?.subscription_tier === 'professional' ? 500 : 1500;
+  const getUsageColor = () => {
+    const percentage = (monthlyCount / monthlyLimit) * 100;
+    if (percentage >= 90) return 'text-red-600';
+    if (percentage >= 75) return 'text-yellow-600';
+    return 'text-coral-600';
+  };
+
+  const getBillingStatusText = () => {
+    switch (billingPreference) {
+      case 'per_material':
+        return 'Per-material billing enabled';
+      case 'upgrade_pending':
+        return 'Upgrade request pending';
+      case 'blocked':
+      default:
+        return 'Materials blocked at limit';
+    }
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -224,10 +228,13 @@ const StudioDashboard = () => {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <div className="text-2xl font-bold text-coral-700">
-                {stats.monthlyMaterials}/{subscriptionLimit}
+              <div className={`text-2xl font-bold ${getUsageColor()}`}>
+                {monthlyCount}/{monthlyLimit}
               </div>
               <p className="text-sm text-coral-600">Materials this month</p>
+              {monthlyCount >= monthlyLimit && (
+                <p className="text-xs text-gray-600 mt-1">{getBillingStatusText()}</p>
+              )}
             </div>
             <div>
               <div className="text-2xl font-bold text-gray-900">{stats.activeProjects}</div>

@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useMaterialLimits } from '@/hooks/useMaterialLimits';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -15,6 +15,7 @@ import ApplyToProjectForm from '@/components/forms/ApplyToProjectForm';
 
 const Materials = () => {
   const { studioId } = useAuth();
+  const { canAddMaterial } = useMaterialLimits();
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -165,7 +166,14 @@ const Materials = () => {
     <div className="p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Materials Library</h1>
-        <AddMaterialForm onMaterialAdded={fetchMaterials} />
+        <div className="flex items-center gap-2">
+          {!canAddMaterial && (
+            <p className="text-sm text-gray-500">
+              Material limit reached for this month
+            </p>
+          )}
+          <AddMaterialForm onMaterialAdded={fetchMaterials} />
+        </div>
       </div>
 
       <Card>

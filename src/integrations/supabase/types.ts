@@ -272,6 +272,50 @@ export type Database = {
         }
         Relationships: []
       }
+      material_overages: {
+        Row: {
+          created_at: string
+          id: string
+          month_year: string
+          overage_count: number
+          per_material_rate: number
+          studio_id: string
+          total_charge: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month_year: string
+          overage_count?: number
+          per_material_rate?: number
+          studio_id: string
+          total_charge?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month_year?: string
+          overage_count?: number
+          per_material_rate?: number
+          studio_id?: string
+          total_charge?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_overages_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materials: {
         Row: {
           category: string
@@ -505,21 +549,30 @@ export type Database = {
       }
       studios: {
         Row: {
+          billing_preference: string | null
           created_at: string
+          current_month: string | null
+          current_month_materials: number | null
           id: string
           name: string
           subscription_tier: Database["public"]["Enums"]["subscription_tier"]
           updated_at: string
         }
         Insert: {
+          billing_preference?: string | null
           created_at?: string
+          current_month?: string | null
+          current_month_materials?: number | null
           id?: string
           name: string
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
           updated_at?: string
         }
         Update: {
+          billing_preference?: string | null
           created_at?: string
+          current_month?: string | null
+          current_month_materials?: number | null
           id?: string
           name?: string
           subscription_tier?: Database["public"]["Enums"]["subscription_tier"]
