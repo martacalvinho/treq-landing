@@ -11,7 +11,7 @@ import About from "./pages/About";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import GetStarted from "./pages/GetStarted";
-import AuthPage from "./components/auth/AuthPage";
+import LoginPage from "./components/auth/LoginPage";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Dashboard from "./components/dashboard/Dashboard";
 import Materials from "./pages/Materials";
@@ -28,7 +28,6 @@ import Studios from "./pages/Studios";
 import Users from "./pages/Users";
 import AdminAlerts from "./pages/AdminAlerts";
 import Onboarding from "./pages/Onboarding";
-import OnboardingPage from "./pages/OnboardingPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -47,9 +46,7 @@ function App() {
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/get-started" element={<GetStarted />} />
-              <Route path="/auth" element={<AuthPage />} />
-              <Route path="/onboarding-start" element={<OnboardingPage />} />
-              <Route path="/onboarding-wizard" element={<OnboardingPage />} />
+              <Route path="/login" element={<LoginPage />} />
               
               {/* Protected Dashboard Routes - Wrapped with MaterialLimitsProvider */}
               <Route path="/dashboard" element={

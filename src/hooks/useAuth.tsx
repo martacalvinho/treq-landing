@@ -10,7 +10,6 @@ interface AuthContextType {
   session: Session | null;
   userProfile: any | null;
   loading: boolean;
-  signUp: (email: string, password: string, firstName: string, lastName: string, studioName: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   isAdmin: boolean;
@@ -70,38 +69,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, firstName: string, lastName: string, studioName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          first_name: firstName,
-          last_name: lastName,
-          studio_name: studioName
-        }
-      }
-    });
-
-    if (error) {
-      toast({
-        title: "Sign up failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } else {
-      toast({
-        title: "Check your email",
-        description: "Please check your email for the confirmation link to complete registration."
-      });
-    }
-
-    return { error };
-  };
-
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
@@ -136,7 +103,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       session,
       userProfile,
       loading,
-      signUp,
       signIn,
       signOut,
       isAdmin,
