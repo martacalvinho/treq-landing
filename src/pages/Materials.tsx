@@ -7,11 +7,12 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Package, X, Filter, AlertTriangle } from 'lucide-react';
+import { Search, Package, X, Filter, AlertTriangle, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddMaterialForm from '@/components/forms/AddMaterialForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
 import ApplyToProjectForm from '@/components/forms/ApplyToProjectForm';
+import MaterialPricingInput from '@/components/MaterialPricingInput';
 import { useToast } from '@/hooks/use-toast';
 
 const Materials = () => {
@@ -23,6 +24,7 @@ const Materials = () => {
   const [checkingDuplicates, setCheckingDuplicates] = useState(false);
   const [duplicates, setDuplicates] = useState<any[]>([]);
   const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
+  const [advancedMode, setAdvancedMode] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [projectFilter, setProjectFilter] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState('');
@@ -257,6 +259,14 @@ const Materials = () => {
             <AlertTriangle className="h-4 w-4" />
             {checkingDuplicates ? 'Checking...' : 'Check for Duplicates'}
           </Button>
+          <Button
+            onClick={() => setAdvancedMode(!advancedMode)}
+            variant={advancedMode ? "default" : "outline"}
+            className="flex items-center gap-2"
+          >
+            <Settings className="h-4 w-4" />
+            Advanced
+          </Button>
           <AddMaterialForm onMaterialAdded={fetchMaterials} />
         </div>
       </div>
@@ -266,7 +276,10 @@ const Materials = () => {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle>All Materials</CardTitle>
-              <CardDescription>Manage your materials library</CardDescription>
+              <CardDescription>
+                Manage your materials library
+                {advancedMode && <span className="text-blue-600"> • Advanced pricing mode enabled</span>}
+              </CardDescription>
             </div>
             <div className="relative w-64">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -422,72 +435,87 @@ const Materials = () => {
               const duplicateInfo = duplicates.find(dup => dup.id === material.id);
               
               return (
-                <div 
-                  key={material.id} 
-                  className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 ${
-                    isDuplicate ? 'border-red-200 bg-red-50' : ''
-                  }`}
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2 rounded-lg ${isDuplicate ? 'bg-red-100' : 'bg-coral-100'}`}>
-                      <Package className={`h-6 w-6 ${isDuplicate ? 'text-red-600' : 'text-coral-600'}`} />
-                    </div>
-                    <div className="flex-1">
-                      <Link to={`/materials/${material.id}`} className="hover:text-coral">
-                        <h3 className="font-semibold text-lg">{material.name}</h3>
-                      </Link>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span>Category: {material.category}</span>
-                        {material.subcategory && <span>• {material.subcategory}</span>}
-                        <span>• Manufacturer: {material.manufacturers?.name || 'None'}</span>
-                        <span>• Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
-                        {clientName && <span>• Client: {clientName}</span>}
+                <div key={material.id} className="space-y-0">
+                  <div 
+                    className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 ${
+                      isDuplicate ? 'border-red-200 bg-red-50' : ''
+                    }`}
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className={`p-2 rounded-lg ${isDuplicate ? 'bg-red-100' : 'bg-coral-100'}`}>
+                        <Package className={`h-6 w-6 ${isDuplicate ? 'text-red-600' : 'text-coral-600'}`} />
                       </div>
-                      {(material.reference_sku || material.dimensions) && (
+                      <div className="flex-1">
+                        <Link to={`/materials/${material.id}`} className="hover:text-coral">
+                          <h3 className="font-semibold text-lg">{material.name}</h3>
+                        </Link>
                         <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                          {material.reference_sku && (
-                            <span className={isDuplicate ? 'text-red-600 font-medium' : ''}>
-                              SKU: {material.reference_sku}
-                              {isDuplicate && (
-                                <span className="ml-1 text-red-500">
-                                  (Duplicate - {duplicateInfo?.duplicateCount} total)
-                                </span>
-                              )}
-                            </span>
-                          )}
-                          {material.dimensions && <span>• Dimensions: {material.dimensions}</span>}
+                          <span>Category: {material.category}</span>
+                          {material.subcategory && <span>• {material.subcategory}</span>}
+                          <span>• Manufacturer: {material.manufacturers?.name || 'None'}</span>
+                          <span>• Used in {projectCount} project{projectCount !== 1 ? 's' : ''}</span>
+                          {clientName && <span>• Client: {clientName}</span>}
                         </div>
-                      )}
-                      <div className="flex items-center gap-2 mt-2">
-                        {material.tag && (
-                          <Badge variant="secondary" className="text-xs">
-                            {material.tag}
-                          </Badge>
-                        )}
-                        {locations.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            {locations.map((location, index) => (
-                              <Badge 
-                                key={index} 
-                                variant={locationFilter === location ? "default" : "outline"} 
-                                className="text-xs cursor-pointer hover:bg-gray-200"
-                                onClick={() => handleLocationClick(location)}
-                              >
-                                📍 {location}
-                              </Badge>
-                            ))}
+                        {(material.reference_sku || material.dimensions) && (
+                          <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                            {material.reference_sku && (
+                              <span className={isDuplicate ? 'text-red-600 font-medium' : ''}>
+                                SKU: {material.reference_sku}
+                                {isDuplicate && (
+                                  <span className="ml-1 text-red-500">
+                                    (Duplicate - {duplicateInfo?.duplicateCount} total)
+                                  </span>
+                                )}
+                              </span>
+                            )}
+                            {material.dimensions && <span>• Dimensions: {material.dimensions}</span>}
                           </div>
                         )}
+                        <div className="flex items-center gap-2 mt-2">
+                          {material.tag && (
+                            <Badge variant="secondary" className="text-xs">
+                              {material.tag}
+                            </Badge>
+                          )}
+                          {locations.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              {locations.map((location, index) => (
+                                <Badge 
+                                  key={index} 
+                                  variant={locationFilter === location ? "default" : "outline"} 
+                                  className="text-xs cursor-pointer hover:bg-gray-200"
+                                  onClick={() => handleLocationClick(location)}
+                                >
+                                  📍 {location}
+                                </Badge>
+                              ))}
+                            </div>
+                          )}
+                          {advancedMode && (material.price_per_sqft || material.price_per_unit) && (
+                            <Badge variant="outline" className="text-xs text-green-600 border-green-300">
+                              {material.unit_type === 'sqft' 
+                                ? `$${material.price_per_sqft}/sqft` 
+                                : `$${material.price_per_unit}/unit`
+                              }
+                            </Badge>
+                          )}
+                        </div>
+                        {material.notes && (
+                          <p className="text-sm text-gray-600 mt-1">{material.notes}</p>
+                        )}
                       </div>
-                      {material.notes && (
-                        <p className="text-sm text-gray-600 mt-1">{material.notes}</p>
-                      )}
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <ApplyToProjectForm material={material} onMaterialUpdated={fetchMaterials} />
+                      <EditMaterialForm material={material} onMaterialUpdated={fetchMaterials} />
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <ApplyToProjectForm material={material} onMaterialUpdated={fetchMaterials} />
-                    <EditMaterialForm material={material} onMaterialUpdated={fetchMaterials} />
-                  </div>
+                  {advancedMode && (
+                    <MaterialPricingInput 
+                      material={material} 
+                      onPricingUpdated={fetchMaterials}
+                    />
+                  )}
                 </div>
               );
             })}
