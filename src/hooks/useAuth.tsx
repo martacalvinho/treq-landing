@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -129,20 +130,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Starting sign out process...');
       
-      // Clear local state first
+      // Clear local state immediately
       setUserProfile(null);
       setUser(null);
       setSession(null);
       
-      // Then sign out from Supabase
-      const { error } = await supabase.auth.signOut();
+      // Sign out from Supabase with global scope
+      const { error } = await supabase.auth.signOut({ scope: 'global' });
       
       if (error) {
         console.error('Sign out error:', error);
-        // Even if there's an error, we've cleared the local state
         toast({
-          title: "Signed out",
-          description: "You have been signed out (with some issues).",
+          title: "Sign out error",
+          description: error.message,
           variant: "destructive"
         });
       } else {
@@ -153,10 +153,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         });
       }
       
-      // Redirect to homepage after sign out
-      window.location.href = '/';
+      // Force redirect to homepage
+      window.location.replace('/');
     } catch (err) {
       console.error('Unexpected sign out error:', err);
+      
       // Clear local state even if there's an error
       setUserProfile(null);
       setUser(null);
@@ -167,8 +168,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You have been signed out locally.",
       });
       
-      // Redirect to homepage even if there's an error
-      window.location.href = '/';
+      // Force redirect to homepage even if there's an error
+      window.location.replace('/');
     }
   };
 
