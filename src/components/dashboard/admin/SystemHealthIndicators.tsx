@@ -3,13 +3,14 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { Database, Activity, Users, Server } from 'lucide-react';
+import { Database, Activity, Users, DollarSign } from 'lucide-react';
 
 const SystemHealthIndicators = () => {
   const [healthData, setHealthData] = useState({
     dbStatus: 'checking',
-    activeUsers: 0,
-    totalSessions: 0,
+    totalUsers: 0,
+    totalSubscriptions: 0,
+    monthlyRevenue: 0,
     responseTime: 0
   });
   const [loading, setLoading] = useState(true);
@@ -24,22 +25,36 @@ const SystemHealthIndicators = () => {
       const startTime = Date.now();
 
       // Test database connectivity and get basic stats
-      const { data: studios, error } = await supabase
-        .from('studios')
-        .select('id')
-        .limit(1);
+      const [usersResult, studiosResult] = await Promise.all([
+        supabase.from('users').select('id', { count: 'exact', head: true }),
+        supabase.from('studios').select('subscription_tier', { count: 'exact' })
+      ]);
 
       const responseTime = Date.now() - startTime;
 
-      // Get active users count (users who logged in within last 24 hours)
-      const { count: activeUsersCount } = await supabase
-        .from('users')
-        .select('id', { count: 'exact', head: true });
+      // Calculate monthly revenue based on subscription tiers
+      let monthlyRevenue = 0;
+      if (studiosResult.data) {
+        studiosResult.data.forEach(studio => {
+          switch (studio.subscription_tier) {
+            case 'starter':
+              monthlyRevenue += 29; // Example pricing
+              break;
+            case 'professional':
+              monthlyRevenue += 99;
+              break;
+            case 'enterprise':
+              monthlyRevenue += 299;
+              break;
+          }
+        });
+      }
 
       setHealthData({
-        dbStatus: error ? 'error' : 'healthy',
-        activeUsers: activeUsersCount || 0,
-        totalSessions: activeUsersCount || 0, // Simplified for demo
+        dbStatus: usersResult.error || studiosResult.error ? 'error' : 'healthy',
+        totalUsers: usersResult.count || 0,
+        totalSubscriptions: studiosResult.count || 0,
+        monthlyRevenue,
         responseTime
       });
     } catch (error) {
@@ -70,7 +85,7 @@ const SystemHealthIndicators = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Server className="h-5 w-5" />
+            <Database className="h-5 w-5" />
             System Health
           </CardTitle>
         </CardHeader>
@@ -85,7 +100,7 @@ const SystemHealthIndicators = () => {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Server className="h-5 w-5" />
+          <Database className="h-5 w-5" />
           System Health
         </CardTitle>
       </CardHeader>
@@ -105,26 +120,33 @@ const SystemHealthIndicators = () => {
             <Users className="h-4 w-4 text-gray-500" />
             <div>
               <div className="text-sm font-medium">Total Users</div>
-              <div className="text-lg font-bold">{healthData.activeUsers}</div>
+              <div className="text-lg font-bold">{healthData.totalUsers}</div>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
             <Activity className="h-4 w-4 text-gray-500" />
             <div>
-              <div className="text-sm font-medium">Response Time</div>
-              <Badge className={getStatusColor(getResponseTimeStatus(healthData.responseTime))}>
-                {healthData.responseTime}ms
-              </Badge>
+              <div className="text-sm font-medium">Total Studios</div>
+              <div className="text-lg font-bold">{healthData.totalSubscriptions}</div>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
-            <Server className="h-4 w-4 text-gray-500" />
+            <DollarSign className="h-4 w-4 text-gray-500" />
             <div>
-              <div className="text-sm font-medium">Uptime</div>
-              <Badge className="bg-green-100 text-green-700">99.9%</Badge>
+              <div className="text-sm font-medium">Monthly Revenue</div>
+              <div className="text-lg font-bold">${healthData.monthlyRevenue}</div>
             </div>
+          </div>
+        </div>
+        
+        <div className="mt-4 pt-4 border-t">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-gray-600">Response Time:</span>
+            <Badge className={getStatusColor(getResponseTimeStatus(healthData.responseTime))}>
+              {healthData.responseTime}ms
+            </Badge>
           </div>
         </div>
       </CardContent>

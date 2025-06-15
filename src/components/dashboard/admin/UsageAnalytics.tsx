@@ -8,9 +8,8 @@ import { TrendingUp, BarChart3 } from 'lucide-react';
 
 const UsageAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState({
-    studioGrowth: [],
-    materialsByStudio: [],
-    projectsByStudio: []
+    platformGrowth: [],
+    subscriptionDistribution: []
   });
   const [loading, setLoading] = useState(true);
 
@@ -22,58 +21,62 @@ const UsageAnalytics = () => {
     try {
       setLoading(true);
 
-      // Get studios with their material and project counts
+      // Get studios and users for growth tracking
       const { data: studios } = await supabase
         .from('studios')
-        .select(`
-          id,
-          name,
-          created_at,
-          subscription_tier
-        `);
+        .select('created_at, subscription_tier');
 
-      if (studios) {
-        // Get material counts per studio
-        const materialCounts = await Promise.all(
-          studios.map(async (studio) => {
-            const { count } = await supabase
-              .from('materials')
-              .select('id', { count: 'exact', head: true })
-              .eq('studio_id', studio.id);
-            return { studioName: studio.name, materials: count || 0 };
-          })
-        );
+      const { data: users } = await supabase
+        .from('users')
+        .select('created_at');
 
-        // Get project counts per studio
-        const projectCounts = await Promise.all(
-          studios.map(async (studio) => {
-            const { count } = await supabase
-              .from('projects')
-              .select('id', { count: 'exact', head: true })
-              .eq('studio_id', studio.id);
-            return { studioName: studio.name, projects: count || 0 };
-          })
-        );
-
-        // Create growth data (simplified - showing studios created by month)
-        const studioGrowth = studios.reduce((acc: any[], studio) => {
-          const month = new Date(studio.created_at).toLocaleDateString('en-US', { 
+      if (studios && users) {
+        // Create platform growth data (users and studios by month)
+        const growthData = [...studios, ...users].reduce((acc: any[], item) => {
+          const month = new Date(item.created_at).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'short' 
           });
-          const existing = acc.find(item => item.month === month);
+          const existing = acc.find(entry => entry.month === month);
+          
           if (existing) {
-            existing.studios += 1;
+            if (studios.includes(item)) {
+              existing.studios += 1;
+            } else {
+              existing.users += 1;
+            }
           } else {
-            acc.push({ month, studios: 1 });
+            acc.push({
+              month,
+              studios: studios.includes(item) ? 1 : 0,
+              users: studios.includes(item) ? 0 : 1
+            });
+          }
+          return acc;
+        }, []);
+
+        // Sort by date and take last 6 months
+        const sortedGrowth = growthData
+          .sort((a, b) => new Date(`${a.month} 1`).getTime() - new Date(`${b.month} 1`).getTime())
+          .slice(-6);
+
+        // Create subscription tier distribution
+        const tierDistribution = studios.reduce((acc: any[], studio) => {
+          const existing = acc.find(item => item.tier === studio.subscription_tier);
+          if (existing) {
+            existing.count += 1;
+          } else {
+            acc.push({ 
+              tier: studio.subscription_tier.charAt(0).toUpperCase() + studio.subscription_tier.slice(1), 
+              count: 1 
+            });
           }
           return acc;
         }, []);
 
         setAnalyticsData({
-          studioGrowth: studioGrowth.slice(-6), // Last 6 months
-          materialsByStudio: materialCounts.slice(0, 8), // Top 8 studios
-          projectsByStudio: projectCounts.slice(0, 8)
+          platformGrowth: sortedGrowth,
+          subscriptionDistribution: tierDistribution
         });
       }
     } catch (error) {
@@ -88,13 +91,13 @@ const UsageAnalytics = () => {
       label: "Studios",
       color: "hsl(var(--primary))",
     },
-    materials: {
-      label: "Materials",
-      color: "hsl(var(--primary))",
-    },
-    projects: {
-      label: "Projects",
+    users: {
+      label: "Users", 
       color: "hsl(var(--secondary))",
+    },
+    count: {
+      label: "Count",
+      color: "hsl(var(--primary))",
     },
   };
 
@@ -121,21 +124,29 @@ const UsageAnalytics = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="h-5 w-5" />
-            Studio Growth
+            Platform Growth
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={analyticsData.studioGrowth}>
+              <LineChart data={analyticsData.platformGrowth}>
                 <XAxis dataKey="month" />
-                <YAxis />
+                <YAxis domain={[0, 'dataMax + 10']} />
                 <ChartTooltip content={<ChartTooltipContent />} />
                 <Line 
                   type="monotone" 
                   dataKey="studios" 
                   stroke="var(--color-studios)" 
                   strokeWidth={2}
+                  name="Studios"
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="users" 
+                  stroke="var(--color-users)" 
+                  strokeWidth={2}
+                  name="Users"
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -147,23 +158,17 @@ const UsageAnalytics = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <BarChart3 className="h-5 w-5" />
-            Materials by Studio
+            Subscription Tiers
           </CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={analyticsData.materialsByStudio}>
-                <XAxis 
-                  dataKey="studioName" 
-                  tick={{ fontSize: 12 }}
-                  angle={-45}
-                  textAnchor="end"
-                  height={60}
-                />
-                <YAxis />
+              <BarChart data={analyticsData.subscriptionDistribution}>
+                <XAxis dataKey="tier" />
+                <YAxis domain={[0, 'dataMax + 5']} />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="materials" fill="var(--color-materials)" />
+                <Bar dataKey="count" fill="var(--color-count)" />
               </BarChart>
             </ResponsiveContainer>
           </ChartContainer>

@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,13 +12,43 @@ import { useToast } from '@/hooks/use-toast';
 import { Building, Plus, Settings, Crown } from 'lucide-react';
 
 const QuickStudioManagement = () => {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isBulkOpen, setIsBulkOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [tierCounts, setTierCounts] = useState({
+    starter: 0,
+    professional: 0,
+    enterprise: 0
+  });
   const [formData, setFormData] = useState({
     name: '',
     subscription_tier: 'starter'
   });
   const { toast } = useToast();
+
+  useEffect(() => {
+    fetchTierCounts();
+  }, []);
+
+  const fetchTierCounts = async () => {
+    try {
+      const { data: studios } = await supabase
+        .from('studios')
+        .select('subscription_tier');
+
+      if (studios) {
+        const counts = studios.reduce((acc, studio) => {
+          acc[studio.subscription_tier] = (acc[studio.subscription_tier] || 0) + 1;
+          return acc;
+        }, { starter: 0, professional: 0, enterprise: 0 });
+
+        setTierCounts(counts);
+      }
+    } catch (error) {
+      console.error('Error fetching tier counts:', error);
+    }
+  };
 
   const handleCreateStudio = async () => {
     if (!formData.name.trim()) {
@@ -48,7 +78,8 @@ const QuickStudioManagement = () => {
       });
 
       setFormData({ name: '', subscription_tier: 'starter' });
-      setIsOpen(false);
+      setIsCreateOpen(false);
+      fetchTierCounts(); // Refresh counts
     } catch (error) {
       console.error('Error creating studio:', error);
       toast({
@@ -59,6 +90,22 @@ const QuickStudioManagement = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleBulkAction = () => {
+    toast({
+      title: "Bulk Actions",
+      description: "Bulk actions panel would open here - feature coming soon!"
+    });
+    setIsBulkOpen(false);
+  };
+
+  const handleSubscriptionManagement = () => {
+    toast({
+      title: "Subscription Management",
+      description: "Subscription management panel would open here - feature coming soon!"
+    });
+    setIsSubscriptionOpen(false);
   };
 
   const getTierInfo = (tier: string) => {
@@ -84,7 +131,7 @@ const QuickStudioManagement = () => {
         <div className="space-y-4">
           {/* Quick Actions */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full" variant="outline">
                   <Plus className="h-4 w-4 mr-2" />
@@ -135,32 +182,90 @@ const QuickStudioManagement = () => {
               </DialogContent>
             </Dialog>
 
-            <Button variant="outline" className="w-full">
-              <Settings className="h-4 w-4 mr-2" />
-              Bulk Actions
-            </Button>
+            <Dialog open={isBulkOpen} onOpenChange={setIsBulkOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                  <Settings className="h-4 w-4 mr-2" />
+                  Bulk Actions
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Bulk Actions</DialogTitle>
+                  <DialogDescription>
+                    Perform actions on multiple studios at once
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    This feature is coming soon! You'll be able to:
+                  </p>
+                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>Bulk upgrade/downgrade subscriptions</li>
+                    <li>Send notifications to multiple studios</li>
+                    <li>Export studio data</li>
+                    <li>Apply settings to multiple studios</li>
+                  </ul>
+                  <Button onClick={handleBulkAction} className="w-full">
+                    Got it
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
 
-            <Button variant="outline" className="w-full">
-              <Crown className="h-4 w-4 mr-2" />
-              Manage Subscriptions
-            </Button>
+            <Dialog open={isSubscriptionOpen} onOpenChange={setIsSubscriptionOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full">
+                  <Crown className="h-4 w-4 mr-2" />
+                  Manage Subscriptions
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Subscription Management</DialogTitle>
+                  <DialogDescription>
+                    Manage studio subscriptions and billing
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <p className="text-sm text-gray-600">
+                    This feature is coming soon! You'll be able to:
+                  </p>
+                  <ul className="text-sm text-gray-600 list-disc list-inside space-y-1">
+                    <li>View subscription statuses</li>
+                    <li>Process billing changes</li>
+                    <li>Handle cancellations and upgrades</li>
+                    <li>Generate billing reports</li>
+                  </ul>
+                  <Button onClick={handleSubscriptionManagement} className="w-full">
+                    Got it
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
-          {/* Subscription Tier Overview */}
+          {/* Subscription Tier Overview with Counts */}
           <div className="space-y-3">
             <h4 className="font-medium text-sm text-gray-700">Subscription Tiers</h4>
             {['starter', 'professional', 'enterprise'].map((tier) => {
               const tierInfo = getTierInfo(tier);
               const Icon = tierInfo.icon;
+              const count = tierCounts[tier as keyof typeof tierCounts];
               
               return (
                 <div key={tier} className="flex items-center justify-between p-3 border rounded-lg">
                   <div className="flex items-center gap-3">
                     <Icon className="h-4 w-4 text-gray-500" />
                     <div>
-                      <Badge className={tierInfo.color}>
-                        {tier.charAt(0).toUpperCase() + tier.slice(1)}
-                      </Badge>
+                      <div className="flex items-center gap-2">
+                        <Badge className={tierInfo.color}>
+                          {tier.charAt(0).toUpperCase() + tier.slice(1)}
+                        </Badge>
+                        <span className="text-sm font-medium text-gray-900">
+                          {count} studio{count !== 1 ? 's' : ''}
+                        </span>
+                      </div>
                       <p className="text-sm text-gray-600 mt-1">
                         Materials: {tierInfo.limit}
                       </p>
