@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -153,6 +152,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           description: "You have been signed out successfully."
         });
       }
+      
+      // Redirect to homepage after sign out
+      window.location.href = '/';
     } catch (err) {
       console.error('Unexpected sign out error:', err);
       // Clear local state even if there's an error
@@ -164,6 +166,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         title: "Signed out",
         description: "You have been signed out locally.",
       });
+      
+      // Redirect to homepage even if there's an error
+      window.location.href = '/';
     }
   };
 
