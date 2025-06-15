@@ -130,31 +130,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('Starting sign out process...');
       
-      // Clear local state immediately
-      setUserProfile(null);
-      setUser(null);
-      setSession(null);
-      
-      // Sign out from Supabase with global scope
+      // Sign out from Supabase first
       const { error } = await supabase.auth.signOut({ scope: 'global' });
       
       if (error) {
         console.error('Sign out error:', error);
-        toast({
-          title: "Sign out error",
-          description: error.message,
-          variant: "destructive"
-        });
       } else {
         console.log('Sign out successful');
-        toast({
-          title: "Signed out",
-          description: "You have been signed out successfully."
-        });
       }
       
-      // Force redirect to homepage
-      window.location.replace('/');
+      // Clear local state regardless of error
+      setUserProfile(null);
+      setUser(null);
+      setSession(null);
+      
+      // Show success message
+      toast({
+        title: "Signed out",
+        description: "You have been signed out successfully."
+      });
+      
+      // Force redirect to homepage with a small delay to ensure state is cleared
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+      
     } catch (err) {
       console.error('Unexpected sign out error:', err);
       
@@ -169,7 +169,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       
       // Force redirect to homepage even if there's an error
-      window.location.replace('/');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
     }
   };
 
