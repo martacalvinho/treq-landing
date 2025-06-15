@@ -7,6 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Edit, Plus } from 'lucide-react';
+import EditProjectForm from '@/components/forms/EditProjectForm';
+import EditMaterialForm from '@/components/forms/EditMaterialForm';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -14,6 +16,7 @@ const ProjectDetails = () => {
   const [project, setProject] = useState<any>(null);
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddMaterial, setShowAddMaterial] = useState(false);
 
   useEffect(() => {
     if (id && studioId) {
@@ -63,6 +66,14 @@ const ProjectDetails = () => {
       case 'cancelled': return 'bg-red-100 text-red-700';
       default: return 'bg-gray-100 text-gray-700';
     }
+  };
+
+  const handleProjectUpdated = () => {
+    fetchProjectDetails();
+  };
+
+  const handleMaterialUpdated = () => {
+    fetchProjectMaterials();
   };
 
   if (loading || !project) {
@@ -122,10 +133,7 @@ const ProjectDetails = () => {
                   <p className="text-gray-700 mt-1">{project.notes}</p>
                 </div>
               )}
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Project
-              </Button>
+              <EditProjectForm project={project} onProjectUpdated={handleProjectUpdated} />
             </CardContent>
           </Card>
         </div>
@@ -160,7 +168,10 @@ const ProjectDetails = () => {
               <CardTitle>Materials Used</CardTitle>
               <CardDescription>Materials assigned to this project</CardDescription>
             </div>
-            <Button className="bg-coral hover:bg-coral-600">
+            <Button 
+              className="bg-coral hover:bg-coral-600"
+              onClick={() => setShowAddMaterial(true)}
+            >
               <Plus className="h-4 w-4 mr-2" />
               Add Material
             </Button>
@@ -187,9 +198,12 @@ const ProjectDetails = () => {
                     <p className="text-sm text-gray-600 mt-1">{projMaterial.notes}</p>
                   )}
                 </div>
-                <Button variant="ghost" size="sm">
-                  <Edit className="h-4 w-4" />
-                </Button>
+                {projMaterial.materials && (
+                  <EditMaterialForm 
+                    material={projMaterial.materials} 
+                    onMaterialUpdated={handleMaterialUpdated} 
+                  />
+                )}
               </div>
             ))}
             {materials.length === 0 && (
@@ -200,6 +214,30 @@ const ProjectDetails = () => {
           </div>
         </CardContent>
       </Card>
+
+      {showAddMaterial && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">Add Material to Project</h3>
+            <p className="text-gray-600 mb-4">
+              To add materials to this project, go to the Materials page and use the "Apply to Project" button on any material.
+            </p>
+            <div className="flex gap-2">
+              <Link to="/materials">
+                <Button className="bg-coral hover:bg-coral-600">
+                  Go to Materials
+                </Button>
+              </Link>
+              <Button 
+                variant="outline" 
+                onClick={() => setShowAddMaterial(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
