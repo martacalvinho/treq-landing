@@ -6,16 +6,18 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Material name is required'),
   category: z.string().min(1, 'Category is required'),
+  subcategory: z.string().optional(),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
   reference_sku: z.string().optional(),
@@ -23,6 +25,10 @@ const formSchema = z.object({
   tag: z.string().optional(),
   location: z.string().optional(),
   notes: z.string().optional(),
+  // Advanced pricing fields
+  price_per_sqft: z.string().optional(),
+  price_per_unit: z.string().optional(),
+  unit_type: z.enum(['sqft', 'unit', 'both']).optional(),
 });
 
 interface EditMaterialFormProps {
@@ -38,12 +44,14 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
   const [projects, setProjects] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentProjectLink, setCurrentProjectLink] = useState<string>('');
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: material.name,
       category: material.category,
+      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: '',
       reference_sku: material.reference_sku || '',
@@ -51,6 +59,9 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       tag: material.tag || '',
       location: material.location || '',
       notes: material.notes || '',
+      price_per_sqft: material.price_per_sqft?.toString() || '',
+      price_per_unit: material.price_per_unit?.toString() || '',
+      unit_type: material.unit_type || undefined,
     },
   });
 
@@ -58,6 +69,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     form.reset({
       name: material.name,
       category: material.category,
+      subcategory: material.subcategory || '',
       manufacturer_id: material.manufacturer_id || '',
       project_id: currentProjectLink || '',
       reference_sku: material.reference_sku || '',
@@ -65,7 +77,15 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       tag: material.tag || '',
       location: material.location || '',
       notes: material.notes || '',
+      price_per_sqft: material.price_per_sqft?.toString() || '',
+      price_per_unit: material.price_per_unit?.toString() || '',
+      unit_type: material.unit_type || undefined,
     });
+    
+    // Open advanced section if material has pricing data
+    if (material.price_per_sqft || material.price_per_unit || material.unit_type) {
+      setAdvancedOpen(true);
+    }
   }, [material, currentProjectLink, form]);
 
   // Common tag options
@@ -139,18 +159,23 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     try {
       setLoading(true);
       
-      // Update the material including tag and location
+      // Update the material including pricing fields
       const { error: materialError } = await supabase
         .from('materials')
         .update({
           name: values.name,
           category: values.category,
+          subcategory: values.subcategory || null,
           manufacturer_id: values.manufacturer_id || null,
           reference_sku: values.reference_sku || null,
           dimensions: values.dimensions || null,
           tag: values.tag || null,
           location: values.location || null,
           notes: values.notes || null,
+          // Add pricing fields
+          price_per_sqft: values.price_per_sqft ? parseFloat(values.price_per_sqft) : null,
+          price_per_unit: values.price_per_unit ? parseFloat(values.price_per_unit) : null,
+          unit_type: values.unit_type || null,
         })
         .eq('id', material.id)
         .eq('studio_id', studioId);
@@ -292,6 +317,20 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
 
             <FormField
               control={form.control}
+              name="subcategory"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Subcategory (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g., Hardwood, Carpet, Paint" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="reference_sku"
               render={({ field }) => (
                 <FormItem>
@@ -403,6 +442,85 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                 </FormItem>
               )}
             />
+
+            {/* Advanced Pricing Section */}
+            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
+              <CollapsibleTrigger asChild>
+                <Button type="button" variant="outline" className="w-full justify-between">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="h-4 w-4" />
+                    Advanced Pricing Options
+                  </div>
+                  {advancedOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-4 pt-4">
+                <FormField
+                  control={form.control}
+                  name="unit_type"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pricing Type</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select pricing type" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="sqft">Price per Square Foot</SelectItem>
+                          <SelectItem value="unit">Price per Unit</SelectItem>
+                          <SelectItem value="both">Both (Sqft & Unit)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {(form.watch('unit_type') === 'sqft' || form.watch('unit_type') === 'both') && (
+                  <FormField
+                    control={form.control}
+                    name="price_per_sqft"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price per Square Foot ($)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            placeholder="0.00" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {(form.watch('unit_type') === 'unit' || form.watch('unit_type') === 'both') && (
+                  <FormField
+                    control={form.control}
+                    name="price_per_unit"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Price per Unit ($)</FormLabel>
+                        <FormControl>
+                          <Input 
+                            type="number" 
+                            step="0.01" 
+                            placeholder="0.00" 
+                            {...field} 
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
+              </CollapsibleContent>
+            </Collapsible>
 
             <FormField
               control={form.control}
