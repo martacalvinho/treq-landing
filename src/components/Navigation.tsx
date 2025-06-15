@@ -87,8 +87,11 @@ const Navigation = () => {
             >
               Contact
             </a>
-            <Button className="bg-coral hover:bg-coral-600 text-white">
-              Get Early Access
+            <Button 
+              onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+              className="bg-coral hover:bg-coral-600 text-white"
+            >
+              Book a Demo
             </Button>
           </div>
 
@@ -135,8 +138,11 @@ const Navigation = () => {
               >
                 Contact
               </a>
-              <Button className="bg-coral hover:bg-coral-600 text-white w-fit">
-                Get Early Access
+              <Button 
+                onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+                className="bg-coral hover:bg-coral-600 text-white w-fit"
+              >
+                Book a Demo
               </Button>
             </div>
           </div>
