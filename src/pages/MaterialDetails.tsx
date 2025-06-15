@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Edit, Package } from 'lucide-react';
+import ApplyToProjectForm from '@/components/forms/ApplyToProjectForm';
 
 const MaterialDetails = () => {
   const { id } = useParams();
@@ -53,6 +54,10 @@ const MaterialDetails = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleMaterialUpdated = () => {
+    fetchMaterialProjects();
   };
 
   const getStatusColor = (status: string) => {
@@ -123,10 +128,16 @@ const MaterialDetails = () => {
                   <p className="text-gray-700 mt-1">{material.notes}</p>
                 </div>
               )}
-              <Button variant="outline">
-                <Edit className="h-4 w-4 mr-2" />
-                Edit Material
-              </Button>
+              <div className="flex gap-2">
+                <Button variant="outline">
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Material
+                </Button>
+                <ApplyToProjectForm 
+                  material={material} 
+                  onMaterialUpdated={handleMaterialUpdated}
+                />
+              </div>
             </CardContent>
           </Card>
         </div>
