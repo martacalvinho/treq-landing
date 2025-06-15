@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Building2, Package } from 'lucide-react';
+import PricingAnalytics from '@/components/PricingAnalytics';
 
 const ClientDetails = () => {
   const { id } = useParams();
@@ -102,6 +103,21 @@ const ClientDetails = () => {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Client: {client.name}</h1>
       </div>
+
+      {/* Add Pricing Analytics Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Material Cost Analytics</CardTitle>
+          <CardDescription>Cost breakdown and spending insights for {client.name}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PricingAnalytics 
+            type="client" 
+            entityId={id!} 
+            entityName={client.name} 
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

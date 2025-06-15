@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -9,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Edit, Plus } from 'lucide-react';
 import EditProjectForm from '@/components/forms/EditProjectForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
+import PricingAnalytics from '@/components/PricingAnalytics';
 
 const ProjectDetails = () => {
   const { id } = useParams();
@@ -105,6 +105,21 @@ const ProjectDetails = () => {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Project: {project.name}</h1>
       </div>
+
+      {/* Add Pricing Analytics Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Project Cost Analytics</CardTitle>
+          <CardDescription>Material cost breakdown and pricing insights for this project</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PricingAnalytics 
+            type="project" 
+            entityId={id!} 
+            entityName={project.name} 
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">

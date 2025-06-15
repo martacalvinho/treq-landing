@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Building, Package, FolderOpen, Calendar, Clock, FileText } from 'lucide-react';
 import AddManufacturerNoteForm from '@/components/forms/AddManufacturerNoteForm';
+import PricingAnalytics from '@/components/PricingAnalytics';
 
 const ManufacturerDetails = () => {
   const { id } = useParams();
@@ -118,6 +118,21 @@ const ManufacturerDetails = () => {
         </Link>
         <h1 className="text-3xl font-bold text-gray-900">Manufacturer: {manufacturer.name}</h1>
       </div>
+
+      {/* Add Pricing Analytics Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Pricing Analytics</CardTitle>
+          <CardDescription>Material pricing insights and trends for {manufacturer.name}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <PricingAnalytics 
+            type="manufacturer" 
+            entityId={id!} 
+            entityName={manufacturer.name} 
+          />
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
