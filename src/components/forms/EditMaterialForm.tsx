@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Edit, Trash2, Tag, MapPin } from 'lucide-react';
+import { Edit, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
@@ -322,34 +322,10 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               name="tag"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Tag className="h-4 w-4" />
-                    Tag (Optional)
-                  </FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value === "custom" ? "" : value)} value={field.value || "custom"}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select or enter custom tag" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="custom">Custom tag...</SelectItem>
-                      {commonTags.map((tag) => (
-                        <SelectItem key={tag} value={tag}>
-                          {tag}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {(field.value === "" || !commonTags.includes(field.value || "")) && (
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter custom tag" 
-                        value={field.value || ""} 
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                  )}
+                  <FormLabel>Tag (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter tag" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
@@ -360,34 +336,10 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
               name="location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <MapPin className="h-4 w-4" />
-                    Location (Optional)
-                  </FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value === "custom" ? "" : value)} value={field.value || "custom"}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select or enter custom location" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="custom">Custom location...</SelectItem>
-                      {commonLocations.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {(field.value === "" || !commonLocations.includes(field.value || "")) && (
-                    <FormControl>
-                      <Input 
-                        placeholder="Enter custom location" 
-                        value={field.value || ""} 
-                        onChange={(e) => field.onChange(e.target.value)}
-                      />
-                    </FormControl>
-                  )}
+                  <FormLabel>Location (Optional)</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter location" {...field} />
+                  </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
