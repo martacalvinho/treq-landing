@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useMaterialLimits } from '@/hooks/useMaterialLimits';
@@ -38,7 +37,7 @@ interface AddMaterialFormProps {
 
 const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
   const { studioId } = useAuth();
-  const { canAddMaterial, isBlocked } = useMaterialLimits();
+  const { canAddMaterial, monthlyCount, monthlyLimit, billingPreference, incrementMaterialCount } = useMaterialLimits();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [manufacturers, setManufacturers] = useState<any[]>([]);
@@ -112,6 +111,9 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
 
       if (error) throw error;
 
+      // Increment material count after successful addition
+      await incrementMaterialCount();
+
       toast({
         title: "Success",
         description: "Material added successfully",
@@ -131,6 +133,9 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
       setLoading(false);
     }
   };
+
+  // Check if user has reached limit and billing preference is blocked
+  const isBlocked = monthlyCount >= monthlyLimit && billingPreference === 'blocked';
 
   if (isBlocked) {
     return (
