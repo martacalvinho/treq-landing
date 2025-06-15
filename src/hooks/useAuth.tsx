@@ -127,52 +127,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const signOut = async () => {
+    console.log('Starting sign out process...');
+    
+    // Clear local state immediately
+    setUserProfile(null);
+    setUser(null);
+    setSession(null);
+    
     try {
-      console.log('Starting sign out process...');
-      
-      // Sign out from Supabase first
-      const { error } = await supabase.auth.signOut({ scope: 'global' });
-      
-      if (error) {
-        console.error('Sign out error:', error);
+      // Only attempt Supabase sign out if we have a session
+      if (session) {
+        await supabase.auth.signOut();
+        console.log('Supabase sign out completed');
       } else {
-        console.log('Sign out successful');
+        console.log('No session to sign out from');
       }
-      
-      // Clear local state regardless of error
-      setUserProfile(null);
-      setUser(null);
-      setSession(null);
-      
-      // Show success message
-      toast({
-        title: "Signed out",
-        description: "You have been signed out successfully."
-      });
-      
-      // Force redirect to homepage with a small delay to ensure state is cleared
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
-      
     } catch (err) {
-      console.error('Unexpected sign out error:', err);
-      
-      // Clear local state even if there's an error
-      setUserProfile(null);
-      setUser(null);
-      setSession(null);
-      
-      toast({
-        title: "Signed out",
-        description: "You have been signed out locally.",
-      });
-      
-      // Force redirect to homepage even if there's an error
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 100);
+      console.error('Supabase sign out error (ignoring):', err);
     }
+    
+    // Show success message
+    toast({
+      title: "Signed out",
+      description: "You have been signed out successfully."
+    });
+    
+    // Force navigate to homepage
+    console.log('Redirecting to homepage...');
+    window.location.href = '/';
   };
 
   const isAdmin = userProfile?.role === 'admin';
