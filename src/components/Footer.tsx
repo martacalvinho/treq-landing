@@ -15,8 +15,11 @@ const Footer = () => {
             <a href="mailto:hello@treqy.com" className="text-gray-400 hover:text-coral transition-colors duration-200">
               Email
             </a>
-            <a href="#" className="text-gray-400 hover:text-coral transition-colors duration-200">
-              LinkedIn
+            <a href="/terms" className="text-gray-400 hover:text-coral transition-colors duration-200">
+              Terms of Service
+            </a>
+            <a href="/privacy" className="text-gray-400 hover:text-coral transition-colors duration-200">
+              Privacy Policy
             </a>
           </div>
           
