@@ -14,6 +14,9 @@ import {
   AlertTriangle
 } from 'lucide-react';
 import ChangePasswordForm from '@/components/forms/ChangePasswordForm';
+import ContactUsForm from '@/components/forms/ContactUsForm';
+import UpgradePlanForm from '@/components/forms/UpgradePlanForm';
+import CancelSubscriptionForm from '@/components/forms/CancelSubscriptionForm';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -107,6 +110,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </nav>
         
         <div className="p-4 border-t space-y-2">
+          {!isAdmin && (
+            <>
+              <ContactUsForm />
+              <UpgradePlanForm />
+              <CancelSubscriptionForm />
+            </>
+          )}
           <ChangePasswordForm />
           <Button
             onClick={signOut}

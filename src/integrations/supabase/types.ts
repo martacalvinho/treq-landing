@@ -108,6 +108,50 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          contact_email: string | null
+          created_at: string
+          id: string
+          message: string
+          status: string
+          studio_id: string
+          subject: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          status?: string
+          studio_id: string
+          subject: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_email?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          status?: string
+          studio_id?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_studio_id_fkey"
+            columns: ["studio_id"]
+            isOneToOne: false
+            referencedRelation: "studios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       manufacturer_notes: {
         Row: {
           contact_date: string
