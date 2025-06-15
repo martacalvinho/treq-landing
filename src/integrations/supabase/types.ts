@@ -361,20 +361,68 @@ export type Database = {
           },
         ]
       }
+      material_price_history: {
+        Row: {
+          change_reason: string | null
+          changed_by: string | null
+          created_at: string
+          id: string
+          material_id: string
+          price_per_sqft: number | null
+          price_per_unit: number | null
+          studio_id: string
+          unit_type: string | null
+        }
+        Insert: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          material_id: string
+          price_per_sqft?: number | null
+          price_per_unit?: number | null
+          studio_id: string
+          unit_type?: string | null
+        }
+        Update: {
+          change_reason?: string | null
+          changed_by?: string | null
+          created_at?: string
+          id?: string
+          material_id?: string
+          price_per_sqft?: number | null
+          price_per_unit?: number | null
+          studio_id?: string
+          unit_type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_price_history_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materials: {
         Row: {
           category: string
           created_at: string
           dimensions: string | null
           id: string
+          last_price_update: string | null
           location: string | null
           manufacturer_id: string | null
           name: string
           notes: string | null
+          price_per_sqft: number | null
+          price_per_unit: number | null
           reference_sku: string | null
           studio_id: string
           subcategory: string | null
           tag: string | null
+          unit_type: string | null
           updated_at: string
         }
         Insert: {
@@ -382,14 +430,18 @@ export type Database = {
           created_at?: string
           dimensions?: string | null
           id?: string
+          last_price_update?: string | null
           location?: string | null
           manufacturer_id?: string | null
           name: string
           notes?: string | null
+          price_per_sqft?: number | null
+          price_per_unit?: number | null
           reference_sku?: string | null
           studio_id: string
           subcategory?: string | null
           tag?: string | null
+          unit_type?: string | null
           updated_at?: string
         }
         Update: {
@@ -397,14 +449,18 @@ export type Database = {
           created_at?: string
           dimensions?: string | null
           id?: string
+          last_price_update?: string | null
           location?: string | null
           manufacturer_id?: string | null
           name?: string
           notes?: string | null
+          price_per_sqft?: number | null
+          price_per_unit?: number | null
           reference_sku?: string | null
           studio_id?: string
           subcategory?: string | null
           tag?: string | null
+          unit_type?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -473,6 +529,8 @@ export type Database = {
       }
       proj_materials: {
         Row: {
+          cost_per_sqft: number | null
+          cost_per_unit: number | null
           created_at: string
           date_added: string
           id: string
@@ -481,11 +539,15 @@ export type Database = {
           notes: string | null
           project_id: string
           quantity: number | null
+          square_feet: number | null
           studio_id: string
+          total_cost: number | null
           unit: string | null
           updated_at: string
         }
         Insert: {
+          cost_per_sqft?: number | null
+          cost_per_unit?: number | null
           created_at?: string
           date_added?: string
           id?: string
@@ -494,11 +556,15 @@ export type Database = {
           notes?: string | null
           project_id: string
           quantity?: number | null
+          square_feet?: number | null
           studio_id: string
+          total_cost?: number | null
           unit?: string | null
           updated_at?: string
         }
         Update: {
+          cost_per_sqft?: number | null
+          cost_per_unit?: number | null
           created_at?: string
           date_added?: string
           id?: string
@@ -507,7 +573,9 @@ export type Database = {
           notes?: string | null
           project_id?: string
           quantity?: number | null
+          square_feet?: number | null
           studio_id?: string
+          total_cost?: number | null
           unit?: string | null
           updated_at?: string
         }

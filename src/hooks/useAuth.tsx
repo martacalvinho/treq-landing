@@ -26,15 +26,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.id);
+        
+        if (!mounted) return;
+
         setSession(session);
         setUser(session?.user ?? null);
         
-        if (session?.user) {
-          // Fetch user profile
+        if (session?.user && event !== 'SIGNED_OUT') {
+          // Use setTimeout to prevent potential deadlocks
           setTimeout(async () => {
+            if (!mounted) return;
+            
             try {
               const { data: profile, error } = await supabase
                 .from('users')
@@ -44,7 +52,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               
               if (error) {
                 console.error('Error fetching user profile:', error);
-              } else {
+              } else if (mounted) {
                 setUserProfile(profile);
               }
             } catch (err) {
@@ -55,44 +63,108 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserProfile(null);
         }
         
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        if (mounted) {
+          setSession(session);
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.error('Error initializing auth:', err);
+        if (mounted) {
+          setLoading(false);
+        }
+      }
+    };
 
-    return () => subscription.unsubscribe();
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    });
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
 
-    if (error) {
+      if (error) {
+        toast({
+          title: "Sign in failed",
+          description: error.message,
+          variant: "destructive"
+        });
+      }
+
+      return { error };
+    } catch (err) {
+      console.error('Sign in error:', err);
+      const error = { message: 'An unexpected error occurred during sign in' };
       toast({
         title: "Sign in failed",
         description: error.message,
         variant: "destructive"
       });
+      return { error };
     }
-
-    return { error };
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
-    setUserProfile(null);
-    toast({
-      title: "Signed out",
-      description: "You have been signed out successfully."
-    });
+    try {
+      console.log('Starting sign out process...');
+      
+      // Clear local state first
+      setUserProfile(null);
+      setUser(null);
+      setSession(null);
+      
+      // Then sign out from Supabase
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        console.error('Sign out error:', error);
+        // Even if there's an error, we've cleared the local state
+        toast({
+          title: "Signed out",
+          description: "You have been signed out (with some issues).",
+          variant: "destructive"
+        });
+      } else {
+        console.log('Sign out successful');
+        toast({
+          title: "Signed out",
+          description: "You have been signed out successfully."
+        });
+      }
+    } catch (err) {
+      console.error('Unexpected sign out error:', err);
+      // Clear local state even if there's an error
+      setUserProfile(null);
+      setUser(null);
+      setSession(null);
+      
+      toast({
+        title: "Signed out",
+        description: "You have been signed out locally.",
+      });
+    }
   };
 
   const isAdmin = userProfile?.role === 'admin';
