@@ -4,12 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PricingCalculator from "./PricingCalculator";
-import { useAuth } from "@/hooks/useAuth";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 
 const PricingSection = () => {
-  const { user } = useAuth();
   const navigate = useNavigate();
 
   const monthlyPlans = [
@@ -20,7 +17,7 @@ const PricingSection = () => {
       description: "Up to 100 materials/month",
       subtitle: "Ideal for small studios with light usage.",
       isPopular: false,
-      priceAmount: 2900 // in cents
+      slug: "starter"
     },
     {
       name: "Studio",
@@ -29,7 +26,7 @@ const PricingSection = () => {
       description: "Up to 500 materials/month",
       subtitle: "Designed for most active studios.",
       isPopular: true,
-      priceAmount: 8900 // in cents
+      slug: "studio"
     },
     {
       name: "Growth",
@@ -38,7 +35,7 @@ const PricingSection = () => {
       description: "Up to 1,500 materials/month", 
       subtitle: "For large firms managing many projects.",
       isPopular: false,
-      priceAmount: 29900 // in cents
+      slug: "growth"
     }
   ];
 
@@ -48,52 +45,26 @@ const PricingSection = () => {
       description: "Includes setup of up to 100 materials",
       price: "$99",
       period: "one-time onboarding",
-      priceAmount: 9900 // in cents
+      slug: "starter"
     },
     {
       name: "Studio",
       description: "Includes setup of up to 500 materials",
       price: "$499",
       period: "one-time onboarding",
-      priceAmount: 49900 // in cents
+      slug: "studio"
     },
     {
       name: "Growth",
       description: "Includes setup of up to 1,500 materials",
       price: "$999",
       period: "one-time onboarding",
-      priceAmount: 99900 // in cents
+      slug: "growth"
     }
   ];
 
-  const handleGetStarted = async (plan: any, isOnboarding = false) => {
-    if (!user) {
-      // Redirect to auth if not logged in
-      navigate('/auth');
-      return;
-    }
-
-    try {
-      const functionName = isOnboarding ? 'create-payment' : 'create-checkout';
-      const { data, error } = await supabase.functions.invoke(functionName, {
-        body: {
-          planName: plan.name,
-          amount: plan.priceAmount,
-          isOnboarding
-        }
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        // Open Stripe checkout in a new tab
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error creating checkout:', error);
-      // Fallback to demo booking
-      window.open('http://calendly.com/treqy', '_blank');
-    }
+  const handleGetStarted = (plan: any) => {
+    navigate(`/get-started?plan=${plan.slug}`);
   };
 
   return (
@@ -134,7 +105,7 @@ const PricingSection = () => {
                   
                   <Button 
                     className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
-                    onClick={() => handleGetStarted(plan, false)}
+                    onClick={() => handleGetStarted(plan)}
                   >
                     Get Started
                   </Button>
@@ -145,8 +116,19 @@ const PricingSection = () => {
               <p className="text-gray-600 mb-2">
                 $1.50 per extra material per month.
               </p>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm mb-4">
                 Need more than 1,500 materials? Enterprise plans available with custom pricing per studio.
+              </p>
+              <p className="text-gray-700 font-medium mb-2">
+                All plans are billed via invoice. Bank transfer only.
+              </p>
+              <p className="text-gray-600 text-sm">
+                Need a custom quote? <button 
+                  onClick={() => window.open('mailto:hello@treqy.com', '_blank')}
+                  className="text-coral hover:text-coral-600 underline"
+                >
+                  Contact us
+                </button>
               </p>
             </div>
           </TabsContent>
@@ -167,7 +149,7 @@ const PricingSection = () => {
                   
                   <Button 
                     className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
-                    onClick={() => handleGetStarted(plan, true)}
+                    onClick={() => handleGetStarted(plan)}
                   >
                     Get Started
                   </Button>
@@ -178,8 +160,19 @@ const PricingSection = () => {
               <p className="text-gray-600 mb-2">
                 Want to bring in more history? It's just $1.50 per extra material.
               </p>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 text-sm mb-4">
                 Enterprise onboarding available for studios with 1,500+ materials.
+              </p>
+              <p className="text-gray-700 font-medium mb-2">
+                All plans are billed via invoice. Bank transfer only.
+              </p>
+              <p className="text-gray-600 text-sm">
+                Need a custom quote? <button 
+                  onClick={() => window.open('mailto:hello@treqy.com', '_blank')}
+                  className="text-coral hover:text-coral-600 underline"
+                >
+                  Contact us
+                </button>
               </p>
             </div>
           </TabsContent>

@@ -28,6 +28,7 @@ import Onboarding from "./pages/Onboarding";
 import OnboardingPage from "./pages/OnboardingPage";
 import AuthPage from "./components/auth/AuthPage";
 import StudioSpecificDashboard from "./components/dashboard/StudioSpecificDashboard";
+import GetStarted from "./pages/GetStarted";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
+              <Route path="/get-started" element={<GetStarted />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding-wizard" element={<OnboardingPage />} />
               <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
