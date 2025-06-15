@@ -3,20 +3,17 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { Navigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 
 const AuthPage = () => {
-  const { signIn, signUp, user, loading } = useAuth();
+  const { signIn, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect to onboarding wizard for new users, dashboard for existing users
+  // Redirect to dashboard if already logged in
   if (user && !loading) {
-    // Check if this is a new user by seeing if they have a studio_id
-    const hasStudio = user.user_metadata?.studio_name || user.app_metadata?.studio_id;
-    return <Navigate to={hasStudio ? "/onboarding-wizard" : "/dashboard"} replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,21 +25,6 @@ const AuthPage = () => {
     const password = formData.get('password') as string;
     
     await signIn(email, password);
-    setIsLoading(false);
-  };
-
-  const handleSignUp = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoading(true);
-    
-    const formData = new FormData(e.currentTarget);
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const firstName = formData.get('firstName') as string;
-    const lastName = formData.get('lastName') as string;
-    const studioName = formData.get('studioName') as string;
-    
-    await signUp(email, password, firstName, lastName, studioName);
     setIsLoading(false);
   };
 
@@ -76,177 +58,70 @@ const AuthPage = () => {
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              Welcome to
+              Welcome back to
               <br />
               <span className="text-coral bg-gradient-to-r from-coral to-coral-600 bg-clip-text text-transparent">
                 Treqy
               </span>
             </h1>
             <p className="text-lg text-gray-600">
-              Your studio's material memory awaits
+              Sign in to access your material dashboard
             </p>
           </div>
 
-          {/* Auth Form Card */}
+          {/* Sign In Form Card */}
           <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden backdrop-blur-sm">
-            <Tabs defaultValue="signin" className="w-full">
-              {/* Custom Tab Navigation */}
-              <div className="border-b border-gray-100">
-                <TabsList className="grid w-full grid-cols-2 bg-transparent h-auto p-0">
-                  <TabsTrigger 
-                    value="signin" 
-                    className="relative rounded-none bg-transparent border-0 border-b-2 border-transparent data-[state=active]:border-coral data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6 text-base font-medium text-gray-500 data-[state=active]:text-coral transition-all duration-200 hover:text-gray-700"
-                  >
-                    Sign In
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="signup"
-                    className="relative rounded-none bg-transparent border-0 border-b-2 border-transparent data-[state=active]:border-coral data-[state=active]:bg-transparent data-[state=active]:shadow-none py-4 px-6 text-base font-medium text-gray-500 data-[state=active]:text-coral transition-all duration-200 hover:text-gray-700"
-                  >
-                    Sign Up
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+            <div className="p-8">
+              <h2 className="text-2xl font-semibold text-gray-900 mb-6 text-center">Sign In</h2>
               
-              {/* Sign In Form */}
-              <TabsContent value="signin" className="p-8 mt-0">
-                <form onSubmit={handleSignIn} className="space-y-6">
-                  <div>
-                    <Label htmlFor="signin-email" className="block text-sm font-medium text-gray-900 mb-2">
-                      Email address
-                    </Label>
-                    <Input
-                      id="signin-email"
-                      name="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signin-password" className="block text-sm font-medium text-gray-900 mb-2">
-                      Password
-                    </Label>
-                    <Input
-                      id="signin-password"
-                      name="password"
-                      type="password"
-                      placeholder="Enter your password"
-                      className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                      required
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 text-base font-semibold bg-coral hover:bg-coral-600 text-white rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Signing in...
-                      </div>
-                    ) : (
-                      'Sign In'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-              
-              {/* Sign Up Form */}
-              <TabsContent value="signup" className="p-8 mt-0">
-                <form onSubmit={handleSignUp} className="space-y-6">
-                  <div>
-                    <Label htmlFor="studio-name" className="block text-sm font-medium text-gray-900 mb-2">
-                      Studio Name
-                    </Label>
-                    <Input
-                      id="studio-name"
-                      name="studioName"
-                      placeholder="Your studio name"
-                      className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                      required
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="first-name" className="block text-sm font-medium text-gray-900 mb-2">
-                        First Name
-                      </Label>
-                      <Input
-                        id="first-name"
-                        name="firstName"
-                        placeholder="First name"
-                        className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                        required
-                      />
+              <form onSubmit={handleSignIn} className="space-y-6">
+                <div>
+                  <Label htmlFor="email" className="block text-sm font-medium text-gray-900 mb-2">
+                    Email address
+                  </Label>
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password" className="block text-sm font-medium text-gray-900 mb-2">
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    name="password"
+                    type="password"
+                    placeholder="Enter your password"
+                    className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
+                    required
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full h-12 text-base font-semibold bg-coral hover:bg-coral-600 text-white rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg" 
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <div className="flex items-center">
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Signing in...
                     </div>
-                    <div>
-                      <Label htmlFor="last-name" className="block text-sm font-medium text-gray-900 mb-2">
-                        Last Name
-                      </Label>
-                      <Input
-                        id="last-name"
-                        name="lastName"
-                        placeholder="Last name"
-                        className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-email" className="block text-sm font-medium text-gray-900 mb-2">
-                      Email address
-                    </Label>
-                    <Input
-                      id="signup-email"
-                      name="email"
-                      type="email"
-                      placeholder="Enter your email"
-                      className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="signup-password" className="block text-sm font-medium text-gray-900 mb-2">
-                      Password
-                    </Label>
-                    <Input
-                      id="signup-password"
-                      name="password"
-                      type="password"
-                      placeholder="Create a password"
-                      className="w-full h-12 px-4 text-base border-gray-200 rounded-xl focus:border-coral focus:ring-coral transition-colors"
-                      required
-                      minLength={6}
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      Password must be at least 6 characters long
-                    </p>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full h-12 text-base font-semibold bg-coral hover:bg-coral-600 text-white rounded-xl transition-all duration-300 hover:scale-[1.02] hover:shadow-lg" 
-                    disabled={isLoading}
-                  >
-                    {isLoading ? (
-                      <div className="flex items-center">
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                        Creating account...
-                      </div>
-                    ) : (
-                      'Create Account'
-                    )}
-                  </Button>
-                </form>
-              </TabsContent>
-            </Tabs>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+            </div>
           </div>
           
           {/* Footer text */}
           <p className="mt-8 text-center text-sm text-gray-500">
-            By signing up, you agree to our Terms of Service and Privacy Policy
+            Don't have an account? <a href="/get-started" className="text-coral hover:underline">Get started here</a>
           </p>
 
           {/* Decorative elements */}
