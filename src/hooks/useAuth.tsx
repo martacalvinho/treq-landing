@@ -1,7 +1,9 @@
+
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useStudioOverride } from '@/components/dashboard/StudioSpecificDashboard';
 
 interface AuthContextType {
   user: User | null;
@@ -127,8 +129,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const isAdmin = userProfile?.role === 'admin';
-  const studioId = userProfile?.studio_id;
-
+  
   return (
     <AuthContext.Provider value={{
       user,
@@ -139,7 +140,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signIn,
       signOut,
       isAdmin,
-      studioId
+      studioId: userProfile?.studio_id
     }}>
       {children}
     </AuthContext.Provider>
@@ -148,8 +149,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
 export function useAuth() {
   const context = useContext(AuthContext);
+  const studioOverride = useStudioOverride();
+  
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
-  return context;
+  
+  // If we're in a studio override context (admin viewing a specific studio), use that studio ID
+  const effectiveStudioId = studioOverride || context.studioId;
+  
+  return {
+    ...context,
+    studioId: effectiveStudioId
+  };
 }

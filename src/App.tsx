@@ -26,6 +26,7 @@ import Users from "./pages/Users";
 import AdminAlerts from "./pages/AdminAlerts";
 import Onboarding from "./pages/Onboarding";
 import AuthPage from "./components/auth/AuthPage";
+import StudioSpecificDashboard from "./components/dashboard/StudioSpecificDashboard";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/clients/:id" element={<DashboardLayout><ClientDetails /></DashboardLayout>} />
               <Route path="/alerts" element={<DashboardLayout><Alerts /></DashboardLayout>} />
               <Route path="/studios" element={<DashboardLayout><Studios /></DashboardLayout>} />
+              <Route path="/studios/:studioId/dashboard" element={<DashboardLayout><StudioSpecificDashboard /></DashboardLayout>} />
               <Route path="/users" element={<DashboardLayout><Users /></DashboardLayout>} />
               <Route path="/admin-alerts" element={<DashboardLayout><AdminAlerts /></DashboardLayout>} />
               <Route path="/onboarding" element={<DashboardLayout><Onboarding /></DashboardLayout>} />
