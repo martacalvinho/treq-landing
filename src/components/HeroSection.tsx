@@ -41,7 +41,7 @@ const HeroSection = () => {
             </div>
             <div className="flex flex-col gap-4">
               <Button 
-                onClick={() => navigate('/get-started')}
+                onClick={() => navigate('/auth')}
                 size="lg" 
                 className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group w-full sm:w-auto"
               >
