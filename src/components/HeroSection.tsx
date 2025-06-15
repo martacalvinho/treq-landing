@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Play } from "lucide-react";
-import MaterialDashboard from "./MaterialDashboard";
+import HeroDashboardPreview from "./HeroDashboardPreview";
 import MobileMaterialView from "./MobileMaterialView";
 import { useNavigate } from "react-router-dom";
 
@@ -50,17 +50,17 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Enhanced Desktop Dashboard */}
+          {/* Simplified Dashboard Preview */}
           <div className="relative hidden lg:block">
-            <MaterialDashboard />
+            <HeroDashboardPreview />
             
             {/* Caption for the interface preview */}
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600 font-medium">
-                Instantly see where and when a material was used
+                Track usage, spot trends, and find materials instantly
               </p>
               <p className="text-xs text-gray-500 mt-1">
-                Your library, searchable by project, client, or material type
+                Your complete material history at a glance
               </p>
             </div>
             
