@@ -4,8 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import PricingCalculator from "./PricingCalculator";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const PricingSection = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   const monthlyPlans = [
     {
       name: "Starter",
@@ -13,7 +19,8 @@ const PricingSection = () => {
       period: "month",
       description: "Up to 100 materials/month",
       subtitle: "Ideal for small studios with light usage.",
-      isPopular: false
+      isPopular: false,
+      priceAmount: 2900 // in cents
     },
     {
       name: "Studio",
@@ -21,7 +28,8 @@ const PricingSection = () => {
       period: "month", 
       description: "Up to 500 materials/month",
       subtitle: "Designed for most active studios.",
-      isPopular: true
+      isPopular: true,
+      priceAmount: 8900 // in cents
     },
     {
       name: "Growth",
@@ -29,7 +37,8 @@ const PricingSection = () => {
       period: "month",
       description: "Up to 1,500 materials/month", 
       subtitle: "For large firms managing many projects.",
-      isPopular: false
+      isPopular: false,
+      priceAmount: 29900 // in cents
     }
   ];
 
@@ -38,21 +47,54 @@ const PricingSection = () => {
       name: "Starter",
       description: "Includes setup of up to 100 materials",
       price: "$99",
-      period: "one-time onboarding"
+      period: "one-time onboarding",
+      priceAmount: 9900 // in cents
     },
     {
       name: "Studio",
       description: "Includes setup of up to 500 materials",
       price: "$499",
-      period: "one-time onboarding"
+      period: "one-time onboarding",
+      priceAmount: 49900 // in cents
     },
     {
       name: "Growth",
       description: "Includes setup of up to 1,500 materials",
       price: "$999",
-      period: "one-time onboarding"
+      period: "one-time onboarding",
+      priceAmount: 99900 // in cents
     }
   ];
+
+  const handleGetStarted = async (plan: any, isOnboarding = false) => {
+    if (!user) {
+      // Redirect to auth if not logged in
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      const functionName = isOnboarding ? 'create-payment' : 'create-checkout';
+      const { data, error } = await supabase.functions.invoke(functionName, {
+        body: {
+          planName: plan.name,
+          amount: plan.priceAmount,
+          isOnboarding
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        // Open Stripe checkout in a new tab
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      // Fallback to demo booking
+      window.open('http://calendly.com/treqy', '_blank');
+    }
+  };
 
   return (
     <section id="pricing" className="py-20 bg-white">
@@ -92,9 +134,9 @@ const PricingSection = () => {
                   
                   <Button 
                     className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
-                    onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+                    onClick={() => handleGetStarted(plan, false)}
                   >
-                    Book a Demo
+                    Get Started
                   </Button>
                 </div>
               ))}
@@ -125,9 +167,9 @@ const PricingSection = () => {
                   
                   <Button 
                     className="w-full bg-coral hover:bg-coral-600 text-white font-semibold py-3 mt-auto"
-                    onClick={() => window.open('http://calendly.com/treqy', '_blank')}
+                    onClick={() => handleGetStarted(plan, true)}
                   >
-                    Book a Demo
+                    Get Started
                   </Button>
                 </div>
               ))}

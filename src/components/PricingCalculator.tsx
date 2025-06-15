@@ -3,10 +3,15 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 const PricingCalculator = () => {
   const [monthlyMaterials, setMonthlyMaterials] = useState([250]);
   const [onboardingMaterials, setOnboardingMaterials] = useState([300]);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const calculateMonthlyPrice = (materials: number) => {
     if (materials <= 100) return 29;
@@ -32,6 +37,32 @@ const PricingCalculator = () => {
   const monthlyPrice = calculateMonthlyPrice(monthlyMaterials[0]);
   const onboardingPrice = calculateOnboardingPrice(onboardingMaterials[0]);
   const planName = getPlanName(monthlyMaterials[0]);
+
+  const handleGetStarted = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout', {
+        body: {
+          planName,
+          amount: monthlyPrice * 100, // convert to cents
+          materials: monthlyMaterials[0]
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error creating checkout:', error);
+      window.open('http://calendly.com/treqy', '_blank');
+    }
+  };
 
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-8 shadow-lg">
@@ -96,7 +127,10 @@ const PricingCalculator = () => {
             <p className="text-sm text-gray-600">
               {planName} plan with {monthlyMaterials[0]} monthly materials
             </p>
-            <Button className="mt-4 bg-coral hover:bg-coral-600 text-white">
+            <Button 
+              className="mt-4 bg-coral hover:bg-coral-600 text-white"
+              onClick={handleGetStarted}
+            >
               Get Started with {planName}
             </Button>
           </div>
