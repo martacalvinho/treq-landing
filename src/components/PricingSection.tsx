@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -113,22 +112,11 @@ const PricingSection = () => {
               ))}
             </div>
             <div className="text-center mt-8">
-              <p className="text-gray-600 mb-2">
-                $1.50 per extra material per month.
+              <p className="text-gray-600 mb-4">
+                Extra materials: $1.50/month each • Enterprise plans available for 1,500+ materials
               </p>
-              <p className="text-gray-600 text-sm mb-4">
-                Need more than 1,500 materials? Enterprise plans available with custom pricing per studio.
-              </p>
-              <p className="text-gray-700 font-medium mb-2">
-                All plans are billed via invoice. Bank transfer only.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Need a custom quote? <button 
-                  onClick={() => window.open('mailto:hello@treqy.com', '_blank')}
-                  className="text-coral hover:text-coral-600 underline"
-                >
-                  Contact us
-                </button>
+              <p className="text-gray-700 font-medium">
+                Billed via invoice. Bank transfer only.
               </p>
             </div>
           </TabsContent>
@@ -157,22 +145,11 @@ const PricingSection = () => {
               ))}
             </div>
             <div className="text-center mt-8">
-              <p className="text-gray-600 mb-2">
-                Want to bring in more history? It's just $1.50 per extra material.
+              <p className="text-gray-600 mb-4">
+                Extra materials: $1.50 each • Enterprise onboarding available for 1,500+ materials
               </p>
-              <p className="text-gray-600 text-sm mb-4">
-                Enterprise onboarding available for studios with 1,500+ materials.
-              </p>
-              <p className="text-gray-700 font-medium mb-2">
-                All plans are billed via invoice. Bank transfer only.
-              </p>
-              <p className="text-gray-600 text-sm">
-                Need a custom quote? <button 
-                  onClick={() => window.open('mailto:hello@treqy.com', '_blank')}
-                  className="text-coral hover:text-coral-600 underline"
-                >
-                  Contact us
-                </button>
+              <p className="text-gray-700 font-medium">
+                Billed via invoice. Bank transfer only.
               </p>
             </div>
           </TabsContent>
