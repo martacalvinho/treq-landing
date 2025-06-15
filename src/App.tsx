@@ -48,6 +48,7 @@ function App() {
               <Route path="/get-started" element={<GetStarted />} />
               <Route path="/auth" element={<AuthPage />} />
               <Route path="/onboarding-start" element={<OnboardingPage />} />
+              <Route path="/onboarding-wizard" element={<OnboardingPage />} />
               
               {/* Protected Dashboard Routes */}
               <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
