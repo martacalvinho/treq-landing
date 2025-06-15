@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Save, DollarSign } from 'lucide-react';
+import { Save, DollarSign, Calculator } from 'lucide-react';
 
 interface MaterialPricingInputProps {
   material: any;
@@ -19,6 +19,8 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
   const [pricePerSqft, setPricePerSqft] = useState(material.price_per_sqft?.toString() || '');
   const [pricePerUnit, setPricePerUnit] = useState(material.price_per_unit?.toString() || '');
   const [unitType, setUnitType] = useState(material.unit_type || 'sqft');
+  const [totalArea, setTotalArea] = useState('');
+  const [totalUnits, setTotalUnits] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,15 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
     setPricePerUnit(material.price_per_unit?.toString() || '');
     setUnitType(material.unit_type || 'sqft');
   }, [material]);
+
+  const calculateTotal = () => {
+    if (unitType === 'sqft' && pricePerSqft && totalArea) {
+      return (parseFloat(pricePerSqft) * parseFloat(totalArea)).toFixed(2);
+    } else if (unitType === 'unit' && pricePerUnit && totalUnits) {
+      return (parseFloat(pricePerUnit) * parseFloat(totalUnits)).toFixed(2);
+    }
+    return '0.00';
+  };
 
   const handleSave = async () => {
     if (!studioId) return;
@@ -82,6 +93,8 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
            unitType !== currentUnitType;
   };
 
+  const totalCost = calculateTotal();
+
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3 space-y-3">
       <div className="flex items-center gap-2 mb-3">
@@ -89,7 +102,7 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
         <span className="text-sm font-medium text-blue-700">Pricing Information</span>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-3">
         <div>
           <label className="text-xs font-medium text-gray-600 block mb-1">Unit Type</label>
           <Select value={unitType} onValueChange={setUnitType}>
@@ -104,30 +117,64 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
         </div>
 
         {unitType === 'sqft' ? (
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Price per Sq Ft</label>
-            <Input
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              value={pricePerSqft}
-              onChange={(e) => setPricePerSqft(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
+          <>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Price per Sq Ft</label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={pricePerSqft}
+                onChange={(e) => setPricePerSqft(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Total Area (sq ft)</label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={totalArea}
+                onChange={(e) => setTotalArea(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          </>
         ) : (
-          <div>
-            <label className="text-xs font-medium text-gray-600 block mb-1">Price per Unit</label>
-            <Input
-              type="number"
-              step="0.01"
-              placeholder="0.00"
-              value={pricePerUnit}
-              onChange={(e) => setPricePerUnit(e.target.value)}
-              className="h-8 text-xs"
-            />
-          </div>
+          <>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Price per Unit</label>
+              <Input
+                type="number"
+                step="0.01"
+                placeholder="0.00"
+                value={pricePerUnit}
+                onChange={(e) => setPricePerUnit(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-gray-600 block mb-1">Total Units</label>
+              <Input
+                type="number"
+                step="1"
+                placeholder="0"
+                value={totalUnits}
+                onChange={(e) => setTotalUnits(e.target.value)}
+                className="h-8 text-xs"
+              />
+            </div>
+          </>
         )}
+
+        <div>
+          <label className="text-xs font-medium text-gray-600 block mb-1">Total Cost</label>
+          <div className="flex items-center h-8 px-3 bg-green-50 border border-green-200 rounded text-xs font-medium text-green-700">
+            <Calculator className="h-3 w-3 mr-1" />
+            ${totalCost}
+          </div>
+        </div>
 
         <div className="flex items-end">
           <Button
@@ -140,13 +187,13 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
             {saving ? 'Saving...' : 'Save'}
           </Button>
         </div>
-
-        {material.last_price_update && (
-          <div className="text-xs text-gray-500 flex items-end">
-            Updated: {new Date(material.last_price_update).toLocaleDateString()}
-          </div>
-        )}
       </div>
+
+      {material.last_price_update && (
+        <div className="text-xs text-gray-500 mt-2">
+          Last updated: {new Date(material.last_price_update).toLocaleDateString()}
+        </div>
+      )}
     </div>
   );
 };
