@@ -7,17 +7,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
-import { Search, Package, X, Filter } from 'lucide-react';
+import { Search, Package, X, Filter, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddMaterialForm from '@/components/forms/AddMaterialForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
 import ApplyToProjectForm from '@/components/forms/ApplyToProjectForm';
+import { useToast } from '@/hooks/use-toast';
 
 const Materials = () => {
   const { studioId } = useAuth();
   const { canAddMaterial } = useMaterialLimits();
+  const { toast } = useToast();
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
+  const [duplicates, setDuplicates] = useState<any[]>([]);
+  const [showDuplicatesOnly, setShowDuplicatesOnly] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [projectFilter, setProjectFilter] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState('');
@@ -101,7 +106,78 @@ const Materials = () => {
     }
   };
 
+  const checkForDuplicates = async () => {
+    setCheckingDuplicates(true);
+    try {
+      // Find materials with duplicate reference_sku (excluding null/empty values)
+      const materialsWithSku = materials.filter(m => m.reference_sku && m.reference_sku.trim() !== '');
+      
+      const duplicateGroups = new Map();
+      const duplicateIds = new Set();
+      
+      materialsWithSku.forEach(material => {
+        const sku = material.reference_sku.trim().toLowerCase();
+        if (!duplicateGroups.has(sku)) {
+          duplicateGroups.set(sku, []);
+        }
+        duplicateGroups.get(sku).push(material);
+      });
+      
+      // Find groups with more than one material
+      const duplicatesList: any[] = [];
+      duplicateGroups.forEach((group, sku) => {
+        if (group.length > 1) {
+          group.forEach((material: any) => {
+            duplicateIds.add(material.id);
+            duplicatesList.push({
+              ...material,
+              duplicateSku: sku,
+              duplicateCount: group.length
+            });
+          });
+        }
+      });
+      
+      setDuplicates(duplicatesList);
+      
+      if (duplicatesList.length > 0) {
+        toast({
+          title: "Duplicates Found",
+          description: `Found ${duplicatesList.length} materials with duplicate reference SKUs`,
+          variant: "default"
+        });
+        setShowDuplicatesOnly(true);
+      } else {
+        toast({
+          title: "No Duplicates",
+          description: "No duplicate reference SKUs found in your materials",
+          variant: "default"
+        });
+      }
+    } catch (error) {
+      console.error('Error checking for duplicates:', error);
+      toast({
+        title: "Error",
+        description: "Failed to check for duplicates. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setCheckingDuplicates(false);
+    }
+  };
+
+  const clearDuplicateFilter = () => {
+    setShowDuplicatesOnly(false);
+    setDuplicates([]);
+  };
+
   const filteredMaterials = materials.filter(material => {
+    // If showing duplicates only, filter to show only duplicate materials
+    if (showDuplicatesOnly) {
+      const isDuplicate = duplicates.some(dup => dup.id === material.id);
+      if (!isDuplicate) return false;
+    }
+
     // Text search filter
     const matchesSearch = material.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       material.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -172,6 +248,15 @@ const Materials = () => {
               Material limit reached for this month
             </p>
           )}
+          <Button
+            onClick={checkForDuplicates}
+            disabled={checkingDuplicates || materials.length === 0}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <AlertTriangle className="h-4 w-4" />
+            {checkingDuplicates ? 'Checking...' : 'Check for Duplicates'}
+          </Button>
           <AddMaterialForm onMaterialAdded={fetchMaterials} />
         </div>
       </div>
@@ -200,6 +285,17 @@ const Materials = () => {
             <div className="flex items-center gap-2 mb-3">
               <Filter className="h-4 w-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Filters</span>
+              {showDuplicatesOnly && (
+                <Badge variant="destructive" className="text-xs">
+                  Showing {duplicates.length} duplicates
+                  <button
+                    onClick={clearDuplicateFilter}
+                    className="ml-1 hover:text-white"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
               {hasActiveFilters && (
                 <Button
                   variant="ghost"
@@ -322,12 +418,19 @@ const Materials = () => {
               const projectCount = material.proj_materials?.length || 0;
               const clientName = material.proj_materials?.[0]?.projects?.clients?.name;
               const locations = parseLocations(material.location);
+              const isDuplicate = duplicates.some(dup => dup.id === material.id);
+              const duplicateInfo = duplicates.find(dup => dup.id === material.id);
               
               return (
-                <div key={material.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                <div 
+                  key={material.id} 
+                  className={`flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 ${
+                    isDuplicate ? 'border-red-200 bg-red-50' : ''
+                  }`}
+                >
                   <div className="flex items-center gap-4">
-                    <div className="p-2 bg-coral-100 rounded-lg">
-                      <Package className="h-6 w-6 text-coral-600" />
+                    <div className={`p-2 rounded-lg ${isDuplicate ? 'bg-red-100' : 'bg-coral-100'}`}>
+                      <Package className={`h-6 w-6 ${isDuplicate ? 'text-red-600' : 'text-coral-600'}`} />
                     </div>
                     <div className="flex-1">
                       <Link to={`/materials/${material.id}`} className="hover:text-coral">
@@ -342,7 +445,16 @@ const Materials = () => {
                       </div>
                       {(material.reference_sku || material.dimensions) && (
                         <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                          {material.reference_sku && <span>SKU: {material.reference_sku}</span>}
+                          {material.reference_sku && (
+                            <span className={isDuplicate ? 'text-red-600 font-medium' : ''}>
+                              SKU: {material.reference_sku}
+                              {isDuplicate && (
+                                <span className="ml-1 text-red-500">
+                                  (Duplicate - {duplicateInfo?.duplicateCount} total)
+                                </span>
+                              )}
+                            </span>
+                          )}
                           {material.dimensions && <span>• Dimensions: {material.dimensions}</span>}
                         </div>
                       )}
@@ -381,7 +493,12 @@ const Materials = () => {
             })}
             {filteredMaterials.length === 0 && (
               <div className="text-center py-8 text-gray-500">
-                {searchTerm || hasActiveFilters ? 'No materials found matching your search or filters.' : 'No materials yet. Create your first material!'}
+                {showDuplicatesOnly 
+                  ? 'No duplicate materials found.' 
+                  : searchTerm || hasActiveFilters 
+                  ? 'No materials found matching your search or filters.' 
+                  : 'No materials yet. Create your first material!'
+                }
               </div>
             )}
           </div>
