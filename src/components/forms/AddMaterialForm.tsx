@@ -1,132 +1,108 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/hooks/useAuth';
-import { useMaterialLimits } from '@/hooks/useMaterialLimits';
+
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Plus } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useMaterialLimits } from '@/hooks/useMaterialLimits';
 import { supabase } from '@/integrations/supabase/client';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
-import { Plus, ChevronDown, ChevronUp, DollarSign } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import MaterialLimitDialog from '@/components/dialogs/MaterialLimitDialog';
 
-const formSchema = z.object({
-  name: z.string().min(1, 'Material name is required'),
-  category: z.string().min(1, 'Category is required'),
-  subcategory: z.string().optional(),
-  manufacturer_id: z.string().optional(),
-  reference_sku: z.string().optional(),
-  dimensions: z.string().optional(),
-  tag: z.string().optional(),
-  location: z.string().optional(),
-  notes: z.string().optional(),
-  // Advanced pricing fields
-  price_per_sqft: z.string().optional(),
-  price_per_unit: z.string().optional(),
-  unit_type: z.enum(['sqft', 'unit', 'both']).optional(),
-});
+const categories = [
+  'Flooring', 'Lighting', 'Furniture', 'Textiles', 'Art & Accessories', 
+  'Window Treatments', 'Wall Finishes', 'Plumbing', 'Hardware', 'Other'
+];
 
 interface AddMaterialFormProps {
-  onMaterialAdded: () => void;
+  onMaterialAdded?: () => void;
 }
 
 const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
-  const { studioId } = useAuth();
-  const { canAddMaterial, monthlyCount, monthlyLimit, billingPreference, incrementMaterialCount } = useMaterialLimits();
-  const { toast } = useToast();
   const [open, setOpen] = useState(false);
-  const [manufacturers, setManufacturers] = useState<any[]>([]);
+  const [limitDialogOpen, setLimitDialogOpen] = useState(false);
+  const [name, setName] = useState('');
+  const [category, setCategory] = useState('');
+  const [subcategory, setSubcategory] = useState('');
+  const [tag, setTag] = useState('');
+  const [location, setLocation] = useState('');
+  const [referenceSku, setReferenceSku] = useState('');
+  const [dimensions, setDimensions] = useState('');
+  const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
-  const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [pendingSubmit, setPendingSubmit] = useState(false);
+  
+  const { user, studioId } = useAuth();
+  const { canAddMaterial, checkAndHandleMaterialLimit, incrementMaterialCount } = useMaterialLimits();
+  const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: '',
-      category: '',
-      subcategory: '',
-      manufacturer_id: '',
-      reference_sku: '',
-      dimensions: '',
-      tag: '',
-      location: '',
-      notes: '',
-      price_per_sqft: '',
-      price_per_unit: '',
-      unit_type: undefined,
-    },
-  });
-
-  useEffect(() => {
-    if (open && studioId) {
-      fetchManufacturers();
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Check material limits first
+    const canProceed = await checkAndHandleMaterialLimit();
+    if (!canProceed) {
+      setPendingSubmit(true);
+      setLimitDialogOpen(true);
+      return;
     }
-  }, [open, studioId]);
 
-  const fetchManufacturers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('manufacturers')
-        .select('id, name')
-        .eq('studio_id', studioId);
-      
-      if (error) throw error;
-      setManufacturers(data || []);
-    } catch (error) {
-      console.error('Error fetching manufacturers:', error);
-    }
+    await submitMaterial();
   };
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    if (!studioId) return;
-    
-    try {
-      setLoading(true);
-      
-      const materialData = {
-        name: values.name,
-        category: values.category,
-        subcategory: values.subcategory || null,
-        manufacturer_id: values.manufacturer_id || null,
-        reference_sku: values.reference_sku || null,
-        dimensions: values.dimensions || null,
-        tag: values.tag || null,
-        location: values.location || null,
-        notes: values.notes || null,
-        studio_id: studioId,
-        // Add pricing fields
-        price_per_sqft: values.price_per_sqft ? parseFloat(values.price_per_sqft) : null,
-        price_per_unit: values.price_per_unit ? parseFloat(values.price_per_unit) : null,
-        unit_type: values.unit_type || null,
-      };
+  const submitMaterial = async () => {
+    if (!user || !studioId) return;
 
+    setLoading(true);
+    try {
       const { error } = await supabase
         .from('materials')
-        .insert([materialData]);
+        .insert({
+          name,
+          category,
+          subcategory: subcategory || null,
+          tag: tag || null,
+          location: location || null,
+          reference_sku: referenceSku || null,
+          dimensions: dimensions || null,
+          notes: notes || null,
+          studio_id: studioId,
+        });
 
       if (error) throw error;
 
-      // Increment material count after successful addition
+      // Increment material count after successful creation
       await incrementMaterialCount();
 
       toast({
-        title: "Success",
-        description: "Material added successfully",
+        title: "Material added",
+        description: "Your material has been added to the library.",
       });
 
-      form.reset();
+      // Reset form
+      setName('');
+      setCategory('');
+      setSubcategory('');
+      setTag('');
+      setLocation('');
+      setReferenceSku('');
+      setDimensions('');
+      setNotes('');
       setOpen(false);
-      onMaterialAdded();
+      setPendingSubmit(false);
+      
+      if (onMaterialAdded) {
+        onMaterialAdded();
+      }
     } catch (error) {
       console.error('Error adding material:', error);
       toast({
         title: "Error",
-        description: "Failed to add material",
+        description: "Failed to add material. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -134,261 +110,130 @@ const AddMaterialForm = ({ onMaterialAdded }: AddMaterialFormProps) => {
     }
   };
 
-  // Check if user has reached limit and billing preference is blocked
-  const isBlocked = monthlyCount >= monthlyLimit && billingPreference === 'blocked';
-
-  if (isBlocked) {
-    return (
-      <Button disabled variant="outline">
-        <Plus className="h-4 w-4 mr-2" />
-        Add Material (Plan Upgrade Required)
-      </Button>
-    );
-  }
+  const handleLimitDialogConfirm = () => {
+    if (pendingSubmit) {
+      submitMaterial();
+    }
+  };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button disabled={!canAddMaterial}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Material
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Add New Material</DialogTitle>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Material Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter material name" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            
-            <FormField
-              control={form.control}
-              name="category"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Category</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Flooring, Wall Covering, Furniture" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="subcategory"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Subcategory (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., Hardwood, Carpet, Paint" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="reference_sku"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Reference/SKU (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Product reference or SKU number" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="dimensions"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Dimensions (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g., 12&quot;x24&quot;, 2m x 1m x 10mm" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="tag"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tag (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter tag" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location (Optional)</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Enter location" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="manufacturer_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Manufacturer (Optional)</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a manufacturer" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="">No manufacturer</SelectItem>
-                      {manufacturers.map((manufacturer) => (
-                        <SelectItem key={manufacturer.id} value={manufacturer.id}>
-                          {manufacturer.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Advanced Pricing Section */}
-            <Collapsible open={advancedOpen} onOpenChange={setAdvancedOpen}>
-              <CollapsibleTrigger asChild>
-                <Button type="button" variant="outline" className="w-full justify-between">
-                  <div className="flex items-center gap-2">
-                    <DollarSign className="h-4 w-4" />
-                    Advanced Pricing Options
-                  </div>
-                  {advancedOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="space-y-4 pt-4">
-                <FormField
-                  control={form.control}
-                  name="unit_type"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pricing Type</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value}>
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select pricing type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="sqft">Price per Square Foot</SelectItem>
-                          <SelectItem value="unit">Price per Unit</SelectItem>
-                          <SelectItem value="both">Both (Sqft & Unit)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {(form.watch('unit_type') === 'sqft' || form.watch('unit_type') === 'both') && (
-                  <FormField
-                    control={form.control}
-                    name="price_per_sqft"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price per Square Foot ($)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01" 
-                            placeholder="0.00" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-
-                {(form.watch('unit_type') === 'unit' || form.watch('unit_type') === 'both') && (
-                  <FormField
-                    control={form.control}
-                    name="price_per_unit"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Price per Unit ($)</FormLabel>
-                        <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01" 
-                            placeholder="0.00" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-
-            <FormField
-              control={form.control}
-              name="notes"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Notes</FormLabel>
-                  <FormControl>
-                    <Textarea placeholder="Enter material notes" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <div className="flex justify-end gap-2">
+    <>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button 
+            className="bg-coral hover:bg-coral-dark text-white"
+            disabled={!canAddMaterial}
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Add Material
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Add New Material</DialogTitle>
+            <DialogDescription>
+              Add a new material to your library.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="name">Material Name *</Label>
+              <Input
+                id="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter material name"
+                required
+              />
+            </div>
+            <div>
+              <Label htmlFor="category">Category *</Label>
+              <Select value={category} onValueChange={setCategory} required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a category" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat} value={cat}>
+                      {cat}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label htmlFor="subcategory">Subcategory</Label>
+              <Input
+                id="subcategory"
+                value={subcategory}
+                onChange={(e) => setSubcategory(e.target.value)}
+                placeholder="e.g., Hardwood, Ceramic, etc."
+              />
+            </div>
+            <div>
+              <Label htmlFor="tag">Tag</Label>
+              <Input
+                id="tag"
+                value={tag}
+                onChange={(e) => setTag(e.target.value)}
+                placeholder="e.g., Sustainable, Budget-friendly"
+              />
+            </div>
+            <div>
+              <Label htmlFor="location">Location</Label>
+              <Input
+                id="location"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="Storage location or showroom"
+              />
+            </div>
+            <div>
+              <Label htmlFor="referenceSku">Reference SKU</Label>
+              <Input
+                id="referenceSku"
+                value={referenceSku}
+                onChange={(e) => setReferenceSku(e.target.value)}
+                placeholder="Product SKU or code"
+              />
+            </div>
+            <div>
+              <Label htmlFor="dimensions">Dimensions</Label>
+              <Input
+                id="dimensions"
+                value={dimensions}
+                onChange={(e) => setDimensions(e.target.value)}
+                placeholder="e.g., 12x12 inches, 2x4 feet"
+              />
+            </div>
+            <div>
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Additional notes about this material"
+                rows={3}
+              />
+            </div>
+            <div className="flex gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Adding...' : 'Add Material'}
+                {loading ? "Adding..." : "Add Material"}
               </Button>
             </div>
           </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <MaterialLimitDialog
+        open={limitDialogOpen}
+        onOpenChange={setLimitDialogOpen}
+        onConfirm={handleLimitDialogConfirm}
+      />
+    </>
   );
 };
 
