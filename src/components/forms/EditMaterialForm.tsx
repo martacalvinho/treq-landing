@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -18,8 +19,6 @@ const formSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   manufacturer_id: z.string().optional(),
   project_id: z.string().optional(),
-  tag: z.string().optional(),
-  location: z.string().optional(),
   reference_sku: z.string().optional(),
   dimensions: z.string().optional(),
   notes: z.string().optional(),
@@ -29,14 +28,6 @@ interface EditMaterialFormProps {
   material: any;
   onMaterialUpdated: () => void;
 }
-
-const COMMON_TAGS = [
-  'Sustainable', 'Premium', 'Fire-rated', 'Water-resistant', 'Low-maintenance', 'Custom', 'Standard', 'Luxury', 'Budget-friendly', 'Eco-friendly'
-];
-
-const COMMON_LOCATIONS = [
-  'Kitchen', 'Bathroom', 'Living room', 'Bedroom', 'Exterior', 'Commercial', 'Office', 'Hallway', 'Entrance', 'Outdoor'
-];
 
 const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps) => {
   const { studioId } = useAuth();
@@ -54,8 +45,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
       project_id: '',
-      tag: material.tag || '',
-      location: material.location || '',
       reference_sku: material.reference_sku || '',
       dimensions: material.dimensions || '',
       notes: material.notes || '',
@@ -68,8 +57,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       category: material.category,
       manufacturer_id: material.manufacturer_id || '',
       project_id: currentProjectLink || '',
-      tag: material.tag || '',
-      location: material.location || '',
       reference_sku: material.reference_sku || '',
       dimensions: material.dimensions || '',
       notes: material.notes || '',
@@ -139,8 +126,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
           name: values.name,
           category: values.category,
           manufacturer_id: values.manufacturer_id || null,
-          tag: values.tag || null,
-          location: values.location || null,
           reference_sku: values.reference_sku || null,
           dimensions: values.dimensions || null,
           notes: values.notes || null,
@@ -306,58 +291,6 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                   <FormControl>
                     <Input placeholder="e.g., 12&quot;x24&quot;, 2m x 1m x 10mm" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="tag"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Tag (Optional)</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} value={field.value || "none"}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a tag" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">No tag</SelectItem>
-                      {COMMON_TAGS.map((tag) => (
-                        <SelectItem key={tag} value={tag}>
-                          {tag}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="location"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Location (Optional)</FormLabel>
-                  <Select onValueChange={(value) => field.onChange(value === "none" ? "" : value)} value={field.value || "none"}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a location" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="none">No location</SelectItem>
-                      {COMMON_LOCATIONS.map((location) => (
-                        <SelectItem key={location} value={location}>
-                          {location}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
