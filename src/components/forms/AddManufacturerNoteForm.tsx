@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus } from 'lucide-react';
@@ -65,7 +64,7 @@ const AddManufacturerNoteForm = ({ manufacturerId, materials, onNoteAdded }: Add
 
   if (!isOpen) {
     return (
-      <Button onClick={() => setIsOpen(true)}>
+      <Button onClick={() => setIsOpen(true)} size="sm">
         <Plus className="h-4 w-4 mr-2" />
         Add Note
       </Button>
@@ -73,74 +72,70 @@ const AddManufacturerNoteForm = ({ manufacturerId, materials, onNoteAdded }: Add
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Add Manufacturer Note</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="contact_date">Contact Date</Label>
-            <Input
-              id="contact_date"
-              type="date"
-              value={formData.contact_date}
-              onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
-              required
-            />
-          </div>
+    <div className="mt-4 p-4 border rounded-lg bg-gray-50">
+      <h4 className="font-semibold mb-4">Add Manufacturer Note</h4>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="contact_date">Contact Date</Label>
+          <Input
+            id="contact_date"
+            type="date"
+            value={formData.contact_date}
+            onChange={(e) => setFormData({ ...formData, contact_date: e.target.value })}
+            required
+          />
+        </div>
 
-          <div>
-            <Label htmlFor="material_discussed">Material Discussed (Optional)</Label>
-            <Select
-              value={formData.material_discussed_id}
-              onValueChange={(value) => setFormData({ ...formData, material_discussed_id: value })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Select a material" />
-              </SelectTrigger>
-              <SelectContent>
-                {materials.map((material) => (
-                  <SelectItem key={material.id} value={material.id}>
-                    {material.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div>
+          <Label htmlFor="material_discussed">Material Discussed (Optional)</Label>
+          <Select
+            value={formData.material_discussed_id}
+            onValueChange={(value) => setFormData({ ...formData, material_discussed_id: value })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a material" />
+            </SelectTrigger>
+            <SelectContent>
+              {materials.map((material) => (
+                <SelectItem key={material.id} value={material.id}>
+                  {material.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-          <div>
-            <Label htmlFor="delivery_time">Delivery Time (Optional)</Label>
-            <Input
-              id="delivery_time"
-              value={formData.delivery_time}
-              onChange={(e) => setFormData({ ...formData, delivery_time: e.target.value })}
-              placeholder="e.g., 2-3 weeks, 5 business days"
-            />
-          </div>
+        <div>
+          <Label htmlFor="delivery_time">Delivery Time (Optional)</Label>
+          <Input
+            id="delivery_time"
+            value={formData.delivery_time}
+            onChange={(e) => setFormData({ ...formData, delivery_time: e.target.value })}
+            placeholder="e.g., 2-3 weeks, 5 business days"
+          />
+        </div>
 
-          <div>
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={formData.notes}
-              onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-              placeholder="What was discussed, requested, or any other relevant information..."
-              required
-            />
-          </div>
+        <div>
+          <Label htmlFor="notes">Notes</Label>
+          <Textarea
+            id="notes"
+            value={formData.notes}
+            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+            placeholder="What was discussed, requested, or any other relevant information..."
+            required
+          />
+        </div>
 
-          <div className="flex gap-2">
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Adding...' : 'Add Note'}
-            </Button>
-            <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
-              Cancel
-            </Button>
-          </div>
-        </form>
-      </CardContent>
-    </Card>
+        <div className="flex gap-2">
+          <Button type="submit" disabled={loading} size="sm">
+            {loading ? 'Adding...' : 'Add Note'}
+          </Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+        </div>
+      </form>
+    </div>
   );
 };
 
