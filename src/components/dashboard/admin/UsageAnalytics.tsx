@@ -32,31 +32,36 @@ const UsageAnalytics = () => {
 
       if (studios && users) {
         // Create platform growth data (users and studios by month)
-        const growthData = [...studios, ...users].reduce((acc: any[], item) => {
-          const month = new Date(item.created_at).toLocaleDateString('en-US', { 
+        const monthlyData: { [key: string]: { month: string; studios: number; users: number } } = {};
+
+        // Process studios data
+        studios.forEach(studio => {
+          const month = new Date(studio.created_at).toLocaleDateString('en-US', { 
             year: 'numeric', 
             month: 'short' 
           });
-          const existing = acc.find(entry => entry.month === month);
           
-          if (existing) {
-            if (studios.includes(item)) {
-              existing.studios += 1;
-            } else {
-              existing.users += 1;
-            }
-          } else {
-            acc.push({
-              month,
-              studios: studios.includes(item) ? 1 : 0,
-              users: studios.includes(item) ? 0 : 1
-            });
+          if (!monthlyData[month]) {
+            monthlyData[month] = { month, studios: 0, users: 0 };
           }
-          return acc;
-        }, []);
+          monthlyData[month].studios += 1;
+        });
 
-        // Sort by date and take last 6 months
-        const sortedGrowth = growthData
+        // Process users data
+        users.forEach(user => {
+          const month = new Date(user.created_at).toLocaleDateString('en-US', { 
+            year: 'numeric', 
+            month: 'short' 
+          });
+          
+          if (!monthlyData[month]) {
+            monthlyData[month] = { month, studios: 0, users: 0 };
+          }
+          monthlyData[month].users += 1;
+        });
+
+        // Convert to array and sort by date, take last 6 months
+        const sortedGrowth = Object.values(monthlyData)
           .sort((a, b) => new Date(`${a.month} 1`).getTime() - new Date(`${b.month} 1`).getTime())
           .slice(-6);
 
