@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,6 +11,7 @@ import { Search, Package, X, Filter } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import AddMaterialForm from '@/components/forms/AddMaterialForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
+import ApplyToProjectForm from '@/components/forms/ApplyToProjectForm';
 
 const Materials = () => {
   const { studioId } = useAuth();
@@ -19,6 +21,7 @@ const Materials = () => {
   const [projectFilter, setProjectFilter] = useState('');
   const [manufacturerFilter, setManufacturerFilter] = useState('');
   const [clientFilter, setClientFilter] = useState('');
+  const [locationFilter, setLocationFilter] = useState('');
   
   // Filter options
   const [projects, setProjects] = useState<any[]>([]);
@@ -119,23 +122,39 @@ const Materials = () => {
     const matchesClient = !clientFilter || clientFilter === 'all' ||
       material.proj_materials?.some((pm: any) => pm.projects?.client_id === clientFilter);
 
-    return matchesSearch && matchesProject && matchesManufacturer && matchesClient;
+    // Location filter
+    const matchesLocation = !locationFilter ||
+      material.location?.toLowerCase().includes(locationFilter.toLowerCase());
+
+    return matchesSearch && matchesProject && matchesManufacturer && matchesClient && matchesLocation;
   });
 
   const clearFilters = () => {
     setProjectFilter('');
     setManufacturerFilter('');
     setClientFilter('');
+    setLocationFilter('');
   };
 
   const hasActiveFilters = projectFilter && projectFilter !== 'all' || 
                           manufacturerFilter && manufacturerFilter !== 'all' || 
-                          clientFilter && clientFilter !== 'all';
+                          clientFilter && clientFilter !== 'all' ||
+                          locationFilter;
 
   // Helper function to parse locations
   const parseLocations = (locationString: string | null) => {
     if (!locationString) return [];
     return locationString.split(',').map(loc => loc.trim()).filter(loc => loc.length > 0);
+  };
+
+  const handleLocationClick = (location: string) => {
+    if (locationFilter === location) {
+      // If already filtered by this location, clear the filter
+      setLocationFilter('');
+    } else {
+      // Set filter to this location
+      setLocationFilter(location);
+    }
   };
 
   if (loading) {
@@ -275,6 +294,17 @@ const Materials = () => {
                     </button>
                   </Badge>
                 )}
+                {locationFilter && (
+                  <Badge variant="secondary" className="text-xs">
+                    Location: {locationFilter}
+                    <button
+                      onClick={() => setLocationFilter('')}
+                      className="ml-1 hover:text-destructive"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </Badge>
+                )}
               </div>
             )}
           </div>
@@ -317,7 +347,12 @@ const Materials = () => {
                         {locations.length > 0 && (
                           <div className="flex items-center gap-1">
                             {locations.map((location, index) => (
-                              <Badge key={index} variant="outline" className="text-xs">
+                              <Badge 
+                                key={index} 
+                                variant={locationFilter === location ? "default" : "outline"} 
+                                className="text-xs cursor-pointer hover:bg-gray-200"
+                                onClick={() => handleLocationClick(location)}
+                              >
                                 📍 {location}
                               </Badge>
                             ))}
@@ -330,6 +365,7 @@ const Materials = () => {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    <ApplyToProjectForm material={material} onMaterialUpdated={fetchMaterials} />
                     <EditMaterialForm material={material} onMaterialUpdated={fetchMaterials} />
                   </div>
                 </div>
