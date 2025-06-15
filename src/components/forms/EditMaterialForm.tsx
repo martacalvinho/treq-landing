@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -11,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { Edit, Trash2 } from 'lucide-react';
+import { Edit, Trash2, Tag, MapPin } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
@@ -21,6 +20,8 @@ const formSchema = z.object({
   project_id: z.string().optional(),
   reference_sku: z.string().optional(),
   dimensions: z.string().optional(),
+  tag: z.string().optional(),
+  location: z.string().optional(),
   notes: z.string().optional(),
 });
 
@@ -47,6 +48,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       project_id: '',
       reference_sku: material.reference_sku || '',
       dimensions: material.dimensions || '',
+      tag: material.tag || '',
+      location: material.location || '',
       notes: material.notes || '',
     },
   });
@@ -59,9 +62,25 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
       project_id: currentProjectLink || '',
       reference_sku: material.reference_sku || '',
       dimensions: material.dimensions || '',
+      tag: material.tag || '',
+      location: material.location || '',
       notes: material.notes || '',
     });
   }, [material, currentProjectLink, form]);
+
+  // Common tag options
+  const commonTags = [
+    "Sustainable", "Premium", "Fire-rated", "Water-resistant", 
+    "Acoustic", "Slip-resistant", "Antibacterial", "Low-maintenance",
+    "Eco-friendly", "Durable", "Flexible", "Lightweight"
+  ];
+
+  // Common location options  
+  const commonLocations = [
+    "Kitchen", "Bathroom", "Living Room", "Bedroom", "Office",
+    "Hallway", "Basement", "Exterior", "Ceiling", "Floor",
+    "Wall", "Wet Areas", "High Traffic Areas", "Commercial Spaces"
+  ];
 
   const fetchManufacturers = async () => {
     if (!studioId) return;
@@ -119,7 +138,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
     try {
       setLoading(true);
       
-      // Update the material
+      // Update the material including tag and location
       const { error: materialError } = await supabase
         .from('materials')
         .update({
@@ -128,6 +147,8 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
           manufacturer_id: values.manufacturer_id || null,
           reference_sku: values.reference_sku || null,
           dimensions: values.dimensions || null,
+          tag: values.tag || null,
+          location: values.location || null,
           notes: values.notes || null,
         })
         .eq('id', material.id)
@@ -234,7 +255,7 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
           <Edit className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Material</DialogTitle>
         </DialogHeader>
@@ -291,6 +312,82 @@ const EditMaterialForm = ({ material, onMaterialUpdated }: EditMaterialFormProps
                   <FormControl>
                     <Input placeholder="e.g., 12&quot;x24&quot;, 2m x 1m x 10mm" {...field} />
                   </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tag"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <Tag className="h-4 w-4" />
+                    Tag (Optional)
+                  </FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "custom" ? "" : value)} value={field.value || "custom"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select or enter custom tag" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="custom">Custom tag...</SelectItem>
+                      {commonTags.map((tag) => (
+                        <SelectItem key={tag} value={tag}>
+                          {tag}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {(field.value === "" || !commonTags.includes(field.value || "")) && (
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter custom tag" 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                  )}
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    Location (Optional)
+                  </FormLabel>
+                  <Select onValueChange={(value) => field.onChange(value === "custom" ? "" : value)} value={field.value || "custom"}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select or enter custom location" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="custom">Custom location...</SelectItem>
+                      {commonLocations.map((location) => (
+                        <SelectItem key={location} value={location}>
+                          {location}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  {(field.value === "" || !commonLocations.includes(field.value || "")) && (
+                    <FormControl>
+                      <Input 
+                        placeholder="Enter custom location" 
+                        value={field.value || ""} 
+                        onChange={(e) => field.onChange(e.target.value)}
+                      />
+                    </FormControl>
+                  )}
                   <FormMessage />
                 </FormItem>
               )}
