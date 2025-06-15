@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, ChevronDown } from "lucide-react";
+import { ArrowRight, Play, ChevronDown, Check } from "lucide-react";
 import HeroDashboardPreview from "./HeroDashboardPreview";
 import MobileMaterialView from "./MobileMaterialView";
 import { useNavigate } from "react-router-dom";
@@ -26,12 +26,18 @@ const HeroSection = () => {
               <p className="text-xl md:text-2xl text-gray-700 font-semibold leading-tight">
                 Instantly find any product you've ever specified - by project, client or manufacturer.
               </p>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                Build a live, searchable library in minutes for your architecture or interiors studio.
-              </p>
-              <p className="text-base text-gray-600">
-                Skip complicated workflows - just drag-and-drop your spec PDFs and search instantly.
-              </p>
+              
+              {/* Clean bullet points */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Check className="h-5 w-5 text-coral flex-shrink-0" />
+                  <span className="text-lg text-gray-600">Build a live, searchable library in minutes</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Check className="h-5 w-5 text-coral flex-shrink-0" />
+                  <span className="text-lg text-gray-600">Just drag-and-drop your spec PDFs and search instantly</span>
+                </div>
+              </div>
             </div>
             <div className="flex flex-col gap-4">
               <Button 
@@ -53,7 +59,7 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Simplified Dashboard Preview - Made smaller and less prominent */}
+          {/* Dashboard Preview - Made smaller and less prominent */}
           <div className="relative hidden lg:block">
             <div className="transform scale-90 hover:scale-95 transition-transform duration-300">
               <HeroDashboardPreview />
