@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play } from "lucide-react";
+import { ArrowRight, Play, ChevronDown } from "lucide-react";
 import HeroDashboardPreview from "./HeroDashboardPreview";
 import MobileMaterialView from "./MobileMaterialView";
 import { useNavigate } from "react-router-dom";
@@ -14,7 +14,7 @@ const HeroSection = () => {
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           <div className="animate-fade-in">
             <div className="mb-8">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-[0.95] mb-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-gray-900 leading-[0.95] mb-8">
                 Your Studio's
                 <br />
                 <span className="text-coral bg-gradient-to-r from-coral to-coral-600 bg-clip-text text-transparent">
@@ -24,17 +24,20 @@ const HeroSection = () => {
             </div>
             <div className="space-y-6 mb-10">
               <p className="text-xl md:text-2xl text-gray-700 font-semibold leading-tight">
-                Never lose track of materials again.
+                Instantly find any product you've ever specified - by project, client or manufacturer.
               </p>
               <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
-                Instantly search everything you've ever specified - by project, client, type or manufacturer. Build your own complete intelligent material library.
+                Build a live, searchable library in minutes for your architecture or interiors studio.
+              </p>
+              <p className="text-base text-gray-600">
+                Skip complicated workflows - just drag-and-drop your spec PDFs and search instantly.
               </p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col gap-4">
               <Button 
                 onClick={() => navigate('/auth')}
                 size="lg" 
-                className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group"
+                className="bg-coral hover:bg-coral-600 text-white px-8 py-4 text-lg font-semibold transition-all duration-300 hover:scale-105 hover:shadow-xl shadow-lg group w-full sm:w-auto"
               >
                 Get Started
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform duration-200" />
@@ -42,7 +45,7 @@ const HeroSection = () => {
               <Button 
                 variant="outline" 
                 size="lg" 
-                className="border-2 border-gray-200 text-gray-700 px-8 py-4 text-lg font-medium hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all duration-200 group"
+                className="border-2 border-gray-200 text-gray-700 px-8 py-4 text-lg font-medium hover:bg-gray-50 hover:border-gray-300 hover:shadow-md transition-all duration-200 group w-full sm:w-auto"
               >
                 <Play className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform duration-200" />
                 Watch 60-sec demo
@@ -50,12 +53,14 @@ const HeroSection = () => {
             </div>
           </div>
           
-          {/* Simplified Dashboard Preview */}
+          {/* Simplified Dashboard Preview - Made smaller and less prominent */}
           <div className="relative hidden lg:block">
-            <HeroDashboardPreview />
+            <div className="transform scale-90 hover:scale-95 transition-transform duration-300">
+              <HeroDashboardPreview />
+            </div>
             
             {/* Caption for the interface preview */}
-            <div className="mt-6 text-center">
+            <div className="mt-4 text-center">
               <p className="text-sm text-gray-600 font-medium">
                 Track usage, spot trends, and find materials instantly
               </p>
@@ -64,12 +69,12 @@ const HeroSection = () => {
               </p>
             </div>
             
-            {/* Enhanced floating elements */}
-            <div className="absolute -top-6 -right-6 w-12 h-12 bg-coral/10 rounded-full flex items-center justify-center">
-              <div className="w-6 h-6 bg-coral/20 rounded-full animate-pulse"></div>
+            {/* Enhanced floating elements with subtle parallax effect */}
+            <div className="absolute -top-6 -right-6 w-12 h-12 bg-coral/10 rounded-full flex items-center justify-center animate-pulse">
+              <div className="w-6 h-6 bg-coral/20 rounded-full"></div>
             </div>
-            <div className="absolute -bottom-6 -left-6 w-10 h-10 bg-blue-400/10 rounded-full flex items-center justify-center" style={{ animationDelay: '1s' }}>
-              <div className="w-4 h-4 bg-blue-400/20 rounded-full animate-pulse"></div>
+            <div className="absolute -bottom-6 -left-6 w-10 h-10 bg-blue-400/10 rounded-full flex items-center justify-center animate-pulse" style={{ animationDelay: '1s' }}>
+              <div className="w-4 h-4 bg-blue-400/20 rounded-full"></div>
             </div>
             <div className="absolute top-1/2 -right-3 w-6 h-6 bg-indigo-400/10 rounded-full animate-pulse" style={{ animationDelay: '2s' }}></div>
           </div>
@@ -77,6 +82,11 @@ const HeroSection = () => {
           {/* Mobile Alternative */}
           <MobileMaterialView />
         </div>
+      </div>
+      
+      {/* Scroll indicator */}
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+        <ChevronDown className="h-6 w-6 text-gray-400" />
       </div>
     </section>
   );

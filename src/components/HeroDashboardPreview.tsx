@@ -3,7 +3,7 @@ import { TrendingUp, Package, Users, AlertCircle } from "lucide-react";
 
 const HeroDashboardPreview = () => {
   return (
-    <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden hover:shadow-3xl transition-all duration-500 hover:scale-[1.02] max-w-lg">
+    <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden hover:shadow-2xl transition-all duration-500 max-w-lg">
       {/* Dashboard Header */}
       <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-6 py-4 border-b border-gray-200">
         <div className="flex items-center gap-3">
