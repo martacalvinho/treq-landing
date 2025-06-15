@@ -25,6 +25,7 @@ import Studios from "./pages/Studios";
 import Users from "./pages/Users";
 import AdminAlerts from "./pages/AdminAlerts";
 import Onboarding from "./pages/Onboarding";
+import OnboardingPage from "./pages/OnboardingPage";
 import AuthPage from "./components/auth/AuthPage";
 import StudioSpecificDashboard from "./components/dashboard/StudioSpecificDashboard";
 
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/about" element={<About />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/onboarding-wizard" element={<OnboardingPage />} />
               <Route path="/dashboard" element={<DashboardLayout><Dashboard /></DashboardLayout>} />
               <Route path="/projects" element={<DashboardLayout><Projects /></DashboardLayout>} />
               <Route path="/projects/:id" element={<DashboardLayout><ProjectDetails /></DashboardLayout>} />

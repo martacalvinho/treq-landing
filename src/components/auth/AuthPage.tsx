@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,9 +11,11 @@ const AuthPage = () => {
   const { signIn, signUp, user, loading } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
 
-  // Redirect if already authenticated
+  // Redirect to onboarding wizard for new users, dashboard for existing users
   if (user && !loading) {
-    return <Navigate to="/dashboard" replace />;
+    // Check if this is a new user by seeing if they have a studio_id
+    const hasStudio = user.user_metadata?.studio_name || user.app_metadata?.studio_id;
+    return <Navigate to={hasStudio ? "/onboarding-wizard" : "/dashboard"} replace />;
   }
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
