@@ -109,15 +109,15 @@ const Materials = () => {
       material.manufacturers?.name?.toLowerCase().includes(searchTerm.toLowerCase());
 
     // Project filter
-    const matchesProject = !projectFilter || 
+    const matchesProject = !projectFilter || projectFilter === 'all' ||
       material.proj_materials?.some((pm: any) => pm.project_id === projectFilter);
 
     // Manufacturer filter
-    const matchesManufacturer = !manufacturerFilter || 
+    const matchesManufacturer = !manufacturerFilter || manufacturerFilter === 'all' ||
       material.manufacturer_id === manufacturerFilter;
 
     // Client filter
-    const matchesClient = !clientFilter ||
+    const matchesClient = !clientFilter || clientFilter === 'all' ||
       material.proj_materials?.some((pm: any) => pm.projects?.client_id === clientFilter);
 
     return matchesSearch && matchesProject && matchesManufacturer && matchesClient;
@@ -129,7 +129,9 @@ const Materials = () => {
     setClientFilter('');
   };
 
-  const hasActiveFilters = projectFilter || manufacturerFilter || clientFilter;
+  const hasActiveFilters = projectFilter && projectFilter !== 'all' || 
+                          manufacturerFilter && manufacturerFilter !== 'all' || 
+                          clientFilter && clientFilter !== 'all';
 
   if (loading) {
     return <div className="p-6">Loading materials...</div>;
@@ -182,12 +184,12 @@ const Materials = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {/* Project Filter */}
               <div>
-                <Select value={projectFilter} onValueChange={setProjectFilter}>
+                <Select value={projectFilter || 'all'} onValueChange={setProjectFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by project" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All projects</SelectItem>
+                    <SelectItem value="all">All projects</SelectItem>
                     {projects.map((project) => (
                       <SelectItem key={project.id} value={project.id}>
                         {project.name}
@@ -199,12 +201,12 @@ const Materials = () => {
 
               {/* Manufacturer Filter */}
               <div>
-                <Select value={manufacturerFilter} onValueChange={setManufacturerFilter}>
+                <Select value={manufacturerFilter || 'all'} onValueChange={setManufacturerFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by manufacturer" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All manufacturers</SelectItem>
+                    <SelectItem value="all">All manufacturers</SelectItem>
                     {manufacturers.map((manufacturer) => (
                       <SelectItem key={manufacturer.id} value={manufacturer.id}>
                         {manufacturer.name}
@@ -216,12 +218,12 @@ const Materials = () => {
 
               {/* Client Filter */}
               <div>
-                <Select value={clientFilter} onValueChange={setClientFilter}>
+                <Select value={clientFilter || 'all'} onValueChange={setClientFilter}>
                   <SelectTrigger>
                     <SelectValue placeholder="Filter by client" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All clients</SelectItem>
+                    <SelectItem value="all">All clients</SelectItem>
                     {clients.map((client) => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.name}
@@ -235,33 +237,33 @@ const Materials = () => {
             {/* Active Filters Display */}
             {hasActiveFilters && (
               <div className="flex flex-wrap gap-2">
-                {projectFilter && (
+                {projectFilter && projectFilter !== 'all' && (
                   <Badge variant="secondary" className="text-xs">
                     Project: {projects.find(p => p.id === projectFilter)?.name}
                     <button
-                      onClick={() => setProjectFilter('')}
+                      onClick={() => setProjectFilter('all')}
                       className="ml-1 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 )}
-                {manufacturerFilter && (
+                {manufacturerFilter && manufacturerFilter !== 'all' && (
                   <Badge variant="secondary" className="text-xs">
                     Manufacturer: {manufacturers.find(m => m.id === manufacturerFilter)?.name}
                     <button
-                      onClick={() => setManufacturerFilter('')}
+                      onClick={() => setManufacturerFilter('all')}
                       className="ml-1 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
                     </button>
                   </Badge>
                 )}
-                {clientFilter && (
+                {clientFilter && clientFilter !== 'all' && (
                   <Badge variant="secondary" className="text-xs">
                     Client: {clients.find(c => c.id === clientFilter)?.name}
                     <button
-                      onClick={() => setClientFilter('')}
+                      onClick={() => setClientFilter('all')}
                       className="ml-1 hover:text-destructive"
                     >
                       <X className="h-3 w-3" />
