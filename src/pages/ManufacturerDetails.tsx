@@ -180,64 +180,64 @@ const ManufacturerDetails = () => {
               <p className="text-sm text-gray-500">Projects using materials from this manufacturer</p>
             </CardContent>
           </Card>
-        </div>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Communication Notes
-              </CardTitle>
-              <CardDescription>Track communications and material inquiries</CardDescription>
-            </div>
-            <AddManufacturerNoteForm 
-              manufacturerId={id!} 
-              materials={materials}
-              onNoteAdded={fetchManufacturerNotes}
-            />
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {notes.map((note) => (
-              <div key={note.id} className="p-4 border rounded-lg">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Calendar className="h-4 w-4" />
-                    <span>{new Date(note.contact_date).toLocaleDateString()}</span>
-                  </div>
-                  {note.delivery_time && (
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <Clock className="h-4 w-4" />
-                      <span>Delivery: {note.delivery_time}</span>
-                    </div>
-                  )}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Communication Notes
+                  </CardTitle>
+                  <CardDescription>Track communications and material inquiries</CardDescription>
                 </div>
+                <AddManufacturerNoteForm 
+                  manufacturerId={id!} 
+                  materials={materials}
+                  onNoteAdded={fetchManufacturerNotes}
+                />
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4 max-h-96 overflow-y-auto">
+                {notes.map((note) => (
+                  <div key={note.id} className="p-3 border rounded-lg">
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Calendar className="h-3 w-3" />
+                        <span>{new Date(note.contact_date).toLocaleDateString()}</span>
+                      </div>
+                      {note.delivery_time && (
+                        <div className="flex items-center gap-1 text-xs text-gray-500">
+                          <Clock className="h-3 w-3" />
+                          <span>{note.delivery_time}</span>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {note.materials && (
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-gray-700">Material: </span>
+                        <Link to={`/materials/${note.materials.id}`} className="text-coral hover:underline text-xs">
+                          {note.materials.name}
+                        </Link>
+                      </div>
+                    )}
+                    
+                    <p className="text-gray-700 text-sm">{note.notes}</p>
+                  </div>
+                ))}
                 
-                {note.materials && (
-                  <div className="mb-3">
-                    <span className="text-sm font-medium text-gray-700">Material Discussed: </span>
-                    <Link to={`/materials/${note.materials.id}`} className="text-coral hover:underline">
-                      {note.materials.name}
-                    </Link>
+                {notes.length === 0 && (
+                  <div className="text-center py-4 text-gray-500 text-sm">
+                    No communication notes yet. Add your first note to track interactions with this manufacturer.
                   </div>
                 )}
-                
-                <p className="text-gray-700">{note.notes}</p>
               </div>
-            ))}
-            
-            {notes.length === 0 && (
-              <div className="text-center py-8 text-gray-500">
-                No communication notes yet. Add your first note to track interactions with this manufacturer.
-              </div>
-            )}
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
 
       <Card>
         <CardHeader>
