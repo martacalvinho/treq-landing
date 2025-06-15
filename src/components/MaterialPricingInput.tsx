@@ -23,14 +23,14 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
   const [totalUnits, setTotalUnits] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Reset form when material changes
   useEffect(() => {
     setPricePerSqft(material.price_per_sqft?.toString() || '');
     setPricePerUnit(material.price_per_unit?.toString() || '');
     setUnitType(material.unit_type || 'sqft');
-    // Reset quantity fields when material changes
     setTotalArea('');
     setTotalUnits('');
-  }, [material]);
+  }, [material.id]); // Use material.id instead of material to prevent unnecessary resets
 
   const calculateTotal = () => {
     if (unitType === 'sqft' && pricePerSqft && totalArea) {
@@ -52,6 +52,7 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
         last_price_update: new Date().toISOString()
       };
 
+      // Update pricing based on unit type
       if (unitType === 'sqft' && pricePerSqft) {
         updates.price_per_sqft = parseFloat(pricePerSqft);
         updates.price_per_unit = null;
@@ -74,6 +75,11 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
       });
 
       onPricingUpdated();
+      
+      // Reset quantity fields after successful save
+      setTotalArea('');
+      setTotalUnits('');
+      
     } catch (error) {
       console.error('Error updating pricing:', error);
       toast({
@@ -185,7 +191,6 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
             disabled={saving || !hasChanges()}
             size="sm"
             className="h-8 text-xs"
-            key={`save-${material.id}`}
           >
             <Save className="h-3 w-3 mr-1" />
             {saving ? 'Saving...' : 'Save'}

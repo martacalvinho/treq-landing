@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
-import { DollarSign, TrendingUp, TrendingDown, Calculator } from 'lucide-react';
+import { DollarSign, TrendingUp, Calculator, Package } from 'lucide-react';
 
 interface PricingAnalyticsProps {
   type: 'manufacturer' | 'client' | 'project';
@@ -87,7 +87,6 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       m.price_per_sqft || m.price_per_unit
     ) || [];
 
-    // Calculate averages and totals
     const totalMaterials = materialsWithPricing.length;
     let totalPrice = 0;
     let totalSpend = 0;
@@ -98,13 +97,11 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       if (price) {
         totalPrice += price;
         
-        // Calculate spend from project materials
         const materialSpend = material.proj_materials?.reduce((sum: number, pm: any) => 
           sum + (pm.total_cost || 0), 0
         ) || 0;
         totalSpend += materialSpend;
 
-        // Category breakdown
         if (!categoryMap.has(material.category)) {
           categoryMap.set(material.category, {
             category: material.category,
@@ -127,38 +124,17 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       materialCount: cat.count
     }));
 
-    // Fetch recent price changes
-    const { data: priceHistory } = await supabase
-      .from('material_price_history')
-      .select(`
-        *, 
-        materials(name, manufacturer_id)
-      `)
-      .eq('studio_id', studioId)
-      .eq('materials.manufacturer_id', entityId)
-      .order('created_at', { ascending: false })
-      .limit(5);
-
-    const recentPriceChanges = priceHistory?.map(change => ({
-      materialName: change.materials?.name || 'Unknown',
-      oldPrice: 0, // Would need to calculate from previous record
-      newPrice: change.unit_type === 'sqft' ? change.price_per_sqft : change.price_per_unit,
-      changeDate: change.created_at,
-      changePercent: 0 // Would need previous price to calculate
-    })) || [];
-
     return {
       averagePrice: totalMaterials > 0 ? totalPrice / totalMaterials : 0,
       totalMaterials,
       totalSpend,
-      pricePerSqft: 0, // Not applicable for manufacturer view
+      pricePerSqft: 0,
       categoryBreakdown,
-      recentPriceChanges
+      recentPriceChanges: []
     };
   };
 
   const fetchClientPricing = async (): Promise<PricingData> => {
-    // Fetch projects for this client with material costs
     const { data: projects, error } = await supabase
       .from('projects')
       .select(`
@@ -211,12 +187,11 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: [] // Could be enhanced to show recent material additions
+      recentPriceChanges: []
     };
   };
 
   const fetchProjectPricing = async (): Promise<PricingData> => {
-    // Fetch project materials with costs
     const { data: projMaterials, error } = await supabase
       .from('proj_materials')
       .select(`
@@ -274,15 +249,32 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
   };
 
   if (loading) {
-    return <div className="text-sm text-gray-500">Loading pricing analytics...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-sm text-gray-500">Loading pricing analytics...</div>
+      </div>
+    );
   }
 
-  if (!pricingData) {
-    return <div className="text-sm text-gray-500">No pricing data available</div>;
+  if (!pricingData || pricingData.totalMaterials === 0) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
+          <div className="text-sm text-gray-500">No pricing data available</div>
+          <div className="text-xs text-gray-400 mt-1">
+            {type === 'manufacturer' ? 'Add materials with pricing to see analytics' :
+             type === 'client' ? 'Add projects with materials to see cost analytics' :
+             'Add materials with costs to see project analytics'}
+          </div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      {/* Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -300,7 +292,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-            <Calculator className="h-4 w-4 text-muted-foreground" />
+            <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{pricingData.totalMaterials}</div>
@@ -323,7 +315,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Cost per Sq Ft</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
+              <Calculator className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{formatCurrency(pricingData.pricePerSqft)}</div>
@@ -332,6 +324,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
         )}
       </div>
 
+      {/* Category Breakdown */}
       {pricingData.categoryBreakdown.length > 0 && (
         <Card>
           <CardHeader>
@@ -351,32 +344,6 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
                     <div className="font-bold">{formatCurrency(category.totalSpend)}</div>
                     <div className="text-sm text-gray-500">
                       Avg: {formatCurrency(category.averagePrice)}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {type === 'manufacturer' && pricingData.recentPriceChanges.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5" />
-              Recent Price Updates
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-2">
-              {pricingData.recentPriceChanges.map((change, index) => (
-                <div key={index} className="flex items-center justify-between p-2 border rounded">
-                  <span className="font-medium">{change.materialName}</span>
-                  <div className="text-right">
-                    <div className="font-bold">{formatCurrency(change.newPrice)}</div>
-                    <div className="text-sm text-gray-500">
-                      {new Date(change.changeDate).toLocaleDateString()}
                     </div>
                   </div>
                 </div>
