@@ -1,9 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { DollarSign, TrendingUp, Calculator, Package } from 'lucide-react';
+import { DollarSign, TrendingUp, Calculator, Package, ChevronDown, Settings } from 'lucide-react';
 
 interface PricingAnalyticsProps {
   type: 'manufacturer' | 'client' | 'project';
@@ -29,12 +30,15 @@ interface PricingData {
     changeDate: string;
     changePercent: number;
   }>;
+  hasPricingData: boolean;
 }
 
 const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps) => {
   const { studioId } = useAuth();
   const [pricingData, setPricingData] = useState<PricingData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [advancedPricingEnabled, setAdvancedPricingEnabled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (entityId && studioId) {
@@ -51,7 +55,8 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
         totalSpend: 0,
         pricePerSqft: 0,
         categoryBreakdown: [],
-        recentPriceChanges: []
+        recentPriceChanges: [],
+        hasPricingData: false
       };
 
       if (type === 'manufacturer') {
@@ -63,6 +68,11 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       }
 
       setPricingData(pricingInsights);
+      
+      // Auto-enable advanced pricing if there's pricing data
+      if (pricingInsights.hasPricingData) {
+        setAdvancedPricingEnabled(true);
+      }
     } catch (error) {
       console.error('Error fetching pricing data:', error);
     } finally {
@@ -91,6 +101,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     let totalPrice = 0;
     let totalSpend = 0;
     const categoryMap = new Map();
+    const hasPricingData = materialsWithPricing.length > 0;
 
     materialsWithPricing.forEach(material => {
       const price = material.unit_type === 'sqft' ? material.price_per_sqft : material.price_per_unit;
@@ -130,7 +141,8 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: 0,
       categoryBreakdown,
-      recentPriceChanges: []
+      recentPriceChanges: [],
+      hasPricingData
     };
   };
 
@@ -153,10 +165,12 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     let totalMaterials = 0;
     let totalSqft = 0;
     const categoryMap = new Map();
+    let hasPricingData = false;
 
     projects?.forEach(project => {
       project.proj_materials?.forEach((pm: any) => {
         const cost = pm.total_cost || 0;
+        if (cost > 0) hasPricingData = true;
         totalSpend += cost;
         totalMaterials += 1;
         totalSqft += pm.square_feet || 0;
@@ -187,7 +201,8 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: []
+      recentPriceChanges: [],
+      hasPricingData
     };
   };
 
@@ -206,9 +221,11 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     let totalSpend = 0;
     let totalSqft = 0;
     const categoryMap = new Map();
+    let hasPricingData = false;
 
     projMaterials?.forEach(pm => {
       const cost = pm.total_cost || 0;
+      if (cost > 0) hasPricingData = true;
       totalSpend += cost;
       totalSqft += pm.square_feet || 0;
 
@@ -237,7 +254,8 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: []
+      recentPriceChanges: [],
+      hasPricingData
     };
   };
 
@@ -256,103 +274,126 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     );
   }
 
-  if (!pricingData || pricingData.totalMaterials === 0) {
+  // Don't show the component at all if advanced pricing is disabled or no pricing data exists
+  if (!advancedPricingEnabled || !pricingData?.hasPricingData) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <Package className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <div className="text-sm text-gray-500">No pricing data available</div>
-          <div className="text-xs text-gray-400 mt-1">
-            {type === 'manufacturer' ? 'Add materials with pricing to see analytics' :
-             type === 'client' ? 'Add projects with materials to see cost analytics' :
-             'Add materials with costs to see project analytics'}
+      <div className="flex items-center justify-between p-4 border border-dashed border-gray-300 rounded-lg">
+        <div className="flex items-center gap-3">
+          <Settings className="h-5 w-5 text-gray-400" />
+          <div>
+            <div className="text-sm font-medium text-gray-700">Advanced Pricing Analytics</div>
+            <div className="text-xs text-gray-500">
+              Add material pricing to unlock cost insights and analytics
+            </div>
           </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setAdvancedPricingEnabled(true)}
+          disabled={!pricingData?.hasPricingData}
+        >
+          {pricingData?.hasPricingData ? 'Enable Analytics' : 'No Pricing Data'}
+        </Button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {type === 'manufacturer' ? 'Avg Material Price' : 
-               type === 'client' ? 'Avg Cost per Material' : 'Avg Material Cost'}
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(pricingData.averagePrice)}</div>
-          </CardContent>
-        </Card>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger asChild>
+        <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+          <div className="flex items-center gap-2">
+            <TrendingUp className="h-5 w-5 text-coral" />
+            <span className="font-medium">Advanced Pricing Analytics</span>
+          </div>
+          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+        </Button>
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent>
+        <div className="space-y-6 pt-4">
+          {/* Summary Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {type === 'manufacturer' ? 'Avg Material Price' : 
+                   type === 'client' ? 'Avg Cost per Material' : 'Avg Material Cost'}
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(pricingData.averagePrice)}</div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{pricingData.totalMaterials}</div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
+                <Package className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{pricingData.totalMaterials}</div>
+              </CardContent>
+            </Card>
 
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {type === 'manufacturer' ? 'Total Revenue' : 'Total Spend'}
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(pricingData.totalSpend)}</div>
-          </CardContent>
-        </Card>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  {type === 'manufacturer' ? 'Total Revenue' : 'Total Spend'}
+                </CardTitle>
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(pricingData.totalSpend)}</div>
+              </CardContent>
+            </Card>
 
-        {(type === 'client' || type === 'project') && (
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Cost per Sq Ft</CardTitle>
-              <Calculator className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatCurrency(pricingData.pricePerSqft)}</div>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+            {(type === 'client' || type === 'project') && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Cost per Sq Ft</CardTitle>
+                  <Calculator className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{formatCurrency(pricingData.pricePerSqft)}</div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
 
-      {/* Category Breakdown */}
-      {pricingData.categoryBreakdown.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Cost Breakdown by Category</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {pricingData.categoryBreakdown.map((category, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <div className="font-medium">{category.category}</div>
-                    <div className="text-sm text-gray-500">
-                      {category.materialCount} material{category.materialCount !== 1 ? 's' : ''}
+          {/* Category Breakdown */}
+          {pricingData.categoryBreakdown.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Cost Breakdown by Category</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {pricingData.categoryBreakdown.map((category, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <div className="font-medium">{category.category}</div>
+                        <div className="text-sm text-gray-500">
+                          {category.materialCount} material{category.materialCount !== 1 ? 's' : ''}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-bold">{formatCurrency(category.totalSpend)}</div>
+                        <div className="text-sm text-gray-500">
+                          Avg: {formatCurrency(category.averagePrice)}
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-bold">{formatCurrency(category.totalSpend)}</div>
-                    <div className="text-sm text-gray-500">
-                      Avg: {formatCurrency(category.averagePrice)}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-    </div>
+              </CardContent>
+            </Card>
+          )}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
