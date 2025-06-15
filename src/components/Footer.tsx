@@ -13,7 +13,7 @@ const Footer = () => {
           
           <div className="flex justify-center gap-8 mb-8">
             <a href="mailto:hello@treqy.com" className="text-gray-400 hover:text-coral transition-colors duration-200">
-              Email
+              hello@treqy.com
             </a>
             <a href="/terms" className="text-gray-400 hover:text-coral transition-colors duration-200">
               Terms of Service
