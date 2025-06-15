@@ -28,6 +28,7 @@ const GetStarted = () => {
     phone: '',
     selectedPlan: initialPlan,
     monthlyMaterials: [250],
+    onboardingMaterials: [300],
     onboardingInterest: 'yes',
     message: ''
   });
@@ -39,6 +40,13 @@ const GetStarted = () => {
     starter: 'Starter',
     studio: 'Studio', 
     growth: 'Growth'
+  };
+
+  const calculateOnboardingPrice = (materials: number) => {
+    if (materials <= 100) return 99;
+    if (materials <= 500) return 499;
+    if (materials <= 1500) return 999;
+    return 999 + Math.ceil((materials - 1500) * 1.5);
   };
 
   const handleInputChange = (field: string, value: any) => {
@@ -72,7 +80,10 @@ const GetStarted = () => {
 
       // Send email notification to team
       await supabase.functions.invoke('send-lead-notification', {
-        body: formData
+        body: {
+          ...formData,
+          onboardingMaterials: formData.onboardingMaterials[0]
+        }
       });
 
       setSubmitted(true);
@@ -221,6 +232,28 @@ const GetStarted = () => {
                       </div>
                     </RadioGroup>
                   </div>
+
+                  {formData.onboardingInterest === 'yes' && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <Label>Material History to Onboard: {formData.onboardingMaterials[0]} materials</Label>
+                      <Slider
+                        value={formData.onboardingMaterials}
+                        onValueChange={(value) => handleInputChange('onboardingMaterials', value)}
+                        max={2000}
+                        min={50}
+                        step={25}
+                        className="mt-2 mb-4"
+                      />
+                      <div className="text-center">
+                        <div className="text-lg font-bold text-coral">
+                          ${calculateOnboardingPrice(formData.onboardingMaterials[0])} one-time
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          Setup fee for {formData.onboardingMaterials[0]} materials
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   <div>
                     <Label htmlFor="message">Anything else we should know?</Label>

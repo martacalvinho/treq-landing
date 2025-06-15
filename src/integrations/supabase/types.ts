@@ -152,6 +152,51 @@ export type Database = {
           },
         ]
       }
+      leads: {
+        Row: {
+          contact_name: string
+          created_at: string
+          email: string
+          id: string
+          message: string | null
+          monthly_materials_estimate: number
+          onboarding_interest: boolean
+          phone: string | null
+          selected_plan: string
+          status: string
+          studio_name: string
+          updated_at: string
+        }
+        Insert: {
+          contact_name: string
+          created_at?: string
+          email: string
+          id?: string
+          message?: string | null
+          monthly_materials_estimate: number
+          onboarding_interest?: boolean
+          phone?: string | null
+          selected_plan: string
+          status?: string
+          studio_name: string
+          updated_at?: string
+        }
+        Update: {
+          contact_name?: string
+          created_at?: string
+          email?: string
+          id?: string
+          message?: string | null
+          monthly_materials_estimate?: number
+          onboarding_interest?: boolean
+          phone?: string | null
+          selected_plan?: string
+          status?: string
+          studio_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       manufacturer_notes: {
         Row: {
           contact_date: string

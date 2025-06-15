@@ -19,6 +19,7 @@ serve(async (req) => {
       phone, 
       selectedPlan, 
       monthlyMaterials, 
+      onboardingMaterials,
       onboardingInterest, 
       message 
     } = await req.json()
@@ -28,6 +29,15 @@ serve(async (req) => {
       studio: 'Studio ($89/month)', 
       growth: 'Growth ($299/month)'
     }
+
+    const calculateOnboardingPrice = (materials: number) => {
+      if (materials <= 100) return 99;
+      if (materials <= 500) return 499;
+      if (materials <= 1500) return 999;
+      return 999 + Math.ceil((materials - 1500) * 1.5);
+    }
+
+    const onboardingPrice = onboardingInterest === 'yes' ? calculateOnboardingPrice(onboardingMaterials) : 0;
 
     const emailContent = `
 New Lead Submission - Treqy
@@ -40,6 +50,7 @@ Phone: ${phone || 'Not provided'}
 Selected Plan: ${planNames[selectedPlan as keyof typeof planNames]}
 Monthly Materials Estimate: ${monthlyMaterials[0]}
 Onboarding Interest: ${onboardingInterest === 'yes' ? 'Yes' : 'No'}
+${onboardingInterest === 'yes' ? `Material History to Onboard: ${onboardingMaterials} materials ($${onboardingPrice} one-time)` : ''}
 
 Message:
 ${message || 'No additional message'}
