@@ -79,7 +79,7 @@ const AuthPage = () => {
               Welcome to
               <br />
               <span className="text-coral bg-gradient-to-r from-coral to-coral-600 bg-clip-text text-transparent">
-                Materials Dashboard
+                Treqy
               </span>
             </h1>
             <p className="text-lg text-gray-600">
