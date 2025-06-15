@@ -45,7 +45,21 @@ const ProjectDetails = () => {
     try {
       const { data, error } = await supabase
         .from('proj_materials')
-        .select('*, materials(id, name, category)')
+        .select(`
+          *,
+          materials(
+            id, 
+            name, 
+            category, 
+            subcategory,
+            tag,
+            location,
+            notes,
+            reference_sku,
+            dimensions,
+            manufacturers(name)
+          )
+        `)
         .eq('project_id', id)
         .eq('studio_id', studioId);
 
@@ -187,15 +201,37 @@ const ProjectDetails = () => {
                   </Link>
                   <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
                     <span>Category: {projMaterial.materials?.category}</span>
-                    {projMaterial.quantity && (
-                      <span>Qty: {projMaterial.quantity} {projMaterial.unit || ''}</span>
+                    {projMaterial.materials?.subcategory && (
+                      <span>• {projMaterial.materials.subcategory}</span>
                     )}
-                    {projMaterial.location && (
-                      <span>Location: {projMaterial.location}</span>
+                    {projMaterial.materials?.manufacturers?.name && (
+                      <span>• Manufacturer: {projMaterial.materials.manufacturers.name}</span>
+                    )}
+                    {projMaterial.quantity && (
+                      <span>• Qty: {projMaterial.quantity} {projMaterial.unit || ''}</span>
                     )}
                   </div>
+                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                    {projMaterial.materials?.tag && (
+                      <span>Tag: {projMaterial.materials.tag}</span>
+                    )}
+                    {projMaterial.materials?.location && (
+                      <span>• Location: {projMaterial.materials.location}</span>
+                    )}
+                    {projMaterial.materials?.reference_sku && (
+                      <span>• SKU: {projMaterial.materials.reference_sku}</span>
+                    )}
+                  </div>
+                  {projMaterial.materials?.dimensions && (
+                    <div className="text-sm text-gray-500 mt-1">
+                      Dimensions: {projMaterial.materials.dimensions}
+                    </div>
+                  )}
+                  {projMaterial.materials?.notes && (
+                    <p className="text-sm text-gray-600 mt-1">Material Notes: {projMaterial.materials.notes}</p>
+                  )}
                   {projMaterial.notes && (
-                    <p className="text-sm text-gray-600 mt-1">{projMaterial.notes}</p>
+                    <p className="text-sm text-gray-600 mt-1">Project Notes: {projMaterial.notes}</p>
                   )}
                 </div>
                 {projMaterial.materials && (
