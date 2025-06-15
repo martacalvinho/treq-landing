@@ -120,7 +120,7 @@ const ManufacturerDetails = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 space-y-6">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -153,31 +153,6 @@ const ManufacturerDetails = () => {
                   <p className="text-gray-700 mt-1">{manufacturer.notes}</p>
                 </div>
               )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Materials Count</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{materials.length}</div>
-              <p className="text-sm text-gray-500">Materials from this manufacturer</p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FolderOpen className="h-5 w-5" />
-                Total Projects
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{projectsCount}</div>
-              <p className="text-sm text-gray-500">Projects using materials from this manufacturer</p>
             </CardContent>
           </Card>
 
@@ -234,6 +209,31 @@ const ManufacturerDetails = () => {
                   </div>
                 )}
               </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Materials Count</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{materials.length}</div>
+              <p className="text-sm text-gray-500">Materials from this manufacturer</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FolderOpen className="h-5 w-5" />
+                Total Projects
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{projectsCount}</div>
+              <p className="text-sm text-gray-500">Projects using materials from this manufacturer</p>
             </CardContent>
           </Card>
         </div>
