@@ -27,6 +27,9 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
     setPricePerSqft(material.price_per_sqft?.toString() || '');
     setPricePerUnit(material.price_per_unit?.toString() || '');
     setUnitType(material.unit_type || 'sqft');
+    // Reset quantity fields when material changes
+    setTotalArea('');
+    setTotalUnits('');
   }, [material]);
 
   const calculateTotal = () => {
@@ -182,6 +185,7 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
             disabled={saving || !hasChanges()}
             size="sm"
             className="h-8 text-xs"
+            key={`save-${material.id}`}
           >
             <Save className="h-3 w-3 mr-1" />
             {saving ? 'Saving...' : 'Save'}
