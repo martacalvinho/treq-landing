@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -101,10 +102,66 @@ const ClientDetails = () => {
             Back to Clients
           </Button>
         </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Client: {client.name}</h1>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">{client.name}</h1>
+          <p className="text-gray-600">Client Details</p>
+        </div>
       </div>
 
-      {/* Add Pricing Analytics Section */}
+      {/* Compact Overview */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold">{projects.length}</div>
+            <p className="text-sm text-gray-500">Total Projects</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold text-green-600">
+              {projects.filter(p => p.status === 'active').length}
+            </div>
+            <p className="text-sm text-gray-500">Active Projects</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <div className="text-2xl font-bold">{materials.length}</div>
+            <p className="text-sm text-gray-500">Materials Used</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4 text-center">
+            <Badge className={getClientStatusColor(client.status)}>
+              {client.status}
+            </Badge>
+            <p className="text-sm text-gray-500 mt-1">Status</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Client Information */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Client Information</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="text-sm font-medium text-gray-500">Name</label>
+              <p className="text-lg font-semibold">{client.name}</p>
+            </div>
+            {client.notes && (
+              <div>
+                <label className="text-sm font-medium text-gray-500">Notes</label>
+                <p className="text-gray-700">{client.notes}</p>
+              </div>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Pricing Analytics */}
       <Card>
         <CardHeader>
           <CardTitle>Material Cost Analytics</CardTitle>
@@ -119,98 +176,36 @@ const ClientDetails = () => {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Information</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Name</label>
-                  <p className="text-lg">{client.name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <div className="mt-1">
-                    <Badge className={getClientStatusColor(client.status)}>
-                      {client.status}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-              {client.notes && (
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Notes</label>
-                  <p className="text-gray-700 mt-1">{client.notes}</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        <div>
-          <Card>
-            <CardHeader>
-              <CardTitle>Client Stats</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="text-2xl font-bold">{projects.length}</div>
-                <p className="text-sm text-gray-500">Total Projects</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">
-                  {projects.filter(p => p.status === 'active').length}
-                </div>
-                <p className="text-sm text-gray-500">Active Projects</p>
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{materials.length}</div>
-                <p className="text-sm text-gray-500">Total Materials Used</p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
+      {/* Projects */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Projects</CardTitle>
-              <CardDescription>Projects associated with this client</CardDescription>
-            </div>
-          </div>
+          <CardTitle>Projects ({projects.length})</CardTitle>
+          <CardDescription>Projects associated with this client</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
+          <div className="space-y-3">
             {projects.map((project) => (
-              <div key={project.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-coral-100 rounded-lg">
-                    <Building2 className="h-6 w-6 text-coral-600" />
-                  </div>
-                  <div className="flex-1">
-                    <Link to={`/projects/${project.id}`} className="hover:text-coral">
-                      <h3 className="font-semibold">{project.name}</h3>
-                    </Link>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                      <span>Type: {project.type}</span>
-                      <Badge className={getStatusColor(project.status)}>
-                        {project.status}
-                      </Badge>
-                      {project.start_date && (
-                        <span>Start: {new Date(project.start_date).toLocaleDateString()}</span>
-                      )}
+              <Link key={project.id} to={`/projects/${project.id}`} className="block">
+                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-coral-100 rounded-lg">
+                      <Building2 className="h-5 w-5 text-coral-600" />
                     </div>
-                    {project.notes && (
-                      <p className="text-sm text-gray-600 mt-1">{project.notes}</p>
-                    )}
+                    <div>
+                      <h3 className="font-semibold">{project.name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <span>{project.type}</span>
+                        {project.start_date && (
+                          <span>• Start: {new Date(project.start_date).toLocaleDateString()}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
+                  <Badge className={getStatusColor(project.status)}>
+                    {project.status}
+                  </Badge>
                 </div>
-              </div>
+              </Link>
             ))}
             {projects.length === 0 && (
               <div className="text-center py-8 text-gray-500">
@@ -221,41 +216,42 @@ const ClientDetails = () => {
         </CardContent>
       </Card>
 
+      {/* Materials Used */}
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Materials Used</CardTitle>
-              <CardDescription>Materials used across all client projects</CardDescription>
-            </div>
-          </div>
+          <CardTitle>Materials Used ({materials.length})</CardTitle>
+          <CardDescription>Materials used across all client projects</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {materials.map((projMaterial) => (
-              <div key={projMaterial.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className="p-2 bg-coral-100 rounded-lg">
-                    <Package className="h-6 w-6 text-coral-600" />
-                  </div>
-                  <div className="flex-1">
-                    <Link to={`/materials/${projMaterial.materials?.id}`} className="hover:text-coral">
-                      <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
-                    </Link>
-                    <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                      <span>Category: {projMaterial.materials?.category}</span>
-                      <span>Project: {projMaterial.projects?.name}</span>
-                      {projMaterial.quantity && (
-                        <span>Qty: {projMaterial.quantity} {projMaterial.unit || ''}</span>
-                      )}
+          <div className="space-y-3">
+            {materials.slice(0, 10).map((projMaterial) => (
+              <Link key={projMaterial.id} to={`/materials/${projMaterial.materials?.id}`} className="block">
+                <div className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 bg-coral-100 rounded-lg">
+                      <Package className="h-5 w-5 text-coral-600" />
                     </div>
-                    {projMaterial.notes && (
-                      <p className="text-sm text-gray-600 mt-1">{projMaterial.notes}</p>
-                    )}
+                    <div>
+                      <h3 className="font-semibold">{projMaterial.materials?.name}</h3>
+                      <div className="flex items-center gap-2 text-sm text-gray-500">
+                        <span>{projMaterial.materials?.category}</span>
+                        <span>• {projMaterial.projects?.name}</span>
+                        {projMaterial.quantity && (
+                          <span>• Qty: {projMaterial.quantity} {projMaterial.unit || ''}</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))}
+            {materials.length > 10 && (
+              <div className="text-center py-4">
+                <p className="text-sm text-gray-500">
+                  Showing 10 of {materials.length} materials. View individual projects for complete lists.
+                </p>
+              </div>
+            )}
             {materials.length === 0 && (
               <div className="text-center py-8 text-gray-500">
                 No materials used in this client's projects yet.
