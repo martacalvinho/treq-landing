@@ -112,6 +112,7 @@ const PricingSection = () => {
               ))}
             </div>
             <div className="text-center mt-8">
+              
               <p className="text-gray-600 mb-4">
                 Extra materials: $1.50/month each • Enterprise plans available for 1,500+ materials • No limit on number of users per studio
               </p>
