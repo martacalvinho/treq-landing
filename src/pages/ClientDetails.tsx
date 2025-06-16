@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Building2, Package, Settings, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Building2, Package, TrendingUp } from 'lucide-react';
 import PricingAnalytics from '@/components/PricingAnalytics';
 
 const ClientDetails = () => {
@@ -15,6 +15,7 @@ const ClientDetails = () => {
   const [client, setClient] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
+  const [totalMaterialsCount, setTotalMaterialsCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
 
@@ -63,6 +64,7 @@ const ClientDetails = () => {
 
         if (materialsError) throw materialsError;
         setMaterials(materialsData || []);
+        setTotalMaterialsCount(materialsData?.length || 0);
       }
     } catch (error) {
       console.error('Error fetching client details:', error);
@@ -96,18 +98,38 @@ const ClientDetails = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/clients">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Clients
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">{client.name}</h1>
-          <p className="text-gray-600">Client Details</p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/clients">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Clients
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">{client.name}</h1>
+            <p className="text-gray-600">Client Details</p>
+          </div>
         </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
+        >
+          <TrendingUp className="h-4 w-4 mr-2" />
+          Pricing Analytics
+        </Button>
       </div>
+
+      {/* Pricing Analytics */}
+      {showAdvancedAnalytics && (
+        <PricingAnalytics 
+          type="client" 
+          entityId={id!} 
+          entityName={client.name}
+          onClose={() => setShowAdvancedAnalytics(false)}
+        />
+      )}
 
       {/* Compact Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
@@ -127,7 +149,7 @@ const ClientDetails = () => {
         </Card>
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold">{materials.length}</div>
+            <div className="text-2xl font-bold">{totalMaterialsCount}</div>
             <p className="text-sm text-gray-500">Materials Used</p>
           </CardContent>
         </Card>
@@ -169,44 +191,6 @@ const ClientDetails = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Advanced Analytics Button */}
-      <div className="flex items-center justify-between p-4 border border-dashed border-gray-300 rounded-lg">
-        <div className="flex items-center gap-3">
-          <Settings className="h-5 w-5 text-gray-400" />
-          <div>
-            <div className="text-sm font-medium text-gray-700">Advanced Material Cost Analytics</div>
-            <div className="text-xs text-gray-500">
-              View detailed cost breakdowns and spending insights
-            </div>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
-        >
-          <TrendingUp className="h-4 w-4 mr-2" />
-          {showAdvancedAnalytics ? 'Hide Analytics' : 'Show Analytics'}
-        </Button>
-      </div>
-
-      {/* Pricing Analytics */}
-      {showAdvancedAnalytics && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Material Cost Analytics</CardTitle>
-            <CardDescription>Cost breakdown and spending insights for {client.name}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PricingAnalytics 
-              type="client" 
-              entityId={id!} 
-              entityName={client.name} 
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Projects */}
       <Card>
@@ -251,7 +235,7 @@ const ClientDetails = () => {
       {/* Materials Used */}
       <Card>
         <CardHeader>
-          <CardTitle>Materials Used ({materials.length})</CardTitle>
+          <CardTitle>Materials Used ({totalMaterialsCount})</CardTitle>
           <CardDescription>Materials used across all client projects</CardDescription>
         </CardHeader>
         <CardContent>
@@ -280,7 +264,7 @@ const ClientDetails = () => {
             {materials.length > 10 && (
               <div className="text-center py-4">
                 <p className="text-sm text-gray-500">
-                  Showing 10 of {materials.length} materials. View individual projects for complete lists.
+                  Showing 10 of {totalMaterialsCount} materials. View individual projects for complete lists.
                 </p>
               </div>
             )}

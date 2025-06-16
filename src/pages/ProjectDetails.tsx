@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -5,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Edit, Plus } from 'lucide-react';
+import { ArrowLeft, Edit, Plus, TrendingUp } from 'lucide-react';
 import EditProjectForm from '@/components/forms/EditProjectForm';
 import EditMaterialForm from '@/components/forms/EditMaterialForm';
 import PricingAnalytics from '@/components/PricingAnalytics';
@@ -17,6 +18,7 @@ const ProjectDetails = () => {
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddMaterial, setShowAddMaterial] = useState(false);
+  const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
 
   useEffect(() => {
     if (id && studioId) {
@@ -90,36 +92,59 @@ const ProjectDetails = () => {
     fetchProjectMaterials();
   };
 
+  const handleDeleteMaterial = async (projMaterialId: string) => {
+    try {
+      // Only delete the proj_material entry, not the material itself
+      const { error } = await supabase
+        .from('proj_materials')
+        .delete()
+        .eq('id', projMaterialId)
+        .eq('studio_id', studioId);
+
+      if (error) throw error;
+      
+      // Refresh the materials list
+      fetchProjectMaterials();
+    } catch (error) {
+      console.error('Error deleting material from project:', error);
+    }
+  };
+
   if (loading || !project) {
     return <div className="p-6">Loading project details...</div>;
   }
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/projects">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Projects
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Project: {project.name}</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/projects">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Projects
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900">Project: {project.name}</h1>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
+        >
+          <TrendingUp className="h-4 w-4 mr-2" />
+          Pricing Analytics
+        </Button>
       </div>
 
-      {/* Add Pricing Analytics Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Project Cost Analytics</CardTitle>
-          <CardDescription>Material cost breakdown and pricing insights for this project</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PricingAnalytics 
-            type="project" 
-            entityId={id!} 
-            entityName={project.name} 
-          />
-        </CardContent>
-      </Card>
+      {/* Pricing Analytics */}
+      {showAdvancedAnalytics && (
+        <PricingAnalytics 
+          type="project" 
+          entityId={id!} 
+          entityName={project.name}
+          onClose={() => setShowAdvancedAnalytics(false)}
+        />
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
@@ -249,12 +274,22 @@ const ProjectDetails = () => {
                     <p className="text-sm text-gray-600 mt-1">Project Notes: {projMaterial.notes}</p>
                   )}
                 </div>
-                {projMaterial.materials && (
-                  <EditMaterialForm 
-                    material={projMaterial.materials} 
-                    onMaterialUpdated={handleMaterialUpdated} 
-                  />
-                )}
+                <div className="flex items-center gap-2">
+                  {projMaterial.materials && (
+                    <EditMaterialForm 
+                      material={projMaterial.materials} 
+                      onMaterialUpdated={handleMaterialUpdated} 
+                    />
+                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => handleDeleteMaterial(projMaterial.id)}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    Remove
+                  </Button>
+                </div>
               </div>
             ))}
             {materials.length === 0 && (

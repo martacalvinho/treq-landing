@@ -1,15 +1,16 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { DollarSign, TrendingUp, Calculator, Package, ChevronDown, Settings } from 'lucide-react';
+import { DollarSign, TrendingUp, Calculator, Package, Settings, X } from 'lucide-react';
 
 interface PricingAnalyticsProps {
   type: 'manufacturer' | 'client' | 'project';
   entityId: string;
   entityName: string;
+  onClose: () => void;
 }
 
 interface PricingData {
@@ -23,22 +24,13 @@ interface PricingData {
     totalSpend: number;
     materialCount: number;
   }>;
-  recentPriceChanges: Array<{
-    materialName: string;
-    oldPrice: number;
-    newPrice: number;
-    changeDate: string;
-    changePercent: number;
-  }>;
   hasPricingData: boolean;
 }
 
-const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps) => {
+const PricingAnalytics = ({ type, entityId, entityName, onClose }: PricingAnalyticsProps) => {
   const { studioId } = useAuth();
   const [pricingData, setPricingData] = useState<PricingData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [advancedPricingEnabled, setAdvancedPricingEnabled] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     if (entityId && studioId) {
@@ -55,7 +47,6 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
         totalSpend: 0,
         pricePerSqft: 0,
         categoryBreakdown: [],
-        recentPriceChanges: [],
         hasPricingData: false
       };
 
@@ -68,11 +59,6 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       }
 
       setPricingData(pricingInsights);
-      
-      // Auto-enable advanced pricing if there's pricing data
-      if (pricingInsights.hasPricingData) {
-        setAdvancedPricingEnabled(true);
-      }
     } catch (error) {
       console.error('Error fetching pricing data:', error);
     } finally {
@@ -85,8 +71,8 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     const { data: materials, error } = await supabase
       .from('materials')
       .select(`
-        id, name, category, price_per_sqft, price_per_unit, unit_type,
-        proj_materials(quantity, cost_per_sqft, cost_per_unit, total_cost)
+        id, name, category, price_per_sqft, price_per_unit, unit_type, total_area, total_units,
+        proj_materials(quantity, cost_per_sqft, cost_per_unit, total_cost, square_feet)
       `)
       .eq('manufacturer_id', entityId)
       .eq('studio_id', studioId);
@@ -94,38 +80,63 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     if (error) throw error;
 
     const materialsWithPricing = materials?.filter(m => 
-      m.price_per_sqft || m.price_per_unit
+      (m.price_per_sqft && m.price_per_sqft > 0) || (m.price_per_unit && m.price_per_unit > 0)
     ) || [];
+
+    if (materialsWithPricing.length === 0) {
+      return {
+        averagePrice: 0,
+        totalMaterials: 0,
+        totalSpend: 0,
+        pricePerSqft: 0,
+        categoryBreakdown: [],
+        hasPricingData: false
+      };
+    }
 
     const totalMaterials = materialsWithPricing.length;
     let totalPrice = 0;
     let totalSpend = 0;
+    let totalSqft = 0;
     const categoryMap = new Map();
-    const hasPricingData = materialsWithPricing.length > 0;
 
     materialsWithPricing.forEach(material => {
-      const price = material.unit_type === 'sqft' ? material.price_per_sqft : material.price_per_unit;
-      if (price) {
-        totalPrice += price;
-        
-        const materialSpend = material.proj_materials?.reduce((sum: number, pm: any) => 
-          sum + (pm.total_cost || 0), 0
-        ) || 0;
-        totalSpend += materialSpend;
+      let materialPrice = 0;
+      let materialSpend = 0;
 
-        if (!categoryMap.has(material.category)) {
-          categoryMap.set(material.category, {
-            category: material.category,
-            totalPrice: 0,
-            totalSpend: 0,
-            count: 0
-          });
-        }
-        const categoryData = categoryMap.get(material.category);
-        categoryData.totalPrice += price;
-        categoryData.totalSpend += materialSpend;
-        categoryData.count += 1;
+      if (material.unit_type === 'sqft' && material.price_per_sqft && material.total_area) {
+        materialPrice = material.price_per_sqft * material.total_area;
+      } else if (material.unit_type === 'unit' && material.price_per_unit && material.total_units) {
+        materialPrice = material.price_per_unit * material.total_units;
       }
+
+      // Calculate spend from project materials
+      material.proj_materials?.forEach((pm: any) => {
+        if (pm.total_cost) {
+          materialSpend += pm.total_cost;
+        } else if (pm.cost_per_sqft && pm.square_feet) {
+          materialSpend += pm.cost_per_sqft * pm.square_feet;
+        } else if (pm.cost_per_unit && pm.quantity) {
+          materialSpend += pm.cost_per_unit * pm.quantity;
+        }
+        totalSqft += pm.square_feet || 0;
+      });
+
+      totalPrice += materialPrice;
+      totalSpend += materialSpend;
+
+      if (!categoryMap.has(material.category)) {
+        categoryMap.set(material.category, {
+          category: material.category,
+          totalPrice: 0,
+          totalSpend: 0,
+          count: 0
+        });
+      }
+      const categoryData = categoryMap.get(material.category);
+      categoryData.totalPrice += materialPrice;
+      categoryData.totalSpend += materialSpend;
+      categoryData.count += 1;
     });
 
     const categoryBreakdown = Array.from(categoryMap.values()).map(cat => ({
@@ -139,10 +150,9 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       averagePrice: totalMaterials > 0 ? totalPrice / totalMaterials : 0,
       totalMaterials,
       totalSpend,
-      pricePerSqft: 0,
+      pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: [],
-      hasPricingData
+      hasPricingData: true
     };
   };
 
@@ -153,7 +163,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
         id, name,
         proj_materials(
           quantity, cost_per_sqft, cost_per_unit, total_cost, square_feet,
-          materials(category, price_per_sqft, price_per_unit, unit_type)
+          materials(id, category, price_per_sqft, price_per_unit, unit_type, total_area, total_units)
         )
       `)
       .eq('client_id', entityId)
@@ -169,26 +179,54 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
 
     projects?.forEach(project => {
       project.proj_materials?.forEach((pm: any) => {
-        const cost = pm.total_cost || 0;
-        if (cost > 0) hasPricingData = true;
-        totalSpend += cost;
-        totalMaterials += 1;
-        totalSqft += pm.square_feet || 0;
+        const material = pm.materials;
+        if (!material) return;
 
-        const category = pm.materials?.category || 'Unknown';
-        if (!categoryMap.has(category)) {
-          categoryMap.set(category, {
-            category,
-            totalSpend: 0,
-            materialCount: 0,
-            averagePrice: 0
-          });
+        let materialCost = 0;
+        
+        // Use saved cost from proj_materials first, then calculate from material pricing
+        if (pm.total_cost && pm.total_cost > 0) {
+          materialCost = pm.total_cost;
+          hasPricingData = true;
+        } else if (material.price_per_sqft && pm.square_feet) {
+          materialCost = material.price_per_sqft * pm.square_feet;
+          hasPricingData = true;
+        } else if (material.price_per_unit && pm.quantity) {
+          materialCost = material.price_per_unit * pm.quantity;
+          hasPricingData = true;
         }
-        const categoryData = categoryMap.get(category);
-        categoryData.totalSpend += cost;
-        categoryData.materialCount += 1;
+
+        if (materialCost > 0) {
+          totalSpend += materialCost;
+          totalMaterials += 1;
+          totalSqft += pm.square_feet || 0;
+
+          const category = material.category || 'Unknown';
+          if (!categoryMap.has(category)) {
+            categoryMap.set(category, {
+              category,
+              totalSpend: 0,
+              materialCount: 0,
+              averagePrice: 0
+            });
+          }
+          const categoryData = categoryMap.get(category);
+          categoryData.totalSpend += materialCost;
+          categoryData.materialCount += 1;
+        }
       });
     });
+
+    if (!hasPricingData) {
+      return {
+        averagePrice: 0,
+        totalMaterials: 0,
+        totalSpend: 0,
+        pricePerSqft: 0,
+        categoryBreakdown: [],
+        hasPricingData: false
+      };
+    }
 
     const categoryBreakdown = Array.from(categoryMap.values()).map(cat => ({
       ...cat,
@@ -201,8 +239,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: [],
-      hasPricingData
+      hasPricingData: true
     };
   };
 
@@ -211,7 +248,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       .from('proj_materials')
       .select(`
         quantity, cost_per_sqft, cost_per_unit, total_cost, square_feet,
-        materials(category, name, price_per_sqft, price_per_unit, unit_type)
+        materials(id, category, name, price_per_sqft, price_per_unit, unit_type, total_area, total_units)
       `)
       .eq('project_id', entityId)
       .eq('studio_id', studioId);
@@ -224,24 +261,52 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
     let hasPricingData = false;
 
     projMaterials?.forEach(pm => {
-      const cost = pm.total_cost || 0;
-      if (cost > 0) hasPricingData = true;
-      totalSpend += cost;
-      totalSqft += pm.square_feet || 0;
+      const material = pm.materials;
+      if (!material) return;
 
-      const category = pm.materials?.category || 'Unknown';
-      if (!categoryMap.has(category)) {
-        categoryMap.set(category, {
-          category,
-          totalSpend: 0,
-          materialCount: 0,
-          averagePrice: 0
-        });
+      let materialCost = 0;
+      
+      // Use saved cost from proj_materials first, then calculate from material pricing
+      if (pm.total_cost && pm.total_cost > 0) {
+        materialCost = pm.total_cost;
+        hasPricingData = true;
+      } else if (material.price_per_sqft && pm.square_feet) {
+        materialCost = material.price_per_sqft * pm.square_feet;
+        hasPricingData = true;
+      } else if (material.price_per_unit && pm.quantity) {
+        materialCost = material.price_per_unit * pm.quantity;
+        hasPricingData = true;
       }
-      const categoryData = categoryMap.get(category);
-      categoryData.totalSpend += cost;
-      categoryData.materialCount += 1;
+
+      if (materialCost > 0) {
+        totalSpend += materialCost;
+        totalSqft += pm.square_feet || 0;
+
+        const category = material.category || 'Unknown';
+        if (!categoryMap.has(category)) {
+          categoryMap.set(category, {
+            category,
+            totalSpend: 0,
+            materialCount: 0,
+            averagePrice: 0
+          });
+        }
+        const categoryData = categoryMap.get(category);
+        categoryData.totalSpend += materialCost;
+        categoryData.materialCount += 1;
+      }
     });
+
+    if (!hasPricingData) {
+      return {
+        averagePrice: 0,
+        totalMaterials: 0,
+        totalSpend: 0,
+        pricePerSqft: 0,
+        categoryBreakdown: [],
+        hasPricingData: false
+      };
+    }
 
     const categoryBreakdown = Array.from(categoryMap.values()).map(cat => ({
       ...cat,
@@ -254,8 +319,7 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
       totalSpend,
       pricePerSqft: totalSqft > 0 ? totalSpend / totalSqft : 0,
       categoryBreakdown,
-      recentPriceChanges: [],
-      hasPricingData
+      hasPricingData: true
     };
   };
 
@@ -268,132 +332,135 @@ const PricingAnalytics = ({ type, entityId, entityName }: PricingAnalyticsProps)
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-sm text-gray-500">Loading pricing analytics...</div>
-      </div>
+      <Card>
+        <CardContent className="p-6">
+          <div className="flex items-center justify-center">
+            <div className="text-sm text-gray-500">Loading pricing analytics...</div>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
-  // Don't show the component at all if advanced pricing is disabled or no pricing data exists
-  if (!advancedPricingEnabled || !pricingData?.hasPricingData) {
+  if (!pricingData?.hasPricingData) {
     return (
-      <div className="flex items-center justify-between p-4 border border-dashed border-gray-300 rounded-lg">
-        <div className="flex items-center gap-3">
-          <Settings className="h-5 w-5 text-gray-400" />
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
           <div>
-            <div className="text-sm font-medium text-gray-700">Advanced Pricing Analytics</div>
-            <div className="text-xs text-gray-500">
-              Add material pricing to unlock cost insights and analytics
+            <CardTitle className="text-lg">Pricing Analytics</CardTitle>
+            <p className="text-sm text-gray-500">No pricing data available</p>
+          </div>
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            <X className="h-4 w-4" />
+          </Button>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-3 p-4 border border-dashed border-gray-300 rounded-lg">
+            <Settings className="h-5 w-5 text-gray-400" />
+            <div>
+              <div className="text-sm font-medium text-gray-700">No Pricing Data</div>
+              <div className="text-xs text-gray-500">
+                Add material pricing to unlock cost insights and analytics
+              </div>
             </div>
           </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setAdvancedPricingEnabled(true)}
-          disabled={!pricingData?.hasPricingData}
-        >
-          {pricingData?.hasPricingData ? 'Enable Analytics' : 'No Pricing Data'}
-        </Button>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger asChild>
-        <Button variant="ghost" className="w-full justify-between p-4 h-auto">
-          <div className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-coral" />
-            <span className="font-medium">Advanced Pricing Analytics</span>
-          </div>
-          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <div>
+          <CardTitle className="text-lg">Pricing Analytics</CardTitle>
+          <p className="text-sm text-gray-500">Material cost breakdown for {entityName}</p>
+        </div>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <X className="h-4 w-4" />
         </Button>
-      </CollapsibleTrigger>
-      
-      <CollapsibleContent>
-        <div className="space-y-6 pt-4">
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Summary Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {type === 'manufacturer' ? 'Avg Material Price' : 
+                 type === 'client' ? 'Avg Cost per Material' : 'Avg Material Cost'}
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(pricingData.averagePrice)}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
+              <Package className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{pricingData.totalMaterials}</div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                {type === 'manufacturer' ? 'Total Revenue' : 'Total Spend'}
+              </CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{formatCurrency(pricingData.totalSpend)}</div>
+            </CardContent>
+          </Card>
+
+          {(type === 'client' || type === 'project') && (
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {type === 'manufacturer' ? 'Avg Material Price' : 
-                   type === 'client' ? 'Avg Cost per Material' : 'Avg Material Cost'}
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <CardTitle className="text-sm font-medium">Cost per Sq Ft</CardTitle>
+                <Calculator className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(pricingData.averagePrice)}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Materials</CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{pricingData.totalMaterials}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  {type === 'manufacturer' ? 'Total Revenue' : 'Total Spend'}
-                </CardTitle>
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(pricingData.totalSpend)}</div>
-              </CardContent>
-            </Card>
-
-            {(type === 'client' || type === 'project') && (
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Cost per Sq Ft</CardTitle>
-                  <Calculator className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{formatCurrency(pricingData.pricePerSqft)}</div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-
-          {/* Category Breakdown */}
-          {pricingData.categoryBreakdown.length > 0 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Cost Breakdown by Category</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {pricingData.categoryBreakdown.map((category, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                      <div>
-                        <div className="font-medium">{category.category}</div>
-                        <div className="text-sm text-gray-500">
-                          {category.materialCount} material{category.materialCount !== 1 ? 's' : ''}
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <div className="font-bold">{formatCurrency(category.totalSpend)}</div>
-                        <div className="text-sm text-gray-500">
-                          Avg: {formatCurrency(category.averagePrice)}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <div className="text-2xl font-bold">{formatCurrency(pricingData.pricePerSqft)}</div>
               </CardContent>
             </Card>
           )}
         </div>
-      </CollapsibleContent>
-    </Collapsible>
+
+        {/* Category Breakdown */}
+        {pricingData.categoryBreakdown.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Cost Breakdown by Category</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {pricingData.categoryBreakdown.map((category, index) => (
+                  <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div>
+                      <div className="font-medium">{category.category}</div>
+                      <div className="text-sm text-gray-500">
+                        {category.materialCount} material{category.materialCount !== 1 ? 's' : ''}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="font-bold">{formatCurrency(category.totalSpend)}</div>
+                      <div className="text-sm text-gray-500">
+                        Avg: {formatCurrency(category.averagePrice)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Building, Package, Calendar, Clock, FileText, Settings, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Building, Package, Calendar, Clock, FileText, TrendingUp } from 'lucide-react';
 import AddManufacturerNoteForm from '@/components/forms/AddManufacturerNoteForm';
 import PricingAnalytics from '@/components/PricingAnalytics';
 
@@ -111,15 +111,35 @@ const ManufacturerDetails = () => {
 
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Link to="/manufacturers">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Manufacturers
-          </Button>
-        </Link>
-        <h1 className="text-3xl font-bold text-gray-900">Manufacturer: {manufacturer.name}</h1>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Link to="/manufacturers">
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Manufacturers
+            </Button>
+          </Link>
+          <h1 className="text-3xl font-bold text-gray-900">Manufacturer: {manufacturer.name}</h1>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
+        >
+          <TrendingUp className="h-4 w-4 mr-2" />
+          Pricing Analytics
+        </Button>
       </div>
+
+      {/* Pricing Analytics */}
+      {showAdvancedAnalytics && (
+        <PricingAnalytics 
+          type="manufacturer" 
+          entityId={id!} 
+          entityName={manufacturer.name}
+          onClose={() => setShowAdvancedAnalytics(false)}
+        />
+      )}
 
       {/* Compact Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -178,44 +198,6 @@ const ManufacturerDetails = () => {
           </div>
         </CardContent>
       </Card>
-
-      {/* Advanced Analytics Button */}
-      <div className="flex items-center justify-between p-4 border border-dashed border-gray-300 rounded-lg">
-        <div className="flex items-center gap-3">
-          <Settings className="h-5 w-5 text-gray-400" />
-          <div>
-            <div className="text-sm font-medium text-gray-700">Advanced Pricing Analytics</div>
-            <div className="text-xs text-gray-500">
-              View material pricing insights and trends for {manufacturer.name}
-            </div>
-          </div>
-        </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
-        >
-          <TrendingUp className="h-4 w-4 mr-2" />
-          {showAdvancedAnalytics ? 'Hide Analytics' : 'Show Analytics'}
-        </Button>
-      </div>
-
-      {/* Pricing Analytics */}
-      {showAdvancedAnalytics && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Pricing Analytics</CardTitle>
-            <CardDescription>Material pricing insights and trends for {manufacturer.name}</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PricingAnalytics 
-              type="manufacturer" 
-              entityId={id!} 
-              entityName={manufacturer.name} 
-            />
-          </CardContent>
-        </Card>
-      )}
 
       {/* Communication Notes - More Compact */}
       <Card>
