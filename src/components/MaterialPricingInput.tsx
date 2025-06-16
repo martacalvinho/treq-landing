@@ -19,8 +19,8 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
   const [pricePerSqft, setPricePerSqft] = useState(material.price_per_sqft?.toString() || '');
   const [pricePerUnit, setPricePerUnit] = useState(material.price_per_unit?.toString() || '');
   const [unitType, setUnitType] = useState(material.unit_type || 'sqft');
-  const [totalArea, setTotalArea] = useState('');
-  const [totalUnits, setTotalUnits] = useState('');
+  const [totalArea, setTotalArea] = useState(material.total_area?.toString() || '');
+  const [totalUnits, setTotalUnits] = useState(material.total_units?.toString() || '');
   const [saving, setSaving] = useState(false);
 
   // Reset form when material changes
@@ -28,9 +28,9 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
     setPricePerSqft(material.price_per_sqft?.toString() || '');
     setPricePerUnit(material.price_per_unit?.toString() || '');
     setUnitType(material.unit_type || 'sqft');
-    setTotalArea('');
-    setTotalUnits('');
-  }, [material.id]); // Use material.id instead of material to prevent unnecessary resets
+    setTotalArea(material.total_area?.toString() || '');
+    setTotalUnits(material.total_units?.toString() || '');
+  }, [material.id]);
 
   const calculateTotal = () => {
     if (unitType === 'sqft' && pricePerSqft && totalArea) {
@@ -53,12 +53,16 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
       };
 
       // Update pricing based on unit type
-      if (unitType === 'sqft' && pricePerSqft) {
-        updates.price_per_sqft = parseFloat(pricePerSqft);
+      if (unitType === 'sqft') {
+        updates.price_per_sqft = pricePerSqft ? parseFloat(pricePerSqft) : null;
         updates.price_per_unit = null;
-      } else if (unitType === 'unit' && pricePerUnit) {
-        updates.price_per_unit = parseFloat(pricePerUnit);
+        updates.total_area = totalArea ? parseFloat(totalArea) : null;
+        updates.total_units = null;
+      } else if (unitType === 'unit') {
+        updates.price_per_unit = pricePerUnit ? parseFloat(pricePerUnit) : null;
         updates.price_per_sqft = null;
+        updates.total_units = totalUnits ? parseFloat(totalUnits) : null;
+        updates.total_area = null;
       }
 
       const { error } = await supabase
@@ -76,10 +80,6 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
 
       onPricingUpdated();
       
-      // Reset quantity fields after successful save
-      setTotalArea('');
-      setTotalUnits('');
-      
     } catch (error) {
       console.error('Error updating pricing:', error);
       toast({
@@ -96,10 +96,14 @@ const MaterialPricingInput = ({ material, onPricingUpdated }: MaterialPricingInp
     const currentPricePerSqft = material.price_per_sqft?.toString() || '';
     const currentPricePerUnit = material.price_per_unit?.toString() || '';
     const currentUnitType = material.unit_type || 'sqft';
+    const currentTotalArea = material.total_area?.toString() || '';
+    const currentTotalUnits = material.total_units?.toString() || '';
     
     return pricePerSqft !== currentPricePerSqft || 
            pricePerUnit !== currentPricePerUnit || 
-           unitType !== currentUnitType;
+           unitType !== currentUnitType ||
+           totalArea !== currentTotalArea ||
+           totalUnits !== currentTotalUnits;
   };
 
   const totalCost = calculateTotal();

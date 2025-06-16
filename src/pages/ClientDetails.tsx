@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Building2, Package } from 'lucide-react';
+import { ArrowLeft, Building2, Package, Settings, TrendingUp } from 'lucide-react';
 import PricingAnalytics from '@/components/PricingAnalytics';
 
 const ClientDetails = () => {
@@ -16,6 +16,7 @@ const ClientDetails = () => {
   const [projects, setProjects] = useState<any[]>([]);
   const [materials, setMaterials] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAdvancedAnalytics, setShowAdvancedAnalytics] = useState(false);
 
   useEffect(() => {
     if (id && studioId) {
@@ -151,30 +152,61 @@ const ClientDetails = () => {
               <label className="text-sm font-medium text-gray-500">Name</label>
               <p className="text-lg font-semibold">{client.name}</p>
             </div>
+            <div>
+              <label className="text-sm font-medium text-gray-500">Status</label>
+              <div className="mt-1">
+                <Badge className={getClientStatusColor(client.status)}>
+                  {client.status}
+                </Badge>
+              </div>
+            </div>
             {client.notes && (
-              <div>
+              <div className="md:col-span-2">
                 <label className="text-sm font-medium text-gray-500">Notes</label>
-                <p className="text-gray-700">{client.notes}</p>
+                <p className="text-gray-700 mt-1">{client.notes}</p>
               </div>
             )}
           </div>
         </CardContent>
       </Card>
 
+      {/* Advanced Analytics Button */}
+      <div className="flex items-center justify-between p-4 border border-dashed border-gray-300 rounded-lg">
+        <div className="flex items-center gap-3">
+          <Settings className="h-5 w-5 text-gray-400" />
+          <div>
+            <div className="text-sm font-medium text-gray-700">Advanced Material Cost Analytics</div>
+            <div className="text-xs text-gray-500">
+              View detailed cost breakdowns and spending insights
+            </div>
+          </div>
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setShowAdvancedAnalytics(!showAdvancedAnalytics)}
+        >
+          <TrendingUp className="h-4 w-4 mr-2" />
+          {showAdvancedAnalytics ? 'Hide Analytics' : 'Show Analytics'}
+        </Button>
+      </div>
+
       {/* Pricing Analytics */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Material Cost Analytics</CardTitle>
-          <CardDescription>Cost breakdown and spending insights for {client.name}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PricingAnalytics 
-            type="client" 
-            entityId={id!} 
-            entityName={client.name} 
-          />
-        </CardContent>
-      </Card>
+      {showAdvancedAnalytics && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Material Cost Analytics</CardTitle>
+            <CardDescription>Cost breakdown and spending insights for {client.name}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <PricingAnalytics 
+              type="client" 
+              entityId={id!} 
+              entityName={client.name} 
+            />
+          </CardContent>
+        </Card>
+      )}
 
       {/* Projects */}
       <Card>
