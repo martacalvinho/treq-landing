@@ -18,6 +18,7 @@ const formSchema = z.object({
   last_name: z.string().min(1, 'Last name is required'),
   role: z.enum(['admin', 'studio_user']),
   studio_id: z.string().optional(),
+  temporary_password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 interface AddUserFormProps {
@@ -38,6 +39,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       last_name: '',
       role: 'studio_user',
       studio_id: 'no-studio',
+      temporary_password: 'TempPassword123!',
     },
   });
 
@@ -45,39 +47,26 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
     try {
       setLoading(true);
       
-      // Send invitation email instead of creating user directly
-      const { error } = await supabase.auth.admin.inviteUserByEmail(values.email, {
-        data: {
-          first_name: values.first_name,
-          last_name: values.last_name,
-          role: values.role,
-          studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
-        },
-        redirectTo: `${window.location.origin}/dashboard`
+      // Create user with temporary password
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.temporary_password,
+        options: {
+          data: {
+            first_name: values.first_name,
+            last_name: values.last_name,
+            role: values.role,
+            studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
+          },
+          emailRedirectTo: `${window.location.origin}/dashboard`
+        }
       });
 
-      if (error) {
-        // Fallback: Try regular signup invitation
-        const { error: signUpError } = await supabase.auth.signUp({
-          email: values.email,
-          password: 'TempPassword123!', // User will need to reset
-          options: {
-            data: {
-              first_name: values.first_name,
-              last_name: values.last_name,
-              role: values.role,
-              studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
-            },
-            emailRedirectTo: `${window.location.origin}/dashboard`
-          }
-        });
-
-        if (signUpError) throw signUpError;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "User invitation sent successfully. They will receive an email to complete their account setup.",
+        description: `User created successfully with temporary password: ${values.temporary_password}. They should change this password after logging in.`,
       });
 
       form.reset();
@@ -87,7 +76,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to send user invitation",
+        description: error.message || "Failed to create user",
         variant: "destructive",
       });
     } finally {
@@ -199,12 +188,26 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
               )}
             />
 
+            <FormField
+              control={form.control}
+              name="temporary_password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Temporary Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="Enter temporary password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
             <div className="flex justify-end gap-2">
               <Button type="button" variant="outline" onClick={() => setOpen(false)}>
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Sending Invitation...' : 'Send Invitation'}
+                {loading ? 'Creating User...' : 'Create User'}
               </Button>
             </div>
           </form>
