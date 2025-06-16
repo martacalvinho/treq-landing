@@ -16,7 +16,6 @@ const formSchema = z.object({
   email: z.string().email('Invalid email address'),
   first_name: z.string().min(1, 'First name is required'),
   last_name: z.string().min(1, 'Last name is required'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
   role: z.enum(['admin', 'studio_user']),
   studio_id: z.string().optional(),
 });
@@ -37,7 +36,6 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
       email: '',
       first_name: '',
       last_name: '',
-      password: 'TempPassword123!',
       role: 'studio_user',
       studio_id: 'no-studio',
     },
@@ -47,42 +45,49 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
     try {
       setLoading(true);
       
-      // Create auth user first
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: values.email,
-        password: values.password,
-        email_confirm: true,
-      });
-
-      if (authError) throw authError;
-
-      // Create user profile
-      const { error: profileError } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          email: values.email,
+      // Send invitation email instead of creating user directly
+      const { error } = await supabase.auth.admin.inviteUserByEmail(values.email, {
+        data: {
           first_name: values.first_name,
           last_name: values.last_name,
           role: values.role,
           studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
+        },
+        redirectTo: `${window.location.origin}/dashboard`
+      });
+
+      if (error) {
+        // Fallback: Try regular signup invitation
+        const { error: signUpError } = await supabase.auth.signUp({
+          email: values.email,
+          password: 'TempPassword123!', // User will need to reset
+          options: {
+            data: {
+              first_name: values.first_name,
+              last_name: values.last_name,
+              role: values.role,
+              studio_id: values.studio_id === 'no-studio' ? null : values.studio_id,
+            },
+            emailRedirectTo: `${window.location.origin}/dashboard`
+          }
         });
 
-      if (profileError) throw profileError;
+        if (signUpError) throw signUpError;
+      }
 
       toast({
         title: "Success",
-        description: "User created successfully. They can now log in with the provided password.",
+        description: "User invitation sent successfully. They will receive an email to complete their account setup.",
       });
 
       form.reset();
       setOpen(false);
       onUserAdded();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating user:', error);
       toast({
         title: "Error",
-        description: "Failed to create user",
+        description: error.message || "Failed to send user invitation",
         variant: "destructive",
       });
     } finally {
@@ -148,20 +153,6 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
 
             <FormField
               control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Temporary Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="Enter temporary password" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
               name="role"
               render={({ field }) => (
                 <FormItem>
@@ -213,7 +204,7 @@ const AddUserForm = ({ onUserAdded, studios }: AddUserFormProps) => {
                 Cancel
               </Button>
               <Button type="submit" disabled={loading}>
-                {loading ? 'Creating...' : 'Create User'}
+                {loading ? 'Sending Invitation...' : 'Send Invitation'}
               </Button>
             </div>
           </form>

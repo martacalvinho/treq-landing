@@ -371,6 +371,8 @@ export type Database = {
           price_per_sqft: number | null
           price_per_unit: number | null
           studio_id: string
+          total_area: number | null
+          total_units: number | null
           unit_type: string | null
         }
         Insert: {
@@ -382,6 +384,8 @@ export type Database = {
           price_per_sqft?: number | null
           price_per_unit?: number | null
           studio_id: string
+          total_area?: number | null
+          total_units?: number | null
           unit_type?: string | null
         }
         Update: {
@@ -393,6 +397,8 @@ export type Database = {
           price_per_sqft?: number | null
           price_per_unit?: number | null
           studio_id?: string
+          total_area?: number | null
+          total_units?: number | null
           unit_type?: string | null
         }
         Relationships: [
@@ -422,6 +428,8 @@ export type Database = {
           studio_id: string
           subcategory: string | null
           tag: string | null
+          total_area: number | null
+          total_units: number | null
           unit_type: string | null
           updated_at: string
         }
@@ -441,6 +449,8 @@ export type Database = {
           studio_id: string
           subcategory?: string | null
           tag?: string | null
+          total_area?: number | null
+          total_units?: number | null
           unit_type?: string | null
           updated_at?: string
         }
@@ -460,6 +470,8 @@ export type Database = {
           studio_id?: string
           subcategory?: string | null
           tag?: string | null
+          total_area?: number | null
+          total_units?: number | null
           unit_type?: string | null
           updated_at?: string
         }

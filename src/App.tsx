@@ -14,6 +14,7 @@ import GetStarted from "./pages/GetStarted";
 import LoginPage from "./components/auth/LoginPage";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import Dashboard from "./components/dashboard/Dashboard";
+import StudioSpecificDashboard from "./components/dashboard/StudioSpecificDashboard";
 import Materials from "./pages/Materials";
 import MaterialDetails from "./pages/MaterialDetails";
 import MaterialsByCategory from "./pages/MaterialsByCategory";
@@ -54,6 +55,14 @@ function App() {
                   <DashboardLayout><Dashboard /></DashboardLayout>
                 </MaterialLimitsProvider>
               } />
+              
+              {/* Studio-specific dashboard route for admin users */}
+              <Route path="/studios/:studioId/dashboard" element={
+                <MaterialLimitsProvider>
+                  <DashboardLayout><StudioSpecificDashboard /></DashboardLayout>
+                </MaterialLimitsProvider>
+              } />
+              
               <Route path="/materials" element={
                 <MaterialLimitsProvider>
                   <DashboardLayout><Materials /></DashboardLayout>
